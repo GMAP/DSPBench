@@ -1,0 +1,17 @@
+,node,application,average
+0,1,spark_logprocessing,2.56937347215935
+1,1,spark_wordcount,23.62582965848
+2,1,storm_logprocessing,0.000390421655387819
+3,1,storm_wordcount,3.5383646271984097
+4,2,spark_logprocessing,2.96566518757564
+5,2,spark_wordcount,24.463116739259103
+6,2,storm_logprocessing,0.004050501345072141
+7,2,storm_wordcount,0.489530976130968
+8,4,spark_logprocessing,2.7206493403274497
+9,4,spark_wordcount,22.4855769731385
+10,4,storm_logprocessing,0.00624756779134755
+11,4,storm_wordcount,1.57423920514762
+12,8,spark_logprocessing,2.86736524861277
+13,8,spark_wordcount,23.62582965848
+14,8,storm_logprocessing,0.00489977260801119
+15,8,storm_wordcount,0.0503343274024129

@@ -1,0 +1,63 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage: $(basename $0) <platform> <jar> <task_class> <topology_name> <system_config> <app_config>" && exit 1
+}
+[ "$#" -ge 5 ] || usage
+
+SCRIPT_PATH=$( cd $(dirname $0) ; pwd -P )
+BASE_DIR=$(dirname $0)
+PLATFORM=${1:-NONE}
+PLATFORM=$(echo $PLATFORM | tr '[:lower:]' '[:upper:]')
+JAR_PATH=$2
+JAR_FILE=$(basename $JAR_PATH)
+JAR_DIR=$(dirname $JAR_PATH)
+TASK_CLASS=$3
+TOPOLOGY_NAME=$4
+SYSTEM_CONFIG=$5
+APP_CONFIG=$6
+
+# prepare configuration string
+# serialize properties file
+SYSTEM_CONFIG_STR=$(java -jar $BASE_DIR/lib/properties-serializer.jar $SYSTEM_CONFIG)
+APP_CONFIG_STR=$(java -jar $BASE_DIR/lib/properties-serializer.jar $APP_CONFIG)
+
+# functions
+function readProperty() {
+    FILE=$1
+    PROPERTY=$2
+    PROPERTY_VALUE=`sed '/^\#/d' $FILE | grep $PROPERTY  | tail -n 1 | cut -d "=" -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'`
+    echo $PROPERTY_VALUE
+}
+
+if [ $PLATFORM = 'S4' ]; then
+    echo "Deploying to $PLATFORM"
+elif [ $PLATFORM = 'STORM' ]; then
+    echo "Deploying to $PLATFORM"
+    
+    storm jar $JAR_PATH com.streamer.topology.impl.StormTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $SYSTEM_CONFIG_STR,$APP_CONFIG_STR
+
+elif [ $PLATFORM = 'SAMZA' ]; then
+    echo "Deploying to $PLATFORM"
+    
+    CLASSPATH=$JAR_PATH:$HADOOP_CONF_DIR
+    JAVA_OPTS="-Dsamza.log.dir=$BASE_DIR/../logs -Dsamza.container.name=client"
+    KRYO_FILE=$BASE_DIR/$(readProperty "$SYSTEM_CONFIG" "kryo.register.file")
+
+    SAMZA_CONFIG_STR="yarn.config.home=$HADOOP_CONF_DIR,kryo.register.file=$KRYO_FILE,samza.log.dir=$BASE_DIR/../logs"
+    CONFIG_STR="$SYSTEM_CONFIG_STR,$SAMZA_CONFIG_STR,$APP_CONFIG_STR"
+
+    java $JAVA_OPTS -cp $CLASSPATH com.streamer.topology.impl.SamzaTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $CONFIG_STR -jar-package $JAR_PATH
+    
+elif [ $PLATFORM = 'DEMPSY' ]; then
+    echo "Deploying to $PLATFORM"
+elif [ $PLATFORM = 'LOCAL' ]; then
+    echo "Deploying to $PLATFORM"
+    echo "java -Xms6G -Xmx6G -cp $JAR_PATH com.streamer.topology.impl.LocalTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $SYSTEM_CONFIG_STR"
+    
+    java -server -XX:+UseG1GC -Xms4g -Xmx6g -XX:+UseCompressedOops -cp $JAR_PATH com.streamer.topology.impl.LocalTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $SYSTEM_CONFIG_STR
+    
+else
+    echo "Specify a valid platform."
+    usage
+fi

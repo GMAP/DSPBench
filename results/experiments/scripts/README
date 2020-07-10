@@ -1,0 +1,36 @@
+# Applications to Compare
+
+ - 
+
+
+
+
+# Results Plan
+
+The main results are latency and throughput.
+
+## Charts
+
+
+### Best configuration for each cluster size
+
+Show for each application and platform, the best configuration for each cluster size regarding latency, throughput and resource usage.
+
+### Latency x Scalability
+
+Show the latency as the number of nodes is increased for each application, comparing the platforms. For each cluster size, pick the best configuration.
+
+### Throughput x Scalability
+
+Show the throughput as the number of nodes is increased for each application, comparing the platforms. For each cluster size, pick the best configuration.
+
+### Resource Usage (Efficiency)
+
+Compare for each application in each platform the efficiency as the number of nodes is increased.
+
+It commonly decreases as the number of nodes increases, as more overhead is added to the system and resources are never fully used.
+
+
+### Producer Performance (Kafka)
+
+Just a side note on Kafka as the cluster is static (3 nodes as both brokers and producers).
