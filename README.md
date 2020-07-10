@@ -1,4 +1,4 @@
-# # <img alt="dspbench" src="https://raw.githubusercontent.com/GMAP/DSPBench/master/img/logo2.png" width="300">
+# <img alt="dspbench" src="https://raw.githubusercontent.com/GMAP/DSPBench/master/img/logo2.png" width="300">
 
 DSPBench - Data Stream Processing Benchmark Suite and Framework
 
