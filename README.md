@@ -1,6 +1,6 @@
 # <img alt="dspbench" src="https://raw.githubusercontent.com/GMAP/DSPBench/master/img/logo2.png" width="300">
 
-DSPBench - Data Stream Processing Benchmark Suite and Framework
+DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processing Systems
 
 ## How to cite this work
 
