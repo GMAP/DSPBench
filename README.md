@@ -2,6 +2,10 @@
 
 DSPBench - Data Stream Processing Benchmark Suite and Framework
 
+## How to cite this work
+
+Bordin, M. V.; Griebler, D.; Mencagli, G.; F. R. Geyer, C. F. R; Fernandes, L. G. **DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processing Systems**. *IEEE Access*, 2020.
+
 ## Basic Concepts
 
 - Stream: a communication channel that connects operators
