@@ -47,11 +47,11 @@
             </properties>
             
             <dependencies>
-                <dependency>
+                <!--<dependency>
                     <groupId>com.dspbench</groupId>
                     <artifactId>dspbench-local</artifactId>
                     <version>${project.version}</version>
-                </dependency>
+                </dependency>-->
             </dependencies>
             
             <build>
@@ -82,13 +82,13 @@
                 <package.name>dspbench-storm-${project.version}-FINAL</package.name>
             </properties>
             
-            <dependencies>
+            <!--<dependencies>
                 <dependency>
                     <groupId>com.dspbench</groupId>
                     <artifactId>dspbench-storm</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-            </dependencies>
+            </dependencies>-->
             
             <build>
                 <plugins>
@@ -107,7 +107,7 @@
         </profile>
         
         <profile>
-            <id>storm</id>
+            <id>spark</id>
             <modules>
                 <module>dspbench-api</module>
                 <module>dspbench-spark</module>
@@ -118,13 +118,13 @@
                 <package.name>dspbench-spark-${project.version}-FINAL</package.name>
             </properties>
             
-            <dependencies>
+            <!--<dependencies>
                 <dependency>
                     <groupId>com.dspbench</groupId>
                     <artifactId>dspbench-spark</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-            </dependencies>
+            </dependencies>-->
             
             <build>
                 <plugins>
@@ -154,13 +154,13 @@
                 <package.name>dspbench-flink-${project.version}-FINAL</package.name>
             </properties>
             
-            <dependencies>
+            <!--<dependencies>
                 <dependency>
                     <groupId>com.dspbench</groupId>
                     <artifactId>dspbench-flink</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-            </dependencies>
+            </dependencies>-->
             
             <build>
                 <plugins>

@@ -3,16 +3,16 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.streamer</groupId>
-        <artifactId>streamer</artifactId>
+        <groupId>com.dspbench</groupId>
+        <artifactId>dspbench</artifactId>
         <version>1.1</version>
     </parent>
     
-    <name>streamer-storm</name>
+    <name>dspbench-flink</name>
     <url>http://maven.apache.org</url>
     
-    <groupId>com.streamer</groupId>
-    <artifactId>streamer-storm</artifactId>
+    <groupId>com.dspbench</groupId>
+    <artifactId>dspbench-flink</artifactId>
     <version>1.1</version>
     
     <properties>
@@ -28,8 +28,8 @@
     
     <dependencies>
         <dependency>
-            <groupId>com.streamer</groupId>
-            <artifactId>streamer-api</artifactId>
+            <groupId>com.dspbench</groupId>
+            <artifactId>dspbench-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         
