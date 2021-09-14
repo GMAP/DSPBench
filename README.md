@@ -4,7 +4,7 @@ DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processi
 
 ## How to cite this work
 
-Bordin, M. V.; Griebler, D.; Mencagli, G.; F. R. Geyer, C. F. R; Fernandes, L. G. **DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processing Systems**. *IEEE Access*, 2020.
+[[DOI]](https://doi.org/10.1109/ACCESS.2020.3043948)Bordin, M. V.; Griebler, D.; Mencagli, G.; F. R. Geyer, C. F. R; Fernandes, L. G. **DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processing Systems**. *IEEE Access*, 2020.
 
 ## Basic Concepts
 
