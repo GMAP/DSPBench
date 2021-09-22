@@ -9,11 +9,11 @@
         <version>1.1</version>
     </parent>
     
-    <name>dspbench-examples</name>
+    <name>dspbench-applications</name>
     <url>http://maven.apache.org</url>
     
     <groupId>com.dspbench</groupId>
-    <artifactId>dspbench-examples</artifactId>
+    <artifactId>dspbench-applications</artifactId>
     <version>1.1</version>
     
     <properties>

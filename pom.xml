@@ -15,11 +15,11 @@
     
     <modules>
         <module>dspbench-api</module>
+        <module>dspbench-applications</module>
         <module>dspbench-storm</module>
         <module>dspbench-spark</module>
         <module>dspbench-flink</module>
         <module>dspbench-local</module>
-        <module>dspbench-applications</module>
         <module>dspbench-producer</module>
     </modules>
     
