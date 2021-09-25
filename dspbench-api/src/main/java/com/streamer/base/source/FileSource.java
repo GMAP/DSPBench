@@ -89,7 +89,9 @@ public class FileSource extends BaseSource {
             totalBytes += f.length();
         }
         
-        progress.setTotal(totalBytes);
+        if (progress != null) {
+            progress.setTotal(totalBytes);
+        }
         
         LOG.info("Producer has to read {} files, totalizing {}", files.length, FileUtils.humanReadableByteCount(totalBytes));
     }
@@ -107,7 +109,9 @@ public class FileSource extends BaseSource {
             if (tuples != null) {
                 for (Values values : tuples) {
                     emit(values.getStreamId(), values);
-                    msgCount.inc();
+                    if (msgCount != null) {
+                        msgCount.inc();
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -141,8 +145,13 @@ public class FileSource extends BaseSource {
     private void openNextFile() {
         try {
             if (currFile != null) {
-                readBytes.inc(currFile.length());
-                progress.setProgress(readBytes.getCount());
+            	if (readBytes != null) {
+                    readBytes.inc(currFile.length());
+                }
+                
+                if (progress != null) {
+                    progress.setProgress(readBytes.getCount());
+                }
             }
             
             currFile = files[curFileIndex];

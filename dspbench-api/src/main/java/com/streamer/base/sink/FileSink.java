@@ -27,6 +27,11 @@ public class FileSink extends BaseSink {
 
     @Override
     public void initialize() {
+    	
+    	for (Map.Entry<String, Object> kv : config.entrySet()) {
+    		System.out.println(kv.getKey() + " = " + kv.getValue());
+    	}
+    	
         filename = config.getString(getConfigKey(BaseConfig.SINK_PATH));
         
         Charset encoding;
