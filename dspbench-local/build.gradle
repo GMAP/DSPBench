@@ -1,0 +1,98 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+}
+
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+version '1.0'
+
+repositories {
+
+
+    maven {
+        url 'https://clojars.org/repo/'
+    }
+
+    maven {
+        url 'https://repo.osgeo.org/repository/release/'
+    }
+
+    mavenCentral()
+}
+
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    // https://mvnrepository.com/artifact/joda-time/joda-time
+    implementation 'joda-time:joda-time:2.10.12'
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    // https://mvnrepository.com/artifact/com.aliasi/lingpipe
+    implementation 'com.aliasi:lingpipe:4.0.1'
+    // https://mvnrepository.com/artifact/org.twitter4j/twitter4j-stream
+    implementation 'org.twitter4j:twitter4j-stream:4.0.7'
+
+
+    implementation 'org.geotools:gt-shapefile:26.0'
+    implementation 'org.geotools:gt-xml:26.0'
+
+
+    implementation 'net.postgis:postgis-jdbc:2.5.0'
+
+    // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
+    implementation 'com.esotericsoftware:kryo:5.2.0'
+
+
+    implementation 'com.baqend:bloom-filter:2.2.2'
+
+    // https://mvnrepository.com/artifact/com.codahale.metrics/metrics-core
+    implementation 'com.codahale.metrics:metrics-core:3.0.2'
+
+    // https://mvnrepository.com/artifact/org.hdrhistogram/HdrHistogram
+    implementation 'org.hdrhistogram:HdrHistogram:2.1.4'
+// https://mvnrepository.com/artifact/com.codahale.metrics/metrics-jvm
+    implementation 'com.codahale.metrics:metrics-jvm:3.0.2'
+
+    // https://mvnrepository.com/artifact/com.beust/jcommander
+    implementation 'com.beust:jcommander:1.81'
+
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation 'com.google.guava:guava:31.0.1-jre'
+
+    // https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-core
+    implementation 'org.apache.hadoop:hadoop-core:1.2.1'
+
+    // https://mvnrepository.com/artifact/com.maxmind.geoip2/geoip2
+    implementation 'com.maxmind.geoip2:geoip2:2.15.0'
+
+    // https://mvnrepository.com/artifact/com.carrotsearch/java-sizeof
+    implementation 'com.carrotsearch:java-sizeof:0.0.5'
+
+
+
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+shadowJar {
+    baseName = project.name + '-uber'
+    classifier = ''
+    // exclude the dependency that the storm installation already has as dependency
+    dependencies {
+        exclude(dependency('org.apache.storm:storm-core:2.2.0'))
+    }
+    mergeServiceFiles()
+}

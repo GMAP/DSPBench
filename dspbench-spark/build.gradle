@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+version 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.apache.spark/spark-streaming
+    implementation group: 'org.apache.spark', name: 'spark-core_2.12', version: '3.1.2'
+    implementation group: 'org.apache.spark', name: 'spark-streaming_2.12', version: '3.1.2'
+    implementation group: 'org.apache.spark', name: 'spark-sql-kafka-0-10_2.12', version: '3.1.2'
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
