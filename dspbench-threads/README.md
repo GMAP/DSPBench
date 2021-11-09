@@ -1,4 +1,4 @@
-# dspbench-local
+# dspbench-threads
 
 Local and multithreaded version of the benchmark.
 
