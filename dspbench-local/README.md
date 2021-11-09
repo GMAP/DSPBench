@@ -1,30 +1,32 @@
-# TODO
+# dspbench-local
 
- - Renomear de local para java threads
- - Limitar buffer do LocalOperatorInstance
- - Documentar como foi implementado (filas, distribuição, relação produtor/consumidor, tipo de fila)
+Local and multithreaded version of the benchmark.
 
+## Requirements
 
- - deixar modular o projeto (apartar módulos)
- - como validar os resultados?
- - adicionar determinismo nos datasets - operadores (não usar geradores de dados - usar datasets fixos)
- - comparar resultado salvo em arquivo com o resultado esperado usando hash do conteúdo
- - comitar na branch v2
+ - JDK 11
 
+## Run Native
 
+To build the jar:
 ```
-../gradlew clean build shadowJar -x test -Dorg.gradle.java.home=/home/mayconbordin/.sdkman/candidates/java/11.0.11-open 
+../gradlew clean build shadowJar -x test
 ```
+
+To run an application:
 
 ```
 bin/dspbench-local.sh build/libs/dspbench-local-1.0-all.jar com.streamer.examples.wordcount.WordCountTask WordCount src/main/resources/config/word-count.properties 
 ```
 
+## Run on Docker
 
+Build the image:
 ```
 docker build -t dspbench-local .
 ```
 
+Run an application:
 ```
 docker run -it dspbench-local com.streamer.examples.wordcount.WordCountTask WordCount /app/config/word-count.properties
 ```
