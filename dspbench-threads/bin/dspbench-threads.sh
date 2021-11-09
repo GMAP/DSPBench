@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-    echo "Usage: $(basename $0) <platform> <jar> <task_class> <topology_name> <system_config> <app_config>" && exit 1
+    echo "Usage: $(basename $0) <jar> <task_class> <topology_name> <system_config> <app_config>" && exit 1
 }
 [ "$#" -ge 4 ] || usage
 

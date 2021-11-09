@@ -16,7 +16,7 @@ To build the jar:
 To run an application:
 
 ```
-bin/dspbench-local.sh build/libs/dspbench-local-1.0-all.jar com.streamer.examples.wordcount.WordCountTask WordCount src/main/resources/config/word-count.properties 
+bin/dspbench-threads.sh build/libs/dspbench-threads-1.0-all.jar com.streamer.examples.wordcount.WordCountTask WordCount src/main/resources/config/word-count.properties 
 ```
 
 ## Run on Docker
