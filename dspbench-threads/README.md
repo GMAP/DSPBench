@@ -23,10 +23,10 @@ bin/dspbench-local.sh build/libs/dspbench-local-1.0-all.jar com.streamer.example
 
 Build the image:
 ```
-docker build -t dspbench-local .
+docker build -t dspbench-threads .
 ```
 
 Run an application:
 ```
-docker run -it dspbench-local com.streamer.examples.wordcount.WordCountTask WordCount /app/config/word-count.properties
+docker run -it dspbench-threads com.streamer.examples.wordcount.WordCountTask WordCount /app/config/word-count.properties
 ```
