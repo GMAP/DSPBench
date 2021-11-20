@@ -12,8 +12,8 @@ RUN mkdir /app/lib
 
 COPY --from=build /home/gradle/src/build/libs/src-uber-1.0.jar /app/application.jar
 COPY bin/lib/properties-serializer.jar /app/lib/properties-serializer.jar
-COPY bin/dspbench-local.sh /app/dspbench-local.sh
+COPY bin/dspbench-threads.sh /app/dspbench-threads.sh
 COPY data /app/data
 COPY src/main/resources/config/ /app/config
 
-ENTRYPOINT ["/app/dspbench-local.sh", "/app/application.jar"]
+ENTRYPOINT ["/app/dspbench-threads.sh", "/app/application.jar"]
