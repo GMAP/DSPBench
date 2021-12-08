@@ -18,11 +18,11 @@ import org.slf4j.LoggerFactory;
  */
 public class JsonTweetParser extends JsonParser {
     private static final Logger LOG = LoggerFactory.getLogger(JsonTweetParser.class);
-    private static final String ID_FIELD   = "id_str";
+    private static final String ID_FIELD   = "id";
     private static final String TEXT_FIELD = "text";
     private static final String DATE_FIELD = "created_at";
-    private static final DateTimeFormatter datetimeFormatter = DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy")
-                                                                             .withLocale(Locale.ENGLISH);
+    private static final String DATA_FIELD = "data";
+    private static final DateTimeFormatter datetimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     
     @Override
     public List<Values> parse(String input) {
@@ -31,6 +31,10 @@ public class JsonTweetParser extends JsonParser {
         
         for (Values values : tuples) {
             JSONObject tweet = (JSONObject) values.get(0);
+
+            if (tweet.containsKey(DATA_FIELD)) {
+                tweet = (JSONObject) tweet.get(DATA_FIELD);
+            }
             
             if (!tweet.containsKey(ID_FIELD) || !tweet.containsKey(TEXT_FIELD) || !tweet.containsKey(DATE_FIELD))
                 continue;
