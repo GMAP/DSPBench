@@ -38,6 +38,8 @@ public class SpamFilterTask extends AbstractTask {
     
     @Override
     public void setConfiguration(Configuration config) {
+        super.setConfiguration(config);
+
         trainingSource = loadSource("training");
         analysisSource = loadSource("analysis");
         sink = loadSink();

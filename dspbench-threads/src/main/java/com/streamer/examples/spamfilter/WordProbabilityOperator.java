@@ -3,12 +3,16 @@ package com.streamer.examples.spamfilter;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.serializers.MapSerializer;
 import com.streamer.base.operator.BaseOperator;
 import com.streamer.core.Tuple;
 import com.streamer.core.Values;
 import static com.streamer.examples.spamfilter.SpamFilterConstants.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,6 +103,10 @@ public class WordProbabilityOperator extends BaseOperator {
             kryoInstance = new Kryo();
             kryoInstance.register(Word.class, new Word.WordSerializer());
             kryoInstance.register(WordMap.class, new WordMap.WordMapSerializer());
+
+            MapSerializer serializer = new MapSerializer();
+            kryoInstance.register(HashMap.class, serializer);
+            kryoInstance.register(LinkedHashMap.class, serializer);
         }
         
         return kryoInstance;
