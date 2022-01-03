@@ -10,7 +10,7 @@ FROM openjdk:11-jre-slim
 RUN mkdir /app
 RUN mkdir /app/lib
 
-COPY --from=build /home/gradle/src/build/libs/src-uber-1.0.jar /app/application.jar
+COPY --from=build /home/gradle/src/build/libs/dspbench-threads-uber-1.0.jar /app/application.jar
 COPY bin/lib/properties-serializer.jar /app/lib/properties-serializer.jar
 COPY bin/dspbench-threads.sh /app/dspbench-threads.sh
 COPY data /app/data

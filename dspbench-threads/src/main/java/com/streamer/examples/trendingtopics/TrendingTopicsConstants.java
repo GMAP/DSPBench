@@ -26,6 +26,9 @@ public interface TrendingTopicsConstants extends BaseConstants {
     
     interface Field {
         String TWEET = "tweet";
+        String ID = "id";
+        String TEXT = "text";
+        String TIMESTAMP = "timestamp";
         String WORD  = "word";
         String OBJ = "obj";
         String RANKINGS   = "rankings";

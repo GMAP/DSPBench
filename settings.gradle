@@ -1,6 +1,0 @@
-rootProject.name = 'dspbench'
-//include 'dspbench-storm'
-//include 'dspbench-spark'
-//include 'dspbench-flink'
-//include 'dspbench-commons'
-include 'dspbench-local'

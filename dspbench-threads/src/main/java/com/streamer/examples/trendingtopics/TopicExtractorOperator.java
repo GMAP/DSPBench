@@ -3,8 +3,8 @@ package com.streamer.examples.trendingtopics;
 import com.streamer.base.operator.BaseOperator;
 import com.streamer.core.Tuple;
 import com.streamer.core.Values;
-import java.util.Map;
 import java.util.StringTokenizer;
+
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -14,8 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 public class TopicExtractorOperator extends BaseOperator {
 
     public void process(Tuple tuple) {
-        Map tweet = (Map) tuple.getValue("tweet");
-        String text = (String) tweet.get("text");
+        String text = tuple.getString(TrendingTopicsConstants.Field.TEXT);
         
         if (text != null) {
             StringTokenizer st = new StringTokenizer(text);

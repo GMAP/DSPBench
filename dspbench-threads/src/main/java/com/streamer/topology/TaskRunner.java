@@ -8,6 +8,8 @@ import com.streamer.utils.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  *
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
@@ -66,6 +68,12 @@ public class TaskRunner {
             
             LOG.info("Loaded task {} with configuration {}", taskName, configuration);
             System.out.println("Loaded task " + taskName + " with configuration " + configuration);
+
+            System.out.println("=====================================================================");
+            for (Map.Entry<String, Object> e : configuration.entrySet()) {
+                System.out.println("|" + e.getKey() + "| = |" + e.getValue() + "|");
+            }
+            System.out.println("=====================================================================");
 
             Task task = (Task) classObject.newInstance();
             task.setTopologyBuilder(builder);

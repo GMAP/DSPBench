@@ -4,6 +4,7 @@ import com.streamer.core.Schema;
 import com.streamer.core.Stream;
 import static com.streamer.examples.trendingtopics.TrendingTopicsConstants.*;
 import com.streamer.base.task.BasicTask;
+import com.streamer.examples.sentimentanalysis.SentimentAnalysisConstants;
 import com.streamer.utils.Configuration;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class TrendingTopicsTask extends BasicTask {
     }
 
     public void initialize() {
-        Stream tweets = builder.createStream(Streams.TWEETS, new Schema(Field.TWEET));
+        Stream tweets = builder.createStream(Streams.TWEETS, new Schema(Field.ID, Field.TEXT, Field.TIMESTAMP));
         Stream topics = builder.createStream(Streams.TOPICS, new Schema().keys(Field.WORD));
         Stream counts = builder.createStream(Streams.COUNTS, new Schema().keys(Field.WORD).fields(Field.COUNT, Field.WINDOW_LENGTH));
         Stream iRankings = builder.createStream(Streams.I_RANKINGS, new Schema(Field.RANKINGS));
