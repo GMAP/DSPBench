@@ -19,11 +19,8 @@ public class BFPRT {
     public static Tuple bfprt(List<Tuple> tupleList, int i) {
         List<TupleWrapper> tupleWrapperList = new ArrayList<TupleWrapper>();
         for (Tuple tuple : tupleList) {
-            tupleWrapperList.add(new TupleWrapper(tuple.getDouble("streamScore"), tuple));
+            tupleWrapperList.add(new TupleWrapper(tuple.getDouble("score"), tuple));
         }
-
-        // insertionSort(tupleWrapperList, 0, tupleWrapperList.size());
-        // return tupleWrapperList.get(i).tuple;
 
         Tuple medianTuple = bfprtWrapper(tupleWrapperList, i, 0, tupleWrapperList.size() - 1).tuple;
         tupleList.clear();

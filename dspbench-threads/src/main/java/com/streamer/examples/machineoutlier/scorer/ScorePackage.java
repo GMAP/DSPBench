@@ -41,4 +41,13 @@ public class ScorePackage<T> {
     public void setObj(T obj) {
         this.obj = obj;
     }
+
+    @Override
+    public String toString() {
+        return "ScorePackage{" +
+                "id='" + id + '\'' +
+                ", score=" + score +
+                ", obj=" + obj +
+                '}';
+    }
 }
