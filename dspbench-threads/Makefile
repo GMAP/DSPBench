@@ -4,7 +4,7 @@
 #vars
 IMAGENAME=dspbench-threads
 APP?=wordcount
-PACKAGE="com.streamer.examples"
+PACKAGE="org.dspbench.applications"
 
 .PHONY: help build-docker all
 

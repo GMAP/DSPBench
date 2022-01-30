@@ -30,6 +30,6 @@ function readProperty() {
 
 echo "Deploying to $PLATFORM"
 echo "$SYSTEM_CONFIG_STR"
-echo "java -Xms6G -Xmx6G -cp $JAR_PATH com.streamer.topology.impl.LocalTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $SYSTEM_CONFIG_STR"
+echo "java -Xms6G -Xmx6G -cp $JAR_PATH org.dspbench.topology.impl.LocalTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $SYSTEM_CONFIG_STR"
 
-java -server -XX:+UseG1GC -Xms4g -Xmx6g -XX:+UseCompressedOops -cp $JAR_PATH com.streamer.topology.impl.LocalTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $SYSTEM_CONFIG_STR
+java -server -XX:+UseG1GC -Xms4g -Xmx6g -XX:+UseCompressedOops -cp $JAR_PATH org.dspbench.topology.impl.LocalTaskRunner -task $TASK_CLASS -name $TOPOLOGY_NAME -config $SYSTEM_CONFIG_STR
