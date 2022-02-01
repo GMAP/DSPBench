@@ -5,8 +5,8 @@ import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
 import org.dspbench.applications.smartgrid.SmartGridConstants.*;
 import org.dspbench.applications.logprocessing.StatusCountOperator;
-import org.dspbench.applications.utils.collections.FixedMap;
-import org.dspbench.applications.utils.math.OutlierTracker;
+import org.dspbench.utils.collections.FixedMap;
+import org.dspbench.utils.math.OutlierTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

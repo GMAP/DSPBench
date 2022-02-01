@@ -3,7 +3,7 @@ package org.dspbench.applications.voipstream;
 
 import org.dspbench.core.Component;
 import org.dspbench.core.Operator;
-import org.dspbench.applications.utils.bloom.ODTDBloomFilter;
+import org.dspbench.utils.bloom.ODTDBloomFilter;
 import org.dspbench.utils.Configuration;
 import org.dspbench.applications.voipstream.VoIPSTREAMConstants.*;
 import org.slf4j.Logger;

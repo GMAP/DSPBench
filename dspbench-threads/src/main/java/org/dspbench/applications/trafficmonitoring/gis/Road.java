@@ -1,6 +1,6 @@
 package org.dspbench.applications.trafficmonitoring.gis;
 
-import org.dspbench.applications.utils.queue.FixedSizeQueue;
+import org.dspbench.utils.queue.FixedSizeQueue;
 
 public class Road {
     private final int roadID;

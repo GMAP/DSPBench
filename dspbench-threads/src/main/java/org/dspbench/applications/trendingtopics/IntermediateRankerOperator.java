@@ -18,8 +18,8 @@
 package org.dspbench.applications.trendingtopics;
 
 import org.dspbench.core.Tuple;
-import org.dspbench.applications.utils.ranker.Rankable;
-import org.dspbench.applications.utils.ranker.RankableObjectWithFields;
+import org.dspbench.utils.ranker.Rankable;
+import org.dspbench.utils.ranker.RankableObjectWithFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

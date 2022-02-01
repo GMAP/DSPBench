@@ -3,9 +3,9 @@ package org.dspbench.applications.voipstream;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.dspbench.applications.utils.IOUtils;
+import org.dspbench.utils.IOUtils;
 import org.dspbench.utils.JavaUtils;
-import org.dspbench.applications.utils.RandomUtil;
+import org.dspbench.utils.RandomUtil;
 
 import java.io.IOException;
 import java.io.InputStream;

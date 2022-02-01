@@ -1,6 +1,6 @@
 package org.dspbench.applications.smartgrid.model;
 
-import org.dspbench.applications.utils.RandomUtil;
+import org.dspbench.utils.RandomUtil;
 
 import java.util.Random;
 

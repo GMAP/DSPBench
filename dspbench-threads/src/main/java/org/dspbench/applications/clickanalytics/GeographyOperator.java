@@ -5,10 +5,10 @@ import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
 import org.dspbench.applications.clickanalytics.ClickAnalyticsConstants.Config;
 import org.dspbench.applications.clickanalytics.ClickAnalyticsConstants.Field;
-import org.dspbench.applications.utils.IPUtils;
-import org.dspbench.applications.utils.geoip.IPLocation;
-import org.dspbench.applications.utils.geoip.IPLocationFactory;
-import org.dspbench.applications.utils.geoip.Location;
+import org.dspbench.utils.IPUtils;
+import org.dspbench.utils.geoip.IPLocation;
+import org.dspbench.utils.geoip.IPLocationFactory;
+import org.dspbench.utils.geoip.Location;
 
 /**
  * User: domenicosolazzo

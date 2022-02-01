@@ -17,7 +17,7 @@
 
 package org.dspbench.applications.frauddetection.predictor;
 
-import org.dspbench.applications.utils.Pair;
+import org.dspbench.utils.Pair;
 import org.dspbench.utils.Configuration;
 import java.util.ArrayList;
 import java.util.HashMap;

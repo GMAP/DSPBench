@@ -3,8 +3,8 @@ package org.dspbench.applications.trendingtopics;
 import org.dspbench.base.operator.BaseOperator;
 import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
-import org.dspbench.applications.utils.window.NthLastModifiedTimeTracker;
-import org.dspbench.applications.utils.window.SlidingWindowCounter;
+import org.dspbench.utils.window.NthLastModifiedTimeTracker;
+import org.dspbench.utils.window.SlidingWindowCounter;
 import java.util.Map;
 import java.util.Map.Entry;
 

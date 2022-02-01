@@ -5,7 +5,7 @@ import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
 import org.dspbench.applications.machineoutlier.MachineOutlierConstants.Config;
 import org.dspbench.applications.machineoutlier.MachineOutlierConstants.Field;
-import org.dspbench.applications.utils.Sorter;
+import org.dspbench.utils.Sorter;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -3,7 +3,7 @@ package org.dspbench.applications.smartgrid;
 import org.dspbench.base.operator.BaseOperator;
 import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
-import org.dspbench.applications.utils.math.RunningMedianCalculator;
+import org.dspbench.utils.math.RunningMedianCalculator;
 import org.dspbench.applications.smartgrid.SmartGridConstants.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

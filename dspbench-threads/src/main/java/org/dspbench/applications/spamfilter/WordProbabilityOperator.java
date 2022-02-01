@@ -4,17 +4,23 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.serializers.MapSerializer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dspbench.base.operator.BaseOperator;
 import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import org.dspbench.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.dspbench.applications.spamfilter.SpamFilterConstants.DEFAULT_WORDMAP;
 
 /**
  *
@@ -31,11 +37,11 @@ public class WordProbabilityOperator extends BaseOperator {
     public void initialize() {
         String wordMapFile = config.getString(SpamFilterConstants.Config.WORD_PROB_WORDMAP, null);
         boolean useDefault = config.getBoolean(SpamFilterConstants.Config.WORD_PROB_WORDMAP_USE_DEFAULT, true);
-        
+
         if (wordMapFile != null) {
             words = loadWordMap(wordMapFile);
-        } 
-        
+        }
+
         if (words == null) {
             if (useDefault) {
                 words = loadDefaultWordMap();
@@ -43,6 +49,8 @@ public class WordProbabilityOperator extends BaseOperator {
                 words = new WordMap();
             }
         }
+
+        LOG.info("LOADMAP ===================== " + words);
     }
 
     @Override
@@ -91,7 +99,7 @@ public class WordProbabilityOperator extends BaseOperator {
 
             if (w == null) {
                 w = new Word(word);
-                w.setPSpam(0.4f);
+                w.setpSpam(0.4f);
             }
             
             emit(input, new Values(emailId, w, numWords));
@@ -115,28 +123,26 @@ public class WordProbabilityOperator extends BaseOperator {
     private static WordMap loadDefaultWordMap() {
         try {
             Input input = new Input(WordProbabilityOperator.class.getResourceAsStream(SpamFilterConstants.DEFAULT_WORDMAP));
-            WordMap object = getKryoInstance().readObject(input, WordMap.class);
+            WordMap object = new ObjectMapper().readValue(input, WordMap.class);
             input.close();
             return object;
-        } catch(KryoException ex) {
+        } catch(IOException ex) {
             LOG.error("Unable to deserialize the wordmap object", ex);
         }
-        
+
         return null;
     }
     
     private static WordMap loadWordMap(String path) {
         try {
             Input input = new Input(new FileInputStream(path));
-            WordMap object = getKryoInstance().readObject(input, WordMap.class);
+            WordMap object = new ObjectMapper().readValue(input, WordMap.class);
             input.close();
             return object;
-        } catch(FileNotFoundException ex) {
-            LOG.error("The file path was not found", ex);
-        } catch(KryoException ex) {
+        } catch(IOException ex) {
             LOG.error("Unable to deserialize the wordmap object", ex);
         }
-        
+
         return null;
     }
 }

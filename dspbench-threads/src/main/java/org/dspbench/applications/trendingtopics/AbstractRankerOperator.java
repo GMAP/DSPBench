@@ -20,7 +20,7 @@ package org.dspbench.applications.trendingtopics;
 import org.dspbench.base.operator.BaseOperator;
 import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
-import org.dspbench.applications.utils.ranker.Rankings;
+import org.dspbench.utils.ranker.Rankings;
 import org.slf4j.Logger;
 
 /**

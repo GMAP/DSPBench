@@ -2,7 +2,7 @@ package org.dspbench.applications.voipstream;
 
 import org.dspbench.base.source.generator.Generator;
 import org.dspbench.core.Values;
-import org.dspbench.applications.utils.RandomUtil;
+import org.dspbench.utils.RandomUtil;
 import org.dspbench.utils.Configuration;
 import java.util.Random;
 

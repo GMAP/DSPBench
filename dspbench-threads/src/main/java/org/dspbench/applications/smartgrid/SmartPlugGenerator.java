@@ -12,7 +12,7 @@ import org.dspbench.core.Values;
 import org.dspbench.applications.smartgrid.model.House;
 import org.dspbench.applications.smartgrid.model.Household;
 import org.dspbench.applications.smartgrid.model.SmartPlug;
-import org.dspbench.applications.utils.RandomUtil;
+import org.dspbench.utils.RandomUtil;
 import org.dspbench.utils.Configuration;
 import org.dspbench.base.source.GeneratorSource;
 import org.slf4j.Logger;

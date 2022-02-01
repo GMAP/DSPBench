@@ -18,7 +18,7 @@
 package org.dspbench.applications.trendingtopics;
 
 import org.dspbench.core.Tuple;
-import org.dspbench.applications.utils.ranker.Rankings;
+import org.dspbench.utils.ranker.Rankings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

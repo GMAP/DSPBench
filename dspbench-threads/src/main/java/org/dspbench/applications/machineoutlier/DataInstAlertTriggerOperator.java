@@ -3,7 +3,7 @@ package org.dspbench.applications.machineoutlier;
 import org.dspbench.base.operator.BaseOperator;
 import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
-import org.dspbench.applications.utils.BFPRT;
+import org.dspbench.utils.BFPRT;
 
 import java.util.ArrayList;
 import java.util.List;

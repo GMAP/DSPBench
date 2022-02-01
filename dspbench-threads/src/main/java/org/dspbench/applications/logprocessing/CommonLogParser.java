@@ -2,7 +2,7 @@ package org.dspbench.applications.logprocessing;
 
 import org.dspbench.base.source.parser.Parser;
 import org.dspbench.core.Values;
-import org.dspbench.applications.utils.DateUtils;
+import org.dspbench.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;

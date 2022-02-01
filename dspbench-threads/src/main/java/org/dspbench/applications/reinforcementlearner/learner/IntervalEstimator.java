@@ -17,7 +17,7 @@
 
 package org.dspbench.applications.reinforcementlearner.learner;
 
-import org.dspbench.applications.utils.HistogramStat;
+import org.dspbench.utils.HistogramStat;
 import org.dspbench.utils.Configuration;
 import java.util.HashMap;
 import java.util.Map;
