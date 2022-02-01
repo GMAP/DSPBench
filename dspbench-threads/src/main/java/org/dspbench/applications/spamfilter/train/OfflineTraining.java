@@ -1,10 +1,5 @@
 package org.dspbench.applications.spamfilter.train;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoException;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-//import com.google.common.io.Files;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
@@ -26,8 +21,6 @@ public class OfflineTraining {
     private static final String splitregex = "\\W";
     // Regex to eliminate junk (although we really should welcome the junk)
     private static final Pattern wordregex = Pattern.compile("\\w+");
-    
-    private static Kryo kryoInstance;
 
     // A HashMap to keep track of all words
     protected WordMap words;
@@ -72,23 +65,6 @@ public class OfflineTraining {
             word.finalizeProb();
         }
     }
-    
-    public boolean saveTraining(String filePath) {
-        try {
-            Output output = new Output(new FileOutputStream(filePath));
-            getKryoInstance().writeObject(output, words);
-            output.close();
-            return true;
-        } catch(FileNotFoundException ex) {
-            System.out.println("The file path was not found");
-            ex.printStackTrace();
-        } catch(KryoException ex) {
-            System.out.println("Serialization error");
-            ex.printStackTrace();
-        }
-        
-        return false;
-    }
 
     public boolean saveTrainingAsString(String filePath) {
         try {
@@ -102,28 +78,10 @@ public class OfflineTraining {
 
         return false;
     }
-    
-    public boolean loadTraining(String filePath) {
-        try {
-            Input input = new Input(new FileInputStream(filePath));
-            WordMap object = getKryoInstance().readObject(input, WordMap.class);
-            input.close();
-            words = object;
-            return true;
-        } catch(FileNotFoundException ex) {
-            System.out.println("The file path was not found");
-            ex.printStackTrace();
-        } catch(KryoException ex) {
-            System.out.println("Deserialization error");
-            ex.printStackTrace();
-        }
-        
-        return false;
-    }
 
     public boolean loadTrainingString(String filePath) {
         try {
-            Input input = new Input(new FileInputStream(filePath));
+            InputStream input = new FileInputStream(filePath);
             WordMap object = new ObjectMapper().readValue(input, WordMap.class);
             input.close();
             words = object;
@@ -134,17 +92,6 @@ public class OfflineTraining {
         }
 
         return false;
-    }
-    
-    private static Kryo getKryoInstance() {
-        if (kryoInstance == null) {
-            kryoInstance = new Kryo();
-            kryoInstance.register(Word.class, new Word.WordSerializer());
-            kryoInstance.register(WordMap.class, new WordMap.WordMapSerializer());
-            kryoInstance.register(java.util.HashMap.class);
-        }
-        
-        return kryoInstance;
     }
     
     public static void main(String args[]) throws IOException {

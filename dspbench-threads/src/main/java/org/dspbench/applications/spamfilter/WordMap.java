@@ -1,9 +1,5 @@
 package org.dspbench.applications.spamfilter;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -81,17 +77,5 @@ public class WordMap {
     
     public Collection<Word> values() {
         return words.values();
-    }
-    
-    public static class WordMapSerializer extends Serializer<WordMap> {
-        public void write (Kryo kryo, Output output, WordMap object) {
-            kryo.writeObject(output, object.words);
-            output.writeLong(object.spamTotal);
-            output.writeLong(object.hamTotal);
-        }
-
-        public WordMap read (Kryo kryo, Input input, Class<? extends WordMap> type) {
-            return new WordMap(kryo.readObject(input, HashMap.class), input.readLong(), input.readLong());
-        }
     }
 }

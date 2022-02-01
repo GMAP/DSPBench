@@ -20,7 +20,6 @@ public class SlidingWindow {
     }
 
     public void add(SlidingWindowEntry entry, SlidingWindowCallback callback) {
-        //System.out.println("Adding " + entry.getTime());
         // very first entry in the window
         if (tsStart == 0l) {
             tsStart = entry.getTime();

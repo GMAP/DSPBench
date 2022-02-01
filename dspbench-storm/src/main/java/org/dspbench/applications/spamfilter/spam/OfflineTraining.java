@@ -1,61 +1,52 @@
 package org.dspbench.applications.spamfilter.spam;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoException;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import org.apache.commons.io.FileUtils;
+import org.dspbench.applications.spamfilter.Word;
+import org.dspbench.applications.spamfilter.WordMap;
+
+import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.dspbench.applications.spamfilter.Word;
-import org.dspbench.applications.spamfilter.WordMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author mayconbordin
  */
 public class OfflineTraining {
-    private static final Logger LOG = LoggerFactory.getLogger(OfflineTraining.class.getSimpleName());
-    
+    // How to split the String into  tokens
     private static final String splitregex = "\\W";
+    // Regex to eliminate junk (although we really should welcome the junk)
     private static final Pattern wordregex = Pattern.compile("\\w+");
-    
-    private static Kryo kryoInstance;
 
+    // A HashMap to keep track of all words
     protected WordMap words;
 
     public OfflineTraining() {
+        // Initialize fields
         words = new WordMap();
     }
-    
+
     public void train(String content, boolean isSpam) {
         String[] tokens = content.split(splitregex);
-        
+
         for (String token : tokens) {
             String word = token.toLowerCase();
             Matcher m = wordregex.matcher(word);
-            
+
             if (m.matches()) {
                 Word w;
-                
+
                 if (words.containsKey(word)) {
                     w = words.get(word);
                 } else {
                     w = new Word(word);
                     words.put(word, w);
                 }
-                
+
                 if (isSpam) {
                     w.countBad();
                     words.incSpamTotal(1);
@@ -66,7 +57,7 @@ public class OfflineTraining {
             }
         }
     }
-    
+
     public void finalizeTraining() {
         for (Word word : words.values()) {
             word.calcBadProb(words.getSpamTotal());
@@ -74,117 +65,69 @@ public class OfflineTraining {
             word.finalizeProb();
         }
     }
-    
-    public boolean saveTraining(String filePath) {
+
+    public boolean saveTrainingAsString(String filePath) {
         try {
-            Output output = new Output(new FileOutputStream(filePath));
-            getKryoInstance().writeObject(output, words);
-            output.close();
+            String json = new ObjectMapper().writeValueAsString(words);
+            FileUtils.writeStringToFile(new File(filePath), json);
             return true;
-        } catch(FileNotFoundException ex) {
-            LOG.error("The output file path was not found", ex);
-        } catch(KryoException ex) {
-            LOG.error("Serialization error", ex);
+        } catch(IOException ex) {
+            System.out.println("Failed to save JSON file: " + ex.getMessage());
+            ex.printStackTrace();
         }
-        
+
         return false;
     }
-    
-    public boolean loadTraining(String filePath) {
+
+    public boolean loadTrainingString(String filePath) {
         try {
-            Input input = new Input(new FileInputStream(filePath));
-            WordMap object = getKryoInstance().readObject(input, WordMap.class);
+            InputStream input = new FileInputStream(filePath);
+            WordMap object = new ObjectMapper().readValue(input, WordMap.class);
             input.close();
             words = object;
             return true;
-        } catch(FileNotFoundException ex) {
-            LOG.error("The input file path was not found", ex);
-        } catch(KryoException ex) {
-            LOG.error("Deserialization error", ex);
+        } catch(IOException ex) {
+            System.out.println("Failed to read JSON file: " + ex.getMessage());
+            ex.printStackTrace();
         }
-        
+
         return false;
     }
-    
-    private static Kryo getKryoInstance() {
-        if (kryoInstance == null) {
-            kryoInstance = new Kryo();
-            kryoInstance.register(Word.class, new Word.WordSerializer());
-            kryoInstance.register(WordMap.class, new WordMap.WordMapSerializer());
-        }
-        
-        return kryoInstance;
-    }
-    
-    private static void printUsage() {
-        System.out.printf(
-                "Usage: java -cp <jar-file> storm.applications.model.spam.OfflineTraining <command>\n"
-                + "Commands:\n"
-                + "  train <input-path> <output-path>\n"
-                + "  check <wordmap-path>\n"
-        );
-    }
-    
+
     public static void main(String args[]) throws IOException {
-        System.out.println(Arrays.toString(args));
-        if (args.length == 0) {
-            printUsage();
-            System.exit(1);
-        }
-        
-        if (args[0].equals("check")) {
-            if (args.length < 2) {
-                printUsage();
-                System.exit(1);
-            }
-            
-            OfflineTraining filter = new OfflineTraining();
-            filter.loadTraining(args[1]);
+//        String path = "/home/mayconbordin/Downloads/datasets/trec07p";
+//        OfflineTraining filter = new OfflineTraining();
+//        List<String> trainingSet = Files.readLines(new File(path + "/full/index"), Charset.defaultCharset());
+//
+//        System.out.println("Number of emails: " + trainingSet.size());
+//
+//        for (int i=0; i<trainingSet.size(); i++) {
+//            if (i%1000 == 0)
+//                System.out.println("Training set " + i);
+//
+//            String[] train = trainingSet.get(i).split("\\s+");
+//
+//            boolean isSpam = train[0].toLowerCase().trim().equals("spam");
+//            String content = Files.toString(new File(path + "/data/" + train[1]), Charset.defaultCharset());
+//
+//            filter.train(content, isSpam);
+//        }
+//
+//        filter.finalizeTraining();
+//
+//        boolean result = filter.saveTrainingAsString("/home/mayconbordin/Downloads/datasets/full_training.json");
+//
+//        if (!result) {
+//            System.out.println("Not saved");
+//        } else {
+//            System.out.println("Saved");
+//        }
 
-            LOG.info("Num words: {}", filter.words.values().size());
-        }
-        
-        else if (args[0].equals("train")) {
-            if (args.length < 3) {
-                printUsage();
-                System.exit(1);
-            }
 
-            String inputPath  = args[1];
-            String outputPath = args[2];
+        OfflineTraining filter = new OfflineTraining();
+        filter.loadTrainingString("/home/mayconbordin/Downloads/datasets/full_training.json");
 
-            OfflineTraining filter = new OfflineTraining();
-            List<String> trainingSet = Files.readLines(new File(inputPath + "/index"), Charset.defaultCharset());
-
-            LOG.info("Number of emails: {}", trainingSet.size());
-
-            for (int i=0; i<trainingSet.size(); i++) {
-                if (i%1000 == 0) {
-                    LOG.info("Training set {}", i);
-                }
-                
-                String[] train = trainingSet.get(i).split("\\s+");
-
-                boolean isSpam = train[0].toLowerCase().trim().equals("spam");
-                String content = Files.toString(new File(inputPath + "/data/" + train[1]), Charset.defaultCharset());
-
-                filter.train(content, isSpam);
-            }
-
-            filter.finalizeTraining();
-
-            boolean result = filter.saveTraining(outputPath);
-
-            if (!result) {
-                LOG.error("Training object not saved.");
-            } else {
-                LOG.info("Training object saved!");
-            }
-        }
-        
-        else {
-            printUsage();
-            System.exit(1);
-        }
+        System.out.println("Num words: " + filter.words.values().size());
+        System.out.println("Num words: " + filter.words);
     }
 }

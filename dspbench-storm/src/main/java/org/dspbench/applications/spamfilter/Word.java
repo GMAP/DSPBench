@@ -4,21 +4,30 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public class Word implements Serializable {
     private static final long serialVersionUID = 1667802979041340740L;
-    
+
+    @JsonProperty("word")
     private String word;    // The String itself
-    private int countBad;   // The total times it appears in "bad" messages 
+    @JsonProperty("count_bad")
+    private int countBad;   // The total times it appears in "bad" messages
+    @JsonProperty("count_good")
     private int countGood;  // The total times it appears in "good" messages
+    @JsonProperty("r_bad")
     private float rBad;     // bad count / total bad words
+    @JsonProperty("r_good")
     private float rGood;    // good count / total good words
+    @JsonProperty("p_spam")
     private float pSpam;    // probability this word is Spam
 
     public Word() {
     }
-    
+
     // Create a word, initialize all vars to 0
     public Word(String s) {
         word = s;
@@ -47,7 +56,7 @@ public class Word implements Serializable {
     public void countGood() {
         countGood++;
     }
-    
+
     public void countBad(int increment) {
         countBad += increment;
     }
@@ -56,7 +65,7 @@ public class Word implements Serializable {
     public void countGood(int increment) {
         countGood += increment;
     }
-    
+
     public void calcProbs(long badTotal, long goodTotal) {
         calcBadProb(badTotal);
         calcGoodProb(goodTotal);
@@ -87,52 +96,61 @@ public class Word implements Serializable {
 
     // The "interesting" rating for a word is
     // How different from 0.5 it is
+    @JsonIgnore
     public float interesting() {
         return Math.abs(0.5f - pSpam);
-    }
-
-    // Some getters and setters	
-    public float getPGood() {
-        return rGood;
-    }
-
-    public float getPBad() {
-        return rBad;
-    }
-
-    public float getPSpam() {
-        return pSpam;
-    }
-
-    public void setPSpam(float f) {
-        pSpam = f;
     }
 
     public String getWord() {
         return word;
     }
-    
-    public static class WordSerializer extends Serializer<Word> {
-        @Override
-        public void write (Kryo kryo, Output output, Word object) {
-            output.writeString(object.word);
-            output.writeInt(object.countBad);
-            output.writeInt(object.countGood);
-            output.writeFloat(object.rBad);
-            output.writeFloat(object.rGood);
-            output.writeFloat(object.pSpam);
-        }
 
-        @Override
-        public Word read (Kryo kryo, Input input, Class<Word> type) {
-            return new Word(input.readString(), input.readInt(), input.readInt(),
-                    input.readFloat(), input.readFloat(), input.readFloat());
-        }
+    public int getCountBad() {
+        return countBad;
+    }
+
+    public int getCountGood() {
+        return countGood;
+    }
+
+    public float getrBad() {
+        return rBad;
+    }
+
+    public float getrGood() {
+        return rGood;
+    }
+
+    public float getpSpam() {
+        return pSpam;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    public void setCountBad(int countBad) {
+        this.countBad = countBad;
+    }
+
+    public void setCountGood(int countGood) {
+        this.countGood = countGood;
+    }
+
+    public void setrBad(float rBad) {
+        this.rBad = rBad;
+    }
+
+    public void setrGood(float rGood) {
+        this.rGood = rGood;
+    }
+
+    public void setpSpam(float pSpam) {
+        this.pSpam = pSpam;
     }
 
     @Override
     public String toString() {
         return "Word{" + "word=" + word + ", countBad=" + countBad + ", countGood=" + countGood + ", rBad=" + rBad + ", rGood=" + rGood + ", pSpam=" + pSpam + '}';
     }
-    
 }

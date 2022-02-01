@@ -47,7 +47,6 @@ public class MetricsFactory {
         //String reporterType = config.getString(METRICS_REPORTER, METRICS_REPORTER_CONSOLE);
 
         if (config.getBoolean(METRICS_MEMORY_ENABLED, false)) {
-            System.out.println("================================ MEMORY USAGE GAUGE ===============================");
             MemoryUsageGaugeSet memoryUsageGaugeSet = new MemoryUsageGaugeSet();
             metrics.register("memory", memoryUsageGaugeSet);
         }

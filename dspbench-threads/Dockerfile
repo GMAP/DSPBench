@@ -6,8 +6,7 @@ RUN gradle clean build shadowJar --no-daemon
 
 FROM openjdk:11-jre-slim
 
-RUN apt-get update && apt-get install -y \
-  unzip
+RUN apt-get update && apt-get install -y unzip
 
 RUN mkdir /app
 RUN mkdir /app/lib
@@ -19,9 +18,6 @@ COPY data /app/data
 COPY src/main/resources/spamfilter /app/spamfilter
 COPY src/main/resources/config/ /app/config
 
-RUN ls /app/spamfilter/
-#RUN tar xf /app/spamfilter/wordmap.tar.xz
-RUN unzip /app/spamfilter/wordmap.zip
-RUN ls /app/spamfilter/
+RUN unzip /app/spamfilter/wordmap.zip -d /app/spamfilter/
 
 ENTRYPOINT ["/app/dspbench-threads.sh", "/app/application.jar"]

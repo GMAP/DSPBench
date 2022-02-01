@@ -36,12 +36,10 @@ public abstract class BaseSink extends Sink {
     }
     
     protected String getConfigKey(String template) {
-        System.out.println("TEMPLATE = " + template + " / PREFIX = " + configPrefix + " / CLASS = " + this.getClass().getName());
         return String.format(template, configPrefix);
     }
 
     public void setConfigPrefix(String configPrefix) {
-        System.out.println("PREFIX = " + configPrefix + " / CLASS = " + this.getClass().getName());
         this.configPrefix = configPrefix;
     }
 

@@ -50,8 +50,9 @@ public abstract class Stream implements Serializable {
         if (values == null)
             throw new RuntimeException("Received tuple is empty");
         
-        if (values.size() != schema.getFields().size())
-            throw new RuntimeException("Received tuple is not compliant with stream schema");
+        if (values.size() != schema.getFields().size()) {
+            throw new RuntimeException("Received tuple is not compliant with stream schema: " + values);
+        }
         
         long tupleId = (parent == null) ? values.getId() : parent.getId();
         

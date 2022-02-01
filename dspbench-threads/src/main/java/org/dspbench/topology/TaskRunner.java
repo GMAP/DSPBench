@@ -42,9 +42,9 @@ public class TaskRunner {
     
     private void loadArgs(String[] args) {
         cli = new JCommander(this, args);
-        System.out.println("Loading configuration string = " + config);
+        LOG.info("Loading configuration string = " + config);
         configuration = createConfiguration(config);
-        System.out.println("Loaded configuration string into = " + configuration);
+        LOG.info("Loaded configuration string into = " + configuration);
     }
     
     protected Configuration createConfiguration(String configStr) {
@@ -65,15 +65,7 @@ public class TaskRunner {
         
         try {
             Class<?> classObject = Class.forName(taskName);
-            
             LOG.info("Loaded task {} with configuration {}", taskName, configuration);
-            System.out.println("Loaded task " + taskName + " with configuration " + configuration);
-
-            System.out.println("=====================================================================");
-            for (Map.Entry<String, Object> e : configuration.entrySet()) {
-                System.out.println("|" + e.getKey() + "| = |" + e.getValue() + "|");
-            }
-            System.out.println("=====================================================================");
 
             Task task = (Task) classObject.newInstance();
             task.setTopologyBuilder(builder);

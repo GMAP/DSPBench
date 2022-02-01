@@ -66,8 +66,8 @@ public class BayesRuleBolt extends AbstractBolt {
         // For every word, multiply Spam probabilities ("Pspam") together
         // (As well as 1 - Pspam)
         for (Word w : summary) {
-            pposproduct *= w.getPSpam();
-            pnegproduct *= (1.0f - w.getPSpam());
+            pposproduct *= w.getpSpam();
+            pnegproduct *= (1.0f - w.getpSpam());
         }
 
         // Apply formula

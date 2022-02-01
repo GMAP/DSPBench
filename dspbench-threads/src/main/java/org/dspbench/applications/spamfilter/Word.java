@@ -1,9 +1,5 @@
 package org.dspbench.applications.spamfilter;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -147,24 +143,6 @@ public class Word implements Serializable {
 
     public void setpSpam(float pSpam) {
         this.pSpam = pSpam;
-    }
-
-    public static class WordSerializer extends Serializer<Word> {
-        @Override
-        public void write (Kryo kryo, Output output, Word object) {
-            output.writeString(object.word);
-            output.writeInt(object.countBad);
-            output.writeInt(object.countGood);
-            output.writeFloat(object.rBad);
-            output.writeFloat(object.rGood);
-            output.writeFloat(object.pSpam);
-        }
-
-        @Override
-        public Word read (Kryo kryo, Input input, Class<? extends Word> type) {
-            return new Word(input.readString(), input.readInt(), input.readInt(),
-                    input.readFloat(), input.readFloat(), input.readFloat());
-        }
     }
 
     @Override

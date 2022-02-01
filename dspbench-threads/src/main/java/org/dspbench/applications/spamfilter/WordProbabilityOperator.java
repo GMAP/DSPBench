@@ -1,26 +1,15 @@
 package org.dspbench.applications.spamfilter;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.serializers.MapSerializer;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.dspbench.base.operator.BaseOperator;
 import org.dspbench.core.Tuple;
 import org.dspbench.core.Values;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-
-import org.dspbench.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.dspbench.applications.spamfilter.SpamFilterConstants.DEFAULT_WORDMAP;
 
 /**
  *
@@ -28,8 +17,6 @@ import static org.dspbench.applications.spamfilter.SpamFilterConstants.DEFAULT_W
  */
 public class WordProbabilityOperator extends BaseOperator {
     private static final Logger LOG = LoggerFactory.getLogger(WordProbabilityOperator.class);
-    
-    private static Kryo kryoInstance;
 
     private WordMap words;
 
@@ -49,8 +36,6 @@ public class WordProbabilityOperator extends BaseOperator {
                 words = new WordMap();
             }
         }
-
-        LOG.info("LOADMAP ===================== " + words);
     }
 
     @Override
@@ -105,21 +90,7 @@ public class WordProbabilityOperator extends BaseOperator {
             emit(input, new Values(emailId, w, numWords));
         }
     }
-    
-    private static Kryo getKryoInstance() {
-        if (kryoInstance == null) {
-            kryoInstance = new Kryo();
-            kryoInstance.register(Word.class, new Word.WordSerializer());
-            kryoInstance.register(WordMap.class, new WordMap.WordMapSerializer());
 
-            MapSerializer serializer = new MapSerializer();
-            kryoInstance.register(HashMap.class, serializer);
-            kryoInstance.register(LinkedHashMap.class, serializer);
-        }
-        
-        return kryoInstance;
-    }
-    
     private static WordMap loadDefaultWordMap() {
         try {
             Input input = new Input(WordProbabilityOperator.class.getResourceAsStream(SpamFilterConstants.DEFAULT_WORDMAP));

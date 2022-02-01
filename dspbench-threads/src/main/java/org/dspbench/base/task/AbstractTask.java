@@ -39,9 +39,6 @@ public abstract class AbstractTask implements Task {
     }
     
     protected BaseSource loadSource(String configKey, String configPrefix) {
-        System.out.println("CONFIG = " + config);
-        System.out.println("CONFIG KEY = " + configKey);
-        System.out.println("CONFIG PREFIX = " + configPrefix);
         String sourceClass = config.getString(String.format(configKey, configPrefix));
         BaseSource source = (BaseSource) ClassLoaderUtils.newInstance(sourceClass, "source", getLogger());
         source.setConfigPrefix(configPrefix);
