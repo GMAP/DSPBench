@@ -1,18 +1,46 @@
 plugins {
     id 'java'
+    id 'scala'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
 }
 
-version 'unspecified'
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
+
+version '1.0'
 
 repositories {
+    maven {
+        url 'https://clojars.org/repo/'
+    }
+
+    maven {
+        url 'https://repo.osgeo.org/repository/release/'
+    }
+
     mavenCentral()
 }
 
 dependencies {
+    / https://mvnrepository.com/artifact/org.apache.spark/spark-core
+    implementation group: 'org.apache.spark', name: 'spark-core_2.12', version: '3.2.1'
+
+    // https://mvnrepository.com/artifact/org.apache.spark/spark-sql
+    implementation group: 'org.apache.spark', name: 'spark-sql_2.12', version: '3.2.1'
+
+
+    // https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-hdfs
+    implementation group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '3.2.1'
+
     // https://mvnrepository.com/artifact/org.apache.spark/spark-streaming
-    implementation group: 'org.apache.spark', name: 'spark-core_2.12', version: '3.1.2'
-    implementation group: 'org.apache.spark', name: 'spark-streaming_2.12', version: '3.1.2'
-    implementation group: 'org.apache.spark', name: 'spark-sql-kafka-0-10_2.12', version: '3.1.2'
+    implementation group: 'org.apache.spark', name: 'spark-streaming_2.12', version: '3.2.1'
+
+
+    // https://mvnrepository.com/artifact/org.apache.spark/spark-sql-kafka-0-10
+    implementation group: 'org.apache.spark', name: 'spark-sql-kafka-0-10_2.12', version: '3.2.1'
+
+    // https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kafka-0-10
+    implementation group: 'org.apache.spark', name: 'spark-streaming-kafka-0-10_2.12', version: '3.2.1'
 
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
@@ -21,4 +49,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+shadowJar {
+    baseName = project.name + '-uber'
+    classifier = ''
+    mergeServiceFiles()
 }
