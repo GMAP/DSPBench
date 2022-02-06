@@ -16,24 +16,24 @@ DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processi
 
 ## <a id="applications"></a>Applications and Datasets
 
-| Application Name      | Prefix | Sample Data              | Dataset
-|-----------------------|--------|--------------------------|--------
-| ads-analytics         | ad     | [ad-clicks.dat][13]      | [KDD Cup 2012][8] (12GB)
-| bargain-index         | bi     | [stocks.csv][27]         | [Kaggle Stock Market Dataset of NASDAQ][26] (3GB), [Yahoo Finance][2], [Google Finance][3]
-| click-analytics       | ca     | [click-stream.json][14]  | [1998 WorldCup][7] (104GB)
-| fraud-detection       | fd     | [credit-card.dat][15]    | <generated>
-| linear-road           | lr     |                          | <generated>
-| log-processing        | lp     | [http-server.log][16]    | [1998 WorldCup][7] (104GB)
-| machine-outlier       | mo     | [cluster-traces.csv][17] | [Google Cluster Traces][6] (36GB)
-| reinforcement-learner | rl     |                          | <generated>
-| sentiment-analysis    | sa     |                          | [Twitter Streaming][5]
-| spam-filter           | sf     | [enron.json][18]         | [TREC 2007][9] (547MB, labeled)<br />[SPAM Archive][10] (~1.2GB, spam)<br />[Enron Email Dataset][11] (2.6GB, raw)<br />[Enron Spam Dataset][12] (50MB, labeled)
-| spike-detection       | sd     | [sensors.dat][19]        | [Intel Berkeley Research Lab][4] (150MB)
-| traffic-monitoring    | tm     | [taxi-traces.csv][22]    | [Beijing Taxi Traces][21]<br />Shapefile from: https://download.bbbike.org/osm/bbbike/
-| trending-topics       | tt     |                          | [Twitter Streaming][5]
-| voipstream            | vs     |                          | <generated>
-| word-count            | wc     | [books.dat][20]          | [Project Gutenberg][1] (~8GB)
-| smart-grid            | sg     | [smart-grid.csv][23]     | [DEBS 2014 Grand Challenge][24] (3.2GB)
+| Application Name      | Prefix | Sample Data              | Download       | Dataset
+|-----------------------|--------|--------------------------|----------------|----------
+| ads-analytics         | ad     | [ad-clicks.dat][13]      | [download][28] | [KDD Cup 2012][8] (12GB)
+| bargain-index         | bi     | [stocks.csv][27]         | [download][29] | [Kaggle Stock Market Dataset of NASDAQ][26] (3GB), [Yahoo Finance][2], [Google Finance][3]
+| click-analytics       | ca     | [click-stream.json][14]  |                | [1998 WorldCup][7] (104GB)
+| fraud-detection       | fd     | [credit-card.dat][15]    |                | <generated>
+| linear-road           | lr     |                          |                | <generated>
+| log-processing        | lp     | [http-server.log][16]    |                | [1998 WorldCup][7] (104GB)
+| machine-outlier       | mo     | [cluster-traces.csv][17] | [download][31] | [Google Cluster Traces][6] (36GB), [Alibaba Machine Usage][30] (8.4GB)
+| reinforcement-learner | rl     |                          |                | <generated>
+| sentiment-analysis    | sa     |                          |                | [Twitter Streaming][5]
+| spam-filter           | sf     | [enron.json][18]         | [download][33] | [TREC 2007][9] (547MB, labeled)<br />[SPAM Archive][10] (~1.2GB, spam)<br />[Enron Email Dataset][11] (2.6GB, raw)<br />[Enron Spam Dataset][12] (50MB, labeled)
+| spike-detection       | sd     | [sensors.dat][19]        |                | [Intel Berkeley Research Lab][4] (150MB)
+| traffic-monitoring    | tm     | [taxi-traces.csv][22]    |                | [Beijing Taxi Traces][21]<br />Shapefile from: https://download.bbbike.org/osm/bbbike/
+| trending-topics       | tt     |                          |                | [Twitter Streaming][5]
+| voipstream            | vs     |                          |                | <generated>
+| word-count            | wc     | [books.dat][20]          | [download][32] | [Project Gutenberg][1] (~8GB)
+| smart-grid            | sg     | [smart-grid.csv][23]     | [download][24] | [DEBS 2014 Grand Challenge] (3.2GB)
 
 
 ## <a id="usage"></a>Usage
@@ -181,9 +181,15 @@ metrics.output=/tmp
 [21]: http://anrg.usc.edu/www/downloads/
 [22]: data/taxi-traces.csv
 [23]: data/smart-grid.csv
-[24]: https://drive.google.com/file/d/0B0TBL8JNn3JgV29HZWhSSVREQ0E/edit?usp=sharing
+[24]: https://gmap.pucrs.br/public_data/dspbench/datasets/debs-2014/debs-2014-grand-challenge.csv.gz
 [25]: http://corsi.dei.polimi.it/distsys/2013-2014/projects.html
 
 [26]: https://www.kaggle.com/jacksoncrow/stock-market-dataset
 
 [27]: data/stocks.csv
+[28]: https://gmap.pucrs.br/public_data/dspbench/datasets/ads-dataset/ads-dataset.tar.xz
+[29]: https://gmap.pucrs.br/public_data/dspbench/datasets/stock-dataset/stock-dataset.tar.xz
+[30]: https://github.com/alibaba/clusterdata/blob/master/cluster-trace-v2018/trace_2018.md
+[31]: https://gmap.pucrs.br/public_data/dspbench/datasets/alibaba-machine-usage/machine_usage.tar.gz
+[32]: https://gmap.pucrs.br/public_data/dspbench/datasets/gutenberg/gutenberg.tar.xz
+[33]: https://gmap.pucrs.br/public_data/dspbench/datasets/trec-2007/trec-2007.tar.xz
