@@ -12,7 +12,7 @@ import spark.streaming.util.Tuple;
  *
  * @author mayconbordin
  */
-public class SpeedCalculator extends BaseFunction implements Function2<List<Tuple>, Optional<Tuple>, Optional<Tuple>> {
+public class SpeedCalculator extends BaseFunction implements Function2<List<Tuple>, Optional<Object>, Optional<Object>> {
 
     public SpeedCalculator(Configuration config) {
         super(config);

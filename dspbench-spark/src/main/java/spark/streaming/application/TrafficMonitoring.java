@@ -6,6 +6,7 @@ import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Function2;
 import scala.Tuple2;
 import static spark.streaming.constants.TrafficMonitoringConstants.*;
 import spark.streaming.constants.TrafficMonitoringConstants.Config;
@@ -19,6 +20,9 @@ import spark.streaming.function.Split;
 import spark.streaming.sink.PairSink;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  *

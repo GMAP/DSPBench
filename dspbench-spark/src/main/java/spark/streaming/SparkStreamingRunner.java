@@ -56,7 +56,7 @@ public class SparkStreamingRunner {
         driver.addApp("traffic-monitoring", TrafficMonitoring.class);
     }
     
-    public void run() {
+    public void run() throws InterruptedException {
         // Loads the configuration file set by the user or the default configuration
         try {
             // load default configuration

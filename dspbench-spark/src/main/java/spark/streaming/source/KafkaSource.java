@@ -1,13 +1,14 @@
 package spark.streaming.source;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import kafka.serializer.StringDecoder;
+import java.util.*;
+
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaPairInputDStream;
+import org.apache.spark.streaming.api.java.JavaInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.apache.spark.streaming.kafka.KafkaUtils;
+import org.apache.spark.streaming.kafka010.ConsumerStrategies;
+import org.apache.spark.streaming.kafka010.KafkaUtils;
+import org.apache.spark.streaming.kafka010.LocationStrategies;
 import scala.Tuple2;
 import spark.streaming.constants.BaseConstants.BaseConfig;
 import spark.streaming.function.KafkaParser;
@@ -32,14 +33,14 @@ public class KafkaSource extends BaseSource {
     
     @Override
     public JavaDStream<Tuple2<String, Tuple>> createStream() {
-        HashSet<String> topicsSet = new HashSet<>(Arrays.asList(kafkaTopics.split(",")));
-        HashMap<String, String> kafkaParams = new HashMap<>();
+        List<String> topics = new ArrayList<>(Arrays.asList(kafkaTopics.split(",")));
+        HashMap<String, Object> kafkaParams = new HashMap<>();
         kafkaParams.put("metadata.broker.list", kafkaHost);
-        
-        JavaPairInputDStream<String, String> messages =  KafkaUtils.createDirectStream(
-                context, String.class, String.class, StringDecoder.class, StringDecoder.class,
-                kafkaParams, topicsSet);
-        
+
+        JavaInputDStream<ConsumerRecord<String, String>> messages = KafkaUtils.createDirectStream(context,
+                LocationStrategies.PreferConsistent(),
+                ConsumerStrategies.Subscribe(topics, kafkaParams));
+
         JavaDStream<Tuple2<String, Tuple>> lines = messages.map(new KafkaParser(config));
         
         return lines;
