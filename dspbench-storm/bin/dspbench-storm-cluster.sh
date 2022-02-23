@@ -1,10 +1,7 @@
-storm jar $JAR_PATH c
-
-
 #!/bin/bash
 
 usage() {
-    echo "Usage: $(basename $0) <jar> <task_class> <topology_name> <app_config>" && exit 1
+    echo "Usage: $(basename $0) <jar> <application_name> <app_config_file>" && exit 1
 }
 [ "$#" -ge 3 ] || usage
 
