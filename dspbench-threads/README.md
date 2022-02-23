@@ -53,6 +53,20 @@ DSPBench provides an `AbstractOperator` with a few helpers on top of the standar
 
 A sink is nothing more than an Operator that does not output any data streams. It only receives the final results from the application and sends it somewhere else, like a database, filesystem, network, console, etc.
 
+### How does it work
+
+ 1. It all starts at the `LocalTaskRunner`, this is the `main` class in Java that will be called for all application executions.
+ 2. The `LocalTaskRunner` receives the arguments from the caller and starts itself. The implementation is on `TaskRunner`, it will load the `Task` for the selected application, inject the topology builder and configuration and then `initialize` it in order to build the `Topology` object that contains all sources and operators and their connections.
+ 3. The `TopologyBuilder` receives a `ComponentFactory` that will be used to instantiate all the operators, sources and streams with all the required information. All components of the topology are wrapped around an adapter that will be used to communicate with the components.
+ 4. After the `Topology` has been built, the `LocalEngine` is instantiated, all it needs to run the application is the topology, all configurations are already stored there.
+ 5. The `LocalEngine` will setup all the Operators first and then the Sources. The setup consists on the adapter creating one instance of the operator per thread, by copying the Java object and encapsulating it in an Instance object. Each Instance will be placed into a thread pool to run.
+ 6. That's it for the `LocalEngine` job. Everything else happens at the thread level.
+ 7. Each Instance of an Operator or Source has an infinite loop that consists on generating an event (for sources) or getting an event from the buffer (in the case of operators).
+ 8. After the event is retrieved, the next block of code is synchronized on the Operator/Source object to avoid concurrent accesses. It runs the before hooks, process the event, and then run the after hooks.
+ 9. On the process method, the Operator will generate data and send new events to the `Stream` object. This object has a list of all Operators that are subscribing to this Stream and how (delivery method: broadcast, shuffle or partitioning). The stream will receive the event and forward it to all subscribers based on the selected delivery method.
+ 10. The stream sends the event to the Operator adapter that will then add it to its buffer to be consumed by the operator.
+ 11. This process will run until there's no more data.
+
 ## Usage
 
 ### Run Native
