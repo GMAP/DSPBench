@@ -50,3 +50,11 @@ DSPBench provides an `AbstractBolt` with a few helpers on top of the standard bo
 
 A sink is nothing more than a Bolt that does not output any data streams. It only receives the final results from the application and sends it somewhere else, like a database, filesystem, network, console, etc.
 
+### Running in a Cluster
+
+ 1. Build the fat JAR (`make build-native`)
+ 2. Move the JAR file to the Nimbus machine (master)
+ 3. Move the [bin/](https://github.com/GMAP/DSPBench/blob/v2/dspbench-storm/bin/) folder to the Nimbus machine (master) with all of its contents.
+ 4. Copy the `.properties` file of the application that you are going to run from the [config](https://github.com/GMAP/DSPBench/tree/v2/dspbench-storm/src/main/resources/config) folder to the Nimbus machine (master). You will need to change the configuration according to what you want, like setting up the spout and sink.
+ 5. Run the shell script to submit the application: `bin/dspbench-storm-cluster.sh dspbench-storm-uber-1.0.jar wordcount wordcount.properties`.
+ 6. Open the Storm Web UI to monitor the application (usually at `http://<storm-ui-server>:8080`).
