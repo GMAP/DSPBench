@@ -25,7 +25,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.storm:storm-core:2.2.0'
+    // todo: add jar to classpath of docker
+    compileOnly 'org.apache.storm:storm-core:2.2.0'
 
     implementation group: 'redis.clients', name: 'jedis', version: '3.5.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
