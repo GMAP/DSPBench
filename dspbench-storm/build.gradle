@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+version '1.0'
+
+jar {
+    enabled = true
+}
+
+repositories {
+    maven {
+        url 'https://clojars.org/repo/'
+    }
+
+    maven {
+        url 'https://repo.osgeo.org/repository/release/'
+    }
+
+    mavenCentral()
+}
+
+dependencies {
+    // todo: add jar to classpath of docker
+    compileOnly 'org.apache.storm:storm-core:2.2.0'
+    implementation 'org.apache.storm:storm-kafka-client:2.2.0'
+    implementation 'org.apache.kafka:kafka-clients:2.6.0'
+
+    implementation group: 'redis.clients', name: 'jedis', version: '3.5.1'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
+    implementation group: 'com.opencsv', name: 'opencsv', version: '5.5.2'
+    implementation 'com.beust:jcommander:1.82'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation 'com.aliasi:lingpipe:4.0.1'
+    implementation 'org.twitter4j:twitter4j-stream:4.0.7'
+    implementation 'org.geotools:gt-shapefile:26.0'
+    implementation 'org.geotools:gt-xml:26.0'
+    implementation 'net.postgis:postgis-jdbc:2.5.1'
+    implementation 'com.baqend:bloom-filter:2.2.4'
+    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'org.apache.hadoop:hadoop-core:1.2.1'
+    implementation 'com.maxmind.geoip2:geoip2:2.15.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+shadowJar {
+    baseName = project.name + '-uber'
+    classifier = ''
+    mergeServiceFiles()
+}
