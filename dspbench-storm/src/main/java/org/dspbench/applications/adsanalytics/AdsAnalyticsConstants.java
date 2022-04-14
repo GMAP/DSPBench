@@ -18,6 +18,8 @@ public interface AdsAnalyticsConstants extends BaseConstants {
     interface Component extends BaseComponent {
         String CTR = "ctrBolt";
         String CTR_AGGREGATOR = "aggregatorCtrBolt";
+        String CLICK_SPOUT = "clickSpout";
+        String IMPRESSIONS_SPOUT = "impressionsSpout";
     }
     
     interface Stream {

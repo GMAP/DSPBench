@@ -1,5 +1,6 @@
 package org.dspbench.spout;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -25,6 +26,7 @@ public abstract class AbstractSpout extends BaseRichSpout {
     protected SpoutOutputCollector collector;
     protected TopologyContext context;
     protected Map<String, Fields> fields;
+    protected String configSubPrefix;
     
     public AbstractSpout() {
         fields = new HashMap<>();
@@ -58,12 +60,24 @@ public abstract class AbstractSpout extends BaseRichSpout {
         initialize();
     }
     
-    protected String getConfigKey(String template) {
+    protected String getConfigKey(String template, boolean useSubPrefix) {
+        if (useSubPrefix && StringUtils.isNotEmpty(configSubPrefix)) {
+            return String.format(template, String.format("%s.%s", configPrefix, configSubPrefix));
+        }
+
         return String.format(template, configPrefix);
+    }
+
+    protected String getConfigKey(String template) {
+        return getConfigKey(template, false);
     }
 
     public void setConfigPrefix(String configPrefix) {
         this.configPrefix = configPrefix;
+    }
+
+    public void setConfigSubPrefix(String configSubPrefix) {
+        this.configSubPrefix = configSubPrefix;
     }
 
     protected abstract void initialize();

@@ -86,4 +86,8 @@ run-docker:
 		docker run -it ${IMAGENAME} voipstream /app/config/voip-stream.properties;\
 	fi
 
+	@if [ $(APP) = "bargainindex" ]; then\
+		docker run -it ${IMAGENAME} bargainindex /app/config/bargain-index.properties;\
+	fi
+
 all: build

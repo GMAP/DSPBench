@@ -32,7 +32,7 @@ public class KafkaSpout extends AbstractSpout {
     protected void initialize() {
         String parserClass = config.getString(getConfigKey(BaseConf.SPOUT_PARSER));
         String host        = config.getString(getConfigKey(BaseConf.KAFKA_HOST));
-        String topic       = config.getString(getConfigKey(BaseConf.KAFKA_SPOUT_TOPIC));
+        String topic       = config.getString(getConfigKey(BaseConf.KAFKA_SPOUT_TOPIC, true));
         String consumerId  = config.getString(getConfigKey(BaseConf.KAFKA_CONSUMER_ID));
         String path        = config.getString(getConfigKey(BaseConf.KAFKA_ZOOKEEPER_PATH));
 

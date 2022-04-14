@@ -58,7 +58,7 @@ public class AdEventParser extends Parser {
                     ? AdsAnalyticsConstants.Stream.CLICKS : AdsAnalyticsConstants.Stream.IMPRESSIONS;
             
             StreamValues values = new StreamValues(queryId, adId, event);
-            values.setStreamId(streamId);
+            //values.setStreamId(streamId);
             tuples.add(values);
         }
         

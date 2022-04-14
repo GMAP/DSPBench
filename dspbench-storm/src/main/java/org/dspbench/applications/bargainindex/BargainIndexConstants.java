@@ -22,6 +22,8 @@ public interface BargainIndexConstants extends BaseConstants {
     }
     
     interface Component extends BaseComponent {
+        String TRADES_SPOUT = "tradesSpout";
+        String QUOTES_SPOUT = "quotesSpout";
         String VWAP = "vwapBolt";
         String BARGAIN_INDEX = "bargainIndexBolt";
     }
