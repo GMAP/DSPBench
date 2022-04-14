@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
+import org.dspbench.applications.smartgrid.SmartGridTopology;
 import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,6 +86,7 @@ public class StormRunner {
         driver.addApp("voipstream"           , VoIPSTREAMTopology.class);
         driver.addApp("wordcount"           , WordCountTopology.class);
         driver.addApp("trafficmonitoring"   , TrafficMonitoringTopology.class);
+        driver.addApp("smartgrid"           , SmartGridTopology.class);
     }
     
     public void run() throws Exception {

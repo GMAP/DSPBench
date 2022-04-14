@@ -90,4 +90,8 @@ run-docker:
 		docker run -it ${IMAGENAME} bargainindex /app/config/bargain-index.properties;\
 	fi
 
+	@if [ $(APP) = "smartgrid" ]; then\
+		docker run -it ${IMAGENAME} smartgrid /app/config/smart-grid.properties;\
+	fi
+
 all: build
