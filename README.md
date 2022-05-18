@@ -48,4 +48,4 @@ BORDIN, Maycon Viana. A benchmark suite for distributed stream processing system
 ## Contributors
 
 - [@mayconbordin](https://github.com/mayconbordin) (Author)
-- [@dalvangriebler](https://github.com/dalvangriebler)
+- [@dalvangriebler](https://github.com/dalvangriebler) (Manager)
