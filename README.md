@@ -2,6 +2,10 @@
 
 DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processing Systems
 
+## News
+
+- [v2.0.0](https://github.com/GMAP/DSPBench/releases/tag/v2.0.0): moved from single API applications to platform specific applications, docker images to run benchmarks locally and better documentation.
+
 ## How to cite this work
 
 [[DOI]](https://doi.org/10.1109/ACCESS.2020.3043948)Bordin, M. V.; Griebler, D.; Mencagli, G.; F. R. Geyer, C. F. R; Fernandes, L. G. **DSPBench: a Suite of Benchmark Applications for Distributed Data Stream Processing Systems**. *IEEE Access*, 2020.
@@ -41,3 +45,7 @@ BORDIN, Maycon Viana. A benchmark suite for distributed stream processing system
 - [Deployment Flow](https://github.com/GMAP/DSPBench/wiki/Deployment-Flow)
 - [Workloads](https://github.com/GMAP/DSPBench/wiki/Workloads)
 
+## Contributors
+
+- [@mayconbordin](https://github.com/mayconbordin) (Author)
+- [@dalvangriebler](https://github.com/dalvangriebler) (Manager)
