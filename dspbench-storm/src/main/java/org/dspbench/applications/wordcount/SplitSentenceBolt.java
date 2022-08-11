@@ -17,6 +17,11 @@ public class SplitSentenceBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
         String[] words = input.getString(0).split(splitregex);
         
         for (String word : words) {

@@ -54,7 +54,7 @@ public abstract class AbstractSpout extends BaseRichSpout {
         this.context   = context;
         
         if (config.getBoolean(METRICS_ENABLED, false)) {
-            context.addTaskHook(new SpoutMeterHook());
+            //context.addTaskHook(new SpoutMeterHook());
         }
         
         initialize();
