@@ -68,7 +68,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
         this.collector = collector;
         
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-            context.addTaskHook(getMeterHook());
+           // context.addTaskHook(getMeterHook());
         }
         
         initialize();
