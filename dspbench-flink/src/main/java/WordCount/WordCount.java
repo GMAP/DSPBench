@@ -1,7 +1,10 @@
-package WordCountFlink;
+package WordCount;
 
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.api.common.functions.FlatMapFunction;
@@ -9,6 +12,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.util.Collector;
 
 import java.util.Properties;
+import java.util.UUID;
 
 public class WordCount {
 
@@ -18,13 +22,19 @@ public class WordCount {
 
         // Get things from .properties?
 
-        Properties properties = new Properties();
-        properties.put("group.id", "random");
-        properties.put("bootstrap.servers", "192.168.20.167:9092");
+        String brokers = "192.168.20.167:9092";
+        String topic = "books";
+        String groupId = UUID.randomUUID().toString();
 
-        DataStream<String> text = env.addSource(
-                new FlinkKafkaConsumer<>(
-                        "books", new SimpleStringSchema(), properties));
+        KafkaSource<String> source = KafkaSource.<String>builder()
+                .setBootstrapServers(brokers)
+                .setTopics(topic)
+                .setGroupId(groupId)
+                .setStartingOffsets(OffsetsInitializer.earliest())
+                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .build();
+
+        DataStream<String> text = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
 
         //DataStream<String> text = env.readTextFile("/home/gabriel/Downloads/bible.txt");
 
