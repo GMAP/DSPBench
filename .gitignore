@@ -214,3 +214,5 @@ buildNumber.properties
 .mvn/wrapper/maven-wrapper.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,eclipse,maven
+/dspbench-flink/.gradle/
+/dspbench-flink/build/
