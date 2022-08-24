@@ -24,5 +24,6 @@ public interface SentimentAnalysisConstants extends BaseConstants {
         String TIMESTAMP = "timestamp";
         String SENTIMENT = "sentiment";
         String SCORE = "score";
+        String INITTIME = "inittime";
     }
 }

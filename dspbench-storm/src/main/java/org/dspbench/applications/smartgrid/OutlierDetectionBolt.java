@@ -75,14 +75,14 @@ public class OutlierDetectionBolt extends AbstractBolt {
                 if (!tracker.isOutlier(key)) {
                     tracker.addOutlier(key);
                     collector.emit(new Values(timestamp - 24 * 60 * 60, timestamp,
-                            houseId, tracker.getCurrentPercentage()));
+                            houseId, tracker.getCurrentPercentage(), tuple.getStringByField(Field.INITTIME)));
                 }
             } else {
                 if (tracker.isOutlier(key)) {
                     tracker.removeOutlier(key);
                     //emit
                     collector.emit(new Values(timestamp - 24 * 60 * 60, timestamp,
-                            houseId, tracker.getCurrentPercentage()));
+                            houseId, tracker.getCurrentPercentage(), tuple.getStringByField(Field.INITTIME)));
                 }
             }
         } else {    // global median has not arrived
@@ -93,7 +93,7 @@ public class OutlierDetectionBolt extends AbstractBolt {
     @Override
     public Fields getDefaultFields() {
         return new Fields(Field.SLIDING_WINDOW_START, Field.SLIDING_WINDOW_END, 
-                Field.HOUSE_ID, Field.OUTLIER_PERCENTAGE);
+                Field.HOUSE_ID, Field.OUTLIER_PERCENTAGE, Field.INITTIME);
     }
     
     private class ComparableTuple implements Serializable, Comparable<ComparableTuple> {

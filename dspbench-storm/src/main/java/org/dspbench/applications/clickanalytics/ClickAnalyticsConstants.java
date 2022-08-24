@@ -24,6 +24,7 @@ public interface ClickAnalyticsConstants extends BaseConstants {
         String CITY_TOTAL = "cityTotal";
         String TOTAL_COUNT = "totalCount";
         String TOTAL_UNIQUE = "totalUnique";
+        String INITTIME = "inittime";
     }
     
     interface Component extends BaseComponent {

@@ -1,6 +1,7 @@
 package org.dspbench.sink;
 
 import org.apache.storm.tuple.Tuple;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ public class ConsoleSink extends BaseSink {
         System.out.println(formatter.format(input));
         collector.ack(input);
         calculateThroughput();
+        calculateLatency(Long.parseLong(input.getStringByField(WordCountConstants.Field.INITTIME)));
     }
 
     @Override

@@ -33,7 +33,7 @@ public class GeographyBolt extends AbstractBolt {
             String city = location.getCity();
             String country = location.getCountryName();
 
-            collector.emit(input, new Values(country, city));
+            collector.emit(input, new Values(country, city, input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
         }
         
         collector.ack(input);
@@ -41,6 +41,6 @@ public class GeographyBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(ClickAnalyticsConstants.Field.COUNTRY, ClickAnalyticsConstants.Field.CITY);
+        return new Fields(ClickAnalyticsConstants.Field.COUNTRY, ClickAnalyticsConstants.Field.CITY, ClickAnalyticsConstants.Field.INITTIME);
     }
 }

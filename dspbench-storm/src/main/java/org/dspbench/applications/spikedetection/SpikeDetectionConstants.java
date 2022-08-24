@@ -24,6 +24,7 @@ public interface SpikeDetectionConstants extends BaseConstants {
         String VALUE = "value";
         String MOVING_AVG = "movingAverage";
         String MESSAGE = "message";
+        String INITTIME = "inittime";
     }
     
     interface Component extends BaseComponent {

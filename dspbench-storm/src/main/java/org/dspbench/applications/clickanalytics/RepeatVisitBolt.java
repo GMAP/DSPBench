@@ -28,10 +28,10 @@ public class RepeatVisitBolt extends AbstractBolt {
         String key = url + ":" + clientKey;
         
         if (map.containsKey(key)) {
-             collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString()));
+             collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString(), input.getStringByField(Field.INITTIME)));
         } else {
             map.put(key, null);
-            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString()));
+            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString(), input.getStringByField(Field.INITTIME)));
         }
         
         collector.ack(input);
@@ -39,6 +39,6 @@ public class RepeatVisitBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.CLIENT_KEY, Field.URL, Field.UNIQUE);
+        return new Fields(Field.CLIENT_KEY, Field.URL, Field.UNIQUE, Field.INITTIME);
     }
 }

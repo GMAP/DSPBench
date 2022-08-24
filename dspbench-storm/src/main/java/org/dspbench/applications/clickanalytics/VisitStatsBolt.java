@@ -23,12 +23,12 @@ public class VisitStatsBolt extends AbstractBolt {
         total++;
         if(unique) uniqueCount++;
         
-        collector.emit(input, new Values(total, uniqueCount));
+        collector.emit(input, new Values(total, uniqueCount, input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
         collector.ack(input);
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(ClickAnalyticsConstants.Field.TOTAL_COUNT, ClickAnalyticsConstants.Field.TOTAL_UNIQUE);
+        return new Fields(ClickAnalyticsConstants.Field.TOTAL_COUNT, ClickAnalyticsConstants.Field.TOTAL_UNIQUE, ClickAnalyticsConstants.Field.INITTIME);
     }
 }

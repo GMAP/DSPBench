@@ -49,12 +49,12 @@ public class VolumeCountBolt extends AbstractBolt {
             count.increment();
         }
         
-        collector.emit(input, new Values(minute, count.longValue()));
+        collector.emit(input, new Values(minute, count.longValue(), input.getStringByField(Field.INITTIME)));
         collector.ack(input);
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.TIMESTAMP_MINUTES, Field.COUNT);
+        return new Fields(Field.TIMESTAMP_MINUTES, Field.COUNT, Field.INITTIME);
     }
 }

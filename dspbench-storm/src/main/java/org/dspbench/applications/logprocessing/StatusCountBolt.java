@@ -36,12 +36,12 @@ public class StatusCountBolt  extends AbstractBolt {
         count++;
         counts.put(statusCode, count);
         
-        collector.emit(input, new Values(statusCode, count));
+        collector.emit(input, new Values(statusCode, count, input.getStringByField(Field.INITTIME)));
         collector.ack(input);
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.RESPONSE, Field.COUNT);
+        return new Fields(Field.RESPONSE, Field.COUNT, Field.INITTIME);
     }
 }

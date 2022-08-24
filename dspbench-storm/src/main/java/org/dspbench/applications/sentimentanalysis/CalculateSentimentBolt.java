@@ -40,7 +40,7 @@ public class CalculateSentimentBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.ID, Field.TEXT, Field.TIMESTAMP, Field.SENTIMENT, Field.SCORE);
+        return new Fields(Field.ID, Field.TEXT, Field.TIMESTAMP, Field.SENTIMENT, Field.SCORE, Field.INITTIME);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class CalculateSentimentBolt extends AbstractBolt {
 
         SentimentResult result = classifier.classify(text);
 
-        collector.emit(input, new Values(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore()));
+        collector.emit(input, new Values(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore(), input.getStringByField(Field.INITTIME)));
         collector.ack(input);
     }
 }

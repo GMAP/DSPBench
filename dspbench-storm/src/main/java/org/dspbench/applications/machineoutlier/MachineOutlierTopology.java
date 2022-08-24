@@ -29,7 +29,7 @@ public class MachineOutlierTopology extends BasicTopology {
     
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION));
+        spout.setFields(new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION, MachineOutlierConstants.Field.INITTIME));
         
         builder.setSpout(MachineOutlierConstants.Component.SPOUT, spout, spoutThreads);
         

@@ -23,7 +23,7 @@ public class GlobalMedianCalculatorBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.TIMESTAMP, Field.GLOBAL_MEDIAN_LOAD);
+        return new Fields(Field.TIMESTAMP, Field.GLOBAL_MEDIAN_LOAD, Field.INITTIME);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class GlobalMedianCalculatorBolt extends AbstractBolt {
             if (lastUpdatedTs < timestamp) {
                 // the sliding window has moved
                 lastUpdatedTs = timestamp;
-                collector.emit(new Values(timestamp, median));
+                collector.emit(new Values(timestamp, median, tuple.getStringByField(Field.INITTIME)));
             }
         } else {
             medianCalc.remove(value);

@@ -34,7 +34,7 @@ public class FraudPredictorBolt extends AbstractBolt {
 
         // send outliers
         if (p.isOutlier()) {
-            collector.emit(input, new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ",")));
+            collector.emit(input, new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), input.getStringByField(FraudDetectionConstants.Field.INITTIME)));
         }
         
         collector.ack(input);
@@ -42,6 +42,6 @@ public class FraudPredictorBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(FraudDetectionConstants.Field.ENTITY_ID, FraudDetectionConstants.Field.SCORE, FraudDetectionConstants.Field.STATES);
+        return new Fields(FraudDetectionConstants.Field.ENTITY_ID, FraudDetectionConstants.Field.SCORE, FraudDetectionConstants.Field.STATES, FraudDetectionConstants.Field.INITTIME);
     }
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.dspbench.constants.BaseConstants;
 import org.dspbench.hooks.BoltMeterHook;
+import org.dspbench.metrics.MetricsOutputCollector;
 import org.dspbench.util.config.Configuration;
 
 /**
@@ -65,12 +66,8 @@ public abstract class AbstractBolt extends BaseRichBolt {
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         this.config    = Configuration.fromMap(stormConf);
         this.context   = context;
-        this.collector = collector;
-        
-        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-           // context.addTaskHook(getMeterHook());
-        }
-        
+        this.collector =  collector;
+
         initialize();
     }
 

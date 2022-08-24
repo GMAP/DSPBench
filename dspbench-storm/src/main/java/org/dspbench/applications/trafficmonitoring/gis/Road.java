@@ -3,17 +3,17 @@ package org.dspbench.applications.trafficmonitoring.gis;
 import org.dspbench.util.collections.FixedSizeQueue;
 
 public class Road {
-    private final int roadID;
+    private final long roadID;
     private final FixedSizeQueue<Integer> roadSpeed;
     private int averageSpeed;
     private int count;
 
-    public Road(int roadID) {
+    public Road(long roadID) {
         this.roadID = roadID;
         this.roadSpeed = new FixedSizeQueue<>(30);
     }
 
-    public int getRoadID() {
+    public long getRoadID() {
         return roadID;
     }
 

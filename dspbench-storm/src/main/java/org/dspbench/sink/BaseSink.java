@@ -1,5 +1,6 @@
 package org.dspbench.sink;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.utils.MutableLong;
 import org.dspbench.bolt.AbstractBolt;
@@ -15,6 +16,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ public abstract class BaseSink extends AbstractBolt {
     protected Formatter formatter;
 
     private final Map<String, Long> throughput = new HashMap<>(); //treemap put in order of key
+    private final ArrayList<Long> latency = new ArrayList<Long>();
 
     @Override
     public void initialize() {
@@ -37,25 +40,6 @@ public abstract class BaseSink extends AbstractBolt {
         }
 
         formatter.initialize(config, context);
-
-//        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-//            this.lastTime = Instant.now().getEpochSecond();
-//
-//            try {
-//                Path path = Paths.get(config.getString(Configuration.METRICS_OUTPUT), this.getClass().getSimpleName() + ".csv");
-//                File file = path.toFile();
-//                file.createNewFile();
-//
-//                writer = new BufferedWriter(new OutputStreamWriter(
-//                        new FileOutputStream(file), "utf-8"));
-//
-//                writer.write("unix time" + "," + "op/s");
-//                writer.newLine();
-//
-//            } catch (IOException ex) {
-//                LOG.error("Error while creating file " + file, ex);
-//            }
-//        }
     }
 
     @Override
@@ -80,30 +64,46 @@ public abstract class BaseSink extends AbstractBolt {
         }
     }
 
+    public void calculateLatency(long UnixTimeInit) {
+        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
+            long UnixTimeEnd = 0;
+            if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
+                UnixTimeEnd = Instant.now().getEpochSecond();
+            } else {
+                UnixTimeEnd = Instant.now().toEpochMilli();
+            }
+            latency.add(UnixTimeEnd - UnixTimeInit);
+        }
+    }
+
+
     @Override
     public void cleanup() {
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
             super.cleanup();
 
             try {
-                Path path = Paths.get(config.getString(Configuration.METRICS_OUTPUT), this.getClass().getSimpleName() + ".csv");
-                File file = path.toFile();
-                file.createNewFile();
+                Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile().mkdirs();
+                File file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();
 
                 String eol = System.getProperty("line.separator");
 
                 try (Writer writer = new FileWriter(file)) {
-                    writer.append("UnixTime,op/s" + eol);
+                    writer.append("UnixTime,op/s").append(eol);
                     for (Map.Entry<String, Long> entry : throughput.entrySet()) {
                         writer.append(entry.getKey())
                                 .append(',')
                                 .append(entry.getValue() + "")
                                 .append(eol);
                     }
+
+                    file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency", this.getClass().getSimpleName() + ".csv").toFile();
+                    FileUtils.writeLines(file, latency);
+
                 } catch (IOException ex) {
                     LOG.error("Error while writing the file " + file, ex);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LOG.error("Error while creating the file " + e.getMessage());
             }
         }
