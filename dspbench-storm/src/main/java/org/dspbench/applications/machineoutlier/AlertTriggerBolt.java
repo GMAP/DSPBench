@@ -54,8 +54,8 @@ public class AlertTriggerBolt extends AbstractBolt {
                         }
                     }
 
-                    if (isAbnormal) { 
-                        collector.emit(new Values(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3)));
+                    if (isAbnormal) {
+                        collector.emit(new Values(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3), input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
                     }
                 }
                 
@@ -82,7 +82,7 @@ public class AlertTriggerBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(MachineOutlierConstants.Field.ANOMALY_STREAM, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.IS_ABNORMAL, MachineOutlierConstants.Field.OBSERVATION);
+        return new Fields(MachineOutlierConstants.Field.ANOMALY_STREAM, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.IS_ABNORMAL, MachineOutlierConstants.Field.OBSERVATION, MachineOutlierConstants.Field.INITTIME);
     }
 
     /**

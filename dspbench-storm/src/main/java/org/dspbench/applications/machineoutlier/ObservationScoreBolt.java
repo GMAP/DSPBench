@@ -35,7 +35,7 @@ public class ObservationScoreBolt extends AbstractBolt {
                 List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                 for (ScorePackage scorePackage : scorePackageList) {
                     collector.emit(new Values(scorePackage.getId(), scorePackage.getScore(), 
-                            previousTimestamp, scorePackage.getObj()));
+                            previousTimestamp, scorePackage.getObj(), input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
                 }
                 observationList.clear();
             }
@@ -49,6 +49,6 @@ public class ObservationScoreBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.DATAINST_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION);
+        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.DATAINST_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION,  MachineOutlierConstants.Field.INITTIME);
     }
 }

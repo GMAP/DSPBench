@@ -3,8 +3,10 @@ package org.dspbench.applications.smartgrid;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import static org.dspbench.applications.smartgrid.SmartGridConstants.*;
 
 import org.dspbench.bolt.AbstractBolt;
@@ -26,28 +28,28 @@ public class PlugMedianCalculatorBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        int operation  = tuple.getIntegerByField(Field.SLIDING_WINDOW_ACTION);
-        double value   = tuple.getDoubleByField(Field.VALUE);
+        int operation = tuple.getIntegerByField(Field.SLIDING_WINDOW_ACTION);
+        double value = tuple.getDoubleByField(Field.VALUE);
         long timestamp = tuple.getLongByField(Field.TIMESTAMP);
-        String key     = getKey(tuple);
+        String key = getKey(tuple);
 
         RunningMedianCalculator medianCalc = runningMedians.get(key);
         if (medianCalc == null) {
-            medianCalc =  new RunningMedianCalculator();
+            medianCalc = new RunningMedianCalculator();
             runningMedians.put(key, medianCalc);
         }
-        
+
         Long lastUpdatedTs = lastUpdatedTsMap.get(key);
         if (lastUpdatedTs == null) {
             lastUpdatedTs = 0l;
         }
 
-        if (operation == SlidingWindowAction.ADD){
+        if (operation == SlidingWindowAction.ADD) {
             double median = medianCalc.getMedian(value);
             if (lastUpdatedTs < timestamp) {
                 // the sliding window has moved
                 lastUpdatedTsMap.put(key, timestamp);
-                collector.emit(new Values(key, timestamp, median));
+                collector.emit(new Values(key, timestamp, median, tuple.getStringByField(Field.INITTIME)));
             }
         } else {
             medianCalc.remove(value);
@@ -56,11 +58,11 @@ public class PlugMedianCalculatorBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.PLUG_SPECIFIC_KEY, Field.TIMESTAMP, Field.PER_PLUG_MEDIAN);
+        return new Fields(Field.PLUG_SPECIFIC_KEY, Field.TIMESTAMP, Field.PER_PLUG_MEDIAN, Field.INITTIME);
     }
 
     private String getKey(Tuple tuple) {
-        return tuple.getStringByField(Field.HOUSE_ID) + ':' + 
+        return tuple.getStringByField(Field.HOUSE_ID) + ':' +
                 tuple.getStringByField(Field.HOUSEHOLD_ID) + ':' +
                 tuple.getStringByField(Field.PLUG_ID);
     }

@@ -4,6 +4,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.dspbench.bolt.AbstractBolt;
@@ -58,9 +59,8 @@ public class MapMatchingBolt extends AbstractBolt {
             int roadID = sectors.fetchRoadID(record);
             
             if (roadID != -1) {
-                List<Object> values = input.getValues();
+                List<Object> values = new ArrayList<>(input.getValues());
                 values.add(roadID);
-                
                 collector.emit(input, values);
             }
             
@@ -73,6 +73,6 @@ public class MapMatchingBolt extends AbstractBolt {
     @Override
     public Fields getDefaultFields() {
         return new Fields(TrafficMonitoringConstants.Field.VEHICLE_ID, TrafficMonitoringConstants.Field.DATE_TIME, TrafficMonitoringConstants.Field.OCCUPIED, TrafficMonitoringConstants.Field.SPEED,
-                TrafficMonitoringConstants.Field.BEARING, TrafficMonitoringConstants.Field.LATITUDE, TrafficMonitoringConstants.Field.LONGITUDE, TrafficMonitoringConstants.Field.ROAD_ID);
+                TrafficMonitoringConstants.Field.BEARING, TrafficMonitoringConstants.Field.LATITUDE, TrafficMonitoringConstants.Field.LONGITUDE, TrafficMonitoringConstants.Field.INITTIME, TrafficMonitoringConstants.Field.ROAD_ID);
     }
 }

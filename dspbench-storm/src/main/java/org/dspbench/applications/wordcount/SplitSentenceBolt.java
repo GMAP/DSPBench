@@ -7,29 +7,33 @@ import org.apache.commons.lang3.StringUtils;
 import org.dspbench.applications.wordcount.WordCountConstants.Field;
 import org.dspbench.bolt.AbstractBolt;
 
+import java.time.Instant;
+
 public class SplitSentenceBolt extends AbstractBolt {
     private static final String splitregex = "\\W";
-    
+
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.WORD);
+        return new Fields(Field.WORD, WordCountConstants.Field.INITTIME);
     }
 
     @Override
     public void execute(Tuple input) {
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
         String[] words = input.getString(0).split(splitregex);
-        
+
         for (String word : words) {
+            /*
+            try {
+                Thread.currentThread().sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            */
             if (!StringUtils.isBlank(word))
-                collector.emit(input, new Values(word));
+                collector.emit(input, new Values(word, input.getStringByField(WordCountConstants.Field.INITTIME)));
         }
-        
+
         collector.ack(input);
     }
-    
+
 }

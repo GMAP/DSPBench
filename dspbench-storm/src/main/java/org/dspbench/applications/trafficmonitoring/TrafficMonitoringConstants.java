@@ -36,5 +36,6 @@ public interface TrafficMonitoringConstants extends BaseConstants {
         String NOW_DATE   = "nowDate";
         String AVG_SPEED  = "averageSpeed";
         String COUNT      = "count";
+        String INITTIME = "inittime";
     }
 }

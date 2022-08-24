@@ -22,7 +22,7 @@ public class PlugLoadPredictorBolt extends LoadPredictorBolt {
     @Override
     public Fields getDefaultFields() {
         return new Fields(Field.TIMESTAMP, Field.HOUSE_ID, Field.HOUSEHOLD_ID,
-                Field.PLUG_ID, Field.PREDICTED_LOAD);
+                Field.PLUG_ID, Field.PREDICTED_LOAD, SmartGridConstants.Field.INITTIME);
     }
     
     @Override

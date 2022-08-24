@@ -33,13 +33,13 @@ public class GeoStatsBolt extends AbstractBolt {
         
         stats.get(country).cityFound(city);
         
-        collector.emit(input, new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city)));
+        collector.emit(input, new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city), input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
         collector.ack(input);
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(ClickAnalyticsConstants.Field.COUNTRY, ClickAnalyticsConstants.Field.COUNTRY_TOTAL, ClickAnalyticsConstants.Field.CITY, ClickAnalyticsConstants.Field.CITY_TOTAL);
+        return new Fields(ClickAnalyticsConstants.Field.COUNTRY, ClickAnalyticsConstants.Field.COUNTRY_TOTAL, ClickAnalyticsConstants.Field.CITY, ClickAnalyticsConstants.Field.CITY_TOTAL, ClickAnalyticsConstants.Field.INITTIME);
     }
     
     private class CountryStats {
