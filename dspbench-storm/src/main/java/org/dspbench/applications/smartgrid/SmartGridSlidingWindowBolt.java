@@ -25,6 +25,7 @@ public class SmartGridSlidingWindowBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple tuple) {
+        String time = super.getUnixTime();
         int type = tuple.getIntegerByField(Field.PROPERTY);
         
         // we are interested only in load
@@ -49,7 +50,7 @@ public class SmartGridSlidingWindowBolt extends AbstractBolt {
         });
         
         collector.emit(new Values(windowEntry.ts, windowEntry.houseId, windowEntry.houseHoldId,
-                windowEntry.plugId, windowEntry.value, SlidingWindowAction.ADD, tuple.getStringByField(Field.INITTIME)));
+                windowEntry.plugId, windowEntry.value, SlidingWindowAction.ADD, time));
     }
 
     @Override

@@ -45,13 +45,14 @@ public class CalculateSentimentBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        String time = super.getUnixTime();
         String tweetId = (String) input.getValueByField(Field.ID);
         String text = (String) input.getValueByField(Field.TWEET);
         Date timestamp = (Date) input.getValueByField(Field.TIMESTAMP);
 
         SentimentResult result = classifier.classify(text);
 
-        collector.emit(input, new Values(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore(), input.getStringByField(Field.INITTIME)));
+        collector.emit(input, new Values(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore(), time));
         collector.ack(input);
     }
 }

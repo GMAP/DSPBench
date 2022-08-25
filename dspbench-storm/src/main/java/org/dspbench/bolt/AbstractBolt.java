@@ -7,6 +7,7 @@ import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,6 +61,16 @@ public abstract class AbstractBolt extends BaseRichBolt {
     
     public Map<String, Fields> getDefaultStreamFields() {
         return null;
+    }
+
+    public String getUnixTime(){
+        long unixTime = 0;
+        if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
+            unixTime = Instant.now().getEpochSecond();
+        } else {
+            unixTime = Instant.now().toEpochMilli();
+        }
+        return unixTime + "";
     }
 
     @Override

@@ -93,14 +93,7 @@ public class FileSpout extends AbstractSpout {
         long unixTime = 0;
         if (tuples != null) {
             for (StreamValues values : tuples) {
-                if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
-                    unixTime = Instant.now().getEpochSecond();
-                } else {
-                    unixTime = Instant.now().toEpochMilli();
-                }
-
                 String msgId = String.format("%d%d", curFileIndex, curLineIndex);
-                values.add(unixTime + "");
                 collector.emit(values.getStreamId(), values, msgId);
             }
         }

@@ -34,7 +34,7 @@ public class SentimentAnalysisTopology extends BasicTopology {
     
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(new Fields(Field.ID, Field.TWEET, Field.TIMESTAMP, Field.INITTIME));
+        spout.setFields(new Fields(Field.ID, Field.TWEET, Field.TIMESTAMP));
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
 

@@ -8,6 +8,7 @@ import org.dspbench.bolt.AbstractBolt;
 import java.util.HashMap;
 
 import java.util.Map;
+
 import static org.dspbench.applications.clickanalytics.ClickAnalyticsConstants.*;
 
 /**
@@ -23,17 +24,18 @@ public class RepeatVisitBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        String time = super.getUnixTime();
         String clientKey = input.getStringByField(Field.CLIENT_KEY);
         String url = input.getStringByField(Field.URL);
         String key = url + ":" + clientKey;
-        
+
         if (map.containsKey(key)) {
-             collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString(), input.getStringByField(Field.INITTIME)));
+            collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString(), time));
         } else {
             map.put(key, null);
-            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString(), input.getStringByField(Field.INITTIME)));
+            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString(), time));
         }
-        
+
         collector.ack(input);
     }
 

@@ -45,6 +45,7 @@ public class MapMatchingBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        String time = super.getUnixTime();
         try {
             int speed        = input.getIntegerByField(TrafficMonitoringConstants.Field.SPEED);
             int bearing      = input.getIntegerByField(TrafficMonitoringConstants.Field.BEARING);
@@ -61,6 +62,7 @@ public class MapMatchingBolt extends AbstractBolt {
             if (roadID != -1) {
                 List<Object> values = new ArrayList<>(input.getValues());
                 values.add(roadID);
+                values.add(time);
                 collector.emit(input, values);
             }
             
@@ -73,6 +75,6 @@ public class MapMatchingBolt extends AbstractBolt {
     @Override
     public Fields getDefaultFields() {
         return new Fields(TrafficMonitoringConstants.Field.VEHICLE_ID, TrafficMonitoringConstants.Field.DATE_TIME, TrafficMonitoringConstants.Field.OCCUPIED, TrafficMonitoringConstants.Field.SPEED,
-                TrafficMonitoringConstants.Field.BEARING, TrafficMonitoringConstants.Field.LATITUDE, TrafficMonitoringConstants.Field.LONGITUDE, TrafficMonitoringConstants.Field.INITTIME, TrafficMonitoringConstants.Field.ROAD_ID);
+                TrafficMonitoringConstants.Field.BEARING, TrafficMonitoringConstants.Field.LATITUDE, TrafficMonitoringConstants.Field.LONGITUDE, TrafficMonitoringConstants.Field.ROAD_ID, TrafficMonitoringConstants.Field.INITTIME);
     }
 }

@@ -26,7 +26,7 @@ public abstract class BaseSink extends AbstractBolt {
 
     protected Formatter formatter;
 
-    private final Map<String, Long> throughput = new HashMap<>(); //treemap put in order of key
+    private final Map<String, Long> throughput = new HashMap<>();
     private final ArrayList<Long> latency = new ArrayList<Long>();
 
     @Override
@@ -79,8 +79,8 @@ public abstract class BaseSink extends AbstractBolt {
 
     @Override
     public void cleanup() {
+        super.cleanup();
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-            super.cleanup();
 
             try {
                 Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile().mkdirs();
