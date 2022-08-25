@@ -53,59 +53,59 @@ public abstract class BaseSink extends AbstractBolt {
 
     protected abstract Logger getLogger();
 
-    public void calculateThroughput() {
-        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-            long unixTime = Instant.now().getEpochSecond();
-
-            Long ops = throughput.get(unixTime + "");
-            ops = (ops == null) ? 1L : ++ops;
-
-            throughput.put(unixTime + "", ops);
-        }
-    }
-
-    public void calculateLatency(long UnixTimeInit) {
-        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-            long UnixTimeEnd = 0;
-            if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
-                UnixTimeEnd = Instant.now().getEpochSecond();
-            } else {
-                UnixTimeEnd = Instant.now().toEpochMilli();
-            }
-            latency.add(UnixTimeEnd - UnixTimeInit);
-        }
-    }
-
-
-    @Override
-    public void cleanup() {
-        super.cleanup();
-        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-
-            try {
-                Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile().mkdirs();
-                File file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();
-
-                String eol = System.getProperty("line.separator");
-
-                try (Writer writer = new FileWriter(file)) {
-                    writer.append("UnixTime,op/s").append(eol);
-                    for (Map.Entry<String, Long> entry : throughput.entrySet()) {
-                        writer.append(entry.getKey())
-                                .append(',')
-                                .append(entry.getValue() + "")
-                                .append(eol);
-                    }
-
-                    file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency", this.getClass().getSimpleName() + ".csv").toFile();
-                    FileUtils.writeLines(file, latency);
-
-                } catch (IOException ex) {
-                    LOG.error("Error while writing the file " + file, ex);
-                }
-            } catch (Exception e) {
-                LOG.error("Error while creating the file " + e.getMessage());
-            }
-        }
-    }
+//    public void calculateThroughput() {
+//        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
+//            long unixTime = Instant.now().getEpochSecond();
+//
+//            Long ops = throughput.get(unixTime + "");
+//            ops = (ops == null) ? 1L : ++ops;
+//
+//            throughput.put(unixTime + "", ops);
+//        }
+//    }
+//
+//    public void calculateLatency(long UnixTimeInit) {
+//        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
+//            long UnixTimeEnd = 0;
+//            if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
+//                UnixTimeEnd = Instant.now().getEpochSecond();
+//            } else {
+//                UnixTimeEnd = Instant.now().toEpochMilli();
+//            }
+//            latency.add(UnixTimeEnd - UnixTimeInit);
+//        }
+//    }
+//
+//
+//    @Override
+//    public void cleanup() {
+//        super.cleanup();
+//       if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
+//
+//            try {
+//                Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile().mkdirs();
+//                File file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();
+//
+//                String eol = System.getProperty("line.separator");
+//
+//                try (Writer writer = new FileWriter(file)) {
+//                    writer.append("UnixTime,op/s").append(eol);
+//                    for (Map.Entry<String, Long> entry : throughput.entrySet()) {
+//                        writer.append(entry.getKey())
+//                                .append(',')
+//                                .append(entry.getValue() + "")
+//                                .append(eol);
+//                    }
+//
+//                    file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency", this.getClass().getSimpleName() + ".csv").toFile();
+//                    FileUtils.writeLines(file, latency);
+//
+//                } catch (IOException ex) {
+//                    LOG.error("Error while writing the file " + file, ex);
+//                }
+//            } catch (Exception e) {
+//                LOG.error("Error while creating the file " + e.getMessage());
+//            }
+//        }
+//    }
 }

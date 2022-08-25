@@ -5,6 +5,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.dspbench.applications.spikedetection.SpikeDetectionConstants.Conf;
 import org.dspbench.applications.spikedetection.SpikeDetectionConstants.Field;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
 
 /**
@@ -32,6 +33,8 @@ public class SpikeDetectionBolt extends AbstractBolt {
         }
         
         collector.ack(input);
+        super.calculateLatency(Long.parseLong(input.getStringByField(Field.INITTIME)));
+        super.calculateThroughput();
     }
     
     @Override

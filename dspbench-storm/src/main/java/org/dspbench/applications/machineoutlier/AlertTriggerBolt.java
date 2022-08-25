@@ -7,6 +7,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 import org.dspbench.applications.machineoutlier.MachineOutlierConstants;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
 import org.dspbench.util.math.BFPRT;
 
@@ -78,6 +79,8 @@ public class AlertTriggerBolt extends AbstractBolt {
 
         streamList.add(input);
         collector.ack(input);
+        super.calculateLatency(Long.parseLong(input.getStringByField(WordCountConstants.Field.INITTIME)));
+        super.calculateThroughput();
     }
 
     @Override
