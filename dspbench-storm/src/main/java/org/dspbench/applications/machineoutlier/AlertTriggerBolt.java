@@ -64,7 +64,8 @@ public class AlertTriggerBolt extends AbstractBolt {
                 minDataInstanceScore = Double.MAX_VALUE;
                 maxDataInstanceScore = 0;
             }
-
+            super.calculateLatency(Long.parseLong(input.getStringByField(WordCountConstants.Field.INITTIME)));
+            super.calculateThroughput();
             previousTimestamp = timestamp;
         }
 

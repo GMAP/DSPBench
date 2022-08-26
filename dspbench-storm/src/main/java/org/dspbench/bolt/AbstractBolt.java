@@ -105,12 +105,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
 
     public void calculateThroughput() {
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-            long unixTime = 0;
-            if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
-                unixTime = Instant.now().getEpochSecond();
-            } else {
-                unixTime = Instant.now().toEpochMilli();
-            }
+            long unixTime = Instant.now().getEpochSecond();
 
             Long ops = throughput.get(unixTime + "");
             if (ops == null) {
@@ -132,7 +127,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
             }
 
             try {
-                FileWriter fw = new FileWriter(Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency", this.getClass().getSimpleName() + ".csv").toFile(), true);
+                FileWriter fw = new FileWriter(Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency", this.getClass().getSimpleName() + this.configPrefix + ".csv").toFile(), true);
                 fw.write(UnixTimeEnd - UnixTimeInit + System.getProperty("line.separator"));
                 fw.close();
             } catch (IOException e) {
@@ -144,7 +139,7 @@ public abstract class AbstractBolt extends BaseRichBolt {
     public void SaveMetrics() {
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
             try {
-                File file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();
+                File file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + this.configPrefix + ".csv").toFile();
 
                 String eol = System.getProperty("line.separator");
 
