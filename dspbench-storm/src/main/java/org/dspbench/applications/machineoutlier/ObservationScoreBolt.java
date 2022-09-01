@@ -28,6 +28,7 @@ public class ObservationScoreBolt extends AbstractBolt {
     @Override
     public void execute(Tuple input) {
         long timestamp = input.getLongByField(MachineOutlierConstants.Field.TIMESTAMP);
+        String time = super.getUnixTime();
         
         if (timestamp > previousTimestamp) {
             // a new batch of observation, calculate the scores of old batch and then emit 
@@ -35,7 +36,7 @@ public class ObservationScoreBolt extends AbstractBolt {
                 List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                 for (ScorePackage scorePackage : scorePackageList) {
                     collector.emit(new Values(scorePackage.getId(), scorePackage.getScore(), 
-                            previousTimestamp, scorePackage.getObj(), input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
+                            previousTimestamp, scorePackage.getObj(), time));
                 }
                 observationList.clear();
             }

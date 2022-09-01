@@ -35,7 +35,7 @@ public class TrafficMonitoringTopology extends BasicTopology {
     @Override
     public StormTopology buildTopology() {
         spout.setFields(new Fields(Field.VEHICLE_ID, Field.DATE_TIME, Field.OCCUPIED, Field.SPEED,
-                Field.BEARING, Field.LATITUDE, Field.LONGITUDE, Field.INITTIME));
+                Field.BEARING, Field.LATITUDE, Field.LONGITUDE));
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         

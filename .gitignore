@@ -216,3 +216,5 @@ buildNumber.properties
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,eclipse,maven
 /dspbench-flink/.gradle/
 /dspbench-flink/build/
+/dspbench-spark/.gradle/
+/dspbench-spark/.gradle/buildOutputCleanup/

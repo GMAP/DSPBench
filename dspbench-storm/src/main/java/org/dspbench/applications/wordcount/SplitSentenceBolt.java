@@ -19,18 +19,13 @@ public class SplitSentenceBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        String time = super.getUnixTime();
         String[] words = input.getString(0).split(splitregex);
 
         for (String word : words) {
-            /*
-            try {
-                Thread.currentThread().sleep(2000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            */
+            //try { Thread.sleep (2); } catch (InterruptedException ex) {}
             if (!StringUtils.isBlank(word))
-                collector.emit(input, new Values(word, input.getStringByField(WordCountConstants.Field.INITTIME)));
+                collector.emit(input, new Values(word, time));
         }
 
         collector.ack(input);

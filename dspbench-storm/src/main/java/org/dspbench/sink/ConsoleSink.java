@@ -5,6 +5,8 @@ import org.dspbench.applications.wordcount.WordCountConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+
 /**
  *
  * @author mayconbordin
@@ -16,8 +18,8 @@ public class ConsoleSink extends BaseSink {
     public void execute(Tuple input) {
         System.out.println(formatter.format(input));
         collector.ack(input);
-        calculateThroughput();
-        calculateLatency(Long.parseLong(input.getStringByField(WordCountConstants.Field.INITTIME)));
+        super.calculateLatency(Long.parseLong(input.getStringByField(WordCountConstants.Field.INITTIME)));
+        super.calculateThroughput();
     }
 
     @Override

@@ -25,6 +25,7 @@ public class GeographyBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        String time = super.getUnixTime();
         String ip = input.getStringByField(ClickAnalyticsConstants.Field.IP);
         
         Location location = resolver.resolve(ip);
@@ -33,7 +34,7 @@ public class GeographyBolt extends AbstractBolt {
             String city = location.getCity();
             String country = location.getCountryName();
 
-            collector.emit(input, new Values(country, city, input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
+            collector.emit(input, new Values(country, city, time));
         }
         
         collector.ack(input);
