@@ -1,19 +1,15 @@
 package MachineOutlier;
 
-import WordCount.WordCount;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
-import org.apache.flink.runtime.operators.shipping.OutputCollector;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.io.IOException;
 import java.util.*;
@@ -30,6 +26,7 @@ public class MachineOutlier {
         String topic = "machineoutlier";
         String groupId = UUID.randomUUID().toString();
 
+        /*
         KafkaSource<Tuple3<String, String, String>> source = KafkaSource.<Tuple3<String, String, String>>builder()
                 .setBootstrapServers(brokers)
                 .setTopics(topic)
@@ -50,7 +47,24 @@ public class MachineOutlier {
 
         // Need to know the input order
         DataStream< Tuple3<String, String, String>> data = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
+        */
 
+        DataStream<String> data = env.readTextFile("/home/gabriel/Documents/repos/DSPBenchLarcc/dspbench-storm/data/machine-usage.csv");
+
+        // ID, timestamp, Observation(timestamp, id, cpu, memory)
+        DataStream<Tuple3<String, Long, MachineMetadata>> dataParse = data.map(new MapFunction<String, Tuple3<String, Long, MachineMetadata>>() {
+            @Override
+            public Tuple3<String, Long, MachineMetadata> map(String value) throws Exception {
+                String[] temp = value.split(",");
+                return new Tuple3<>(
+                        temp[0],
+                        Long.parseLong(temp[1]) * 1000,
+                        new MachineMetadata(Long.parseLong(temp[1]) * 1000, temp[0], Double.parseDouble(temp[2]), Double.parseDouble(temp[3]))
+                );
+            }
+        });
+
+        //dataParse.print().name("print-sink");
         /* WC Example
         DataStream<Tuple2<String, Integer>> scorer = text.flatMap(new WordCount.Tokenizer())
                 .name("tokenizer")
@@ -59,36 +73,42 @@ public class MachineOutlier {
                 .name("counter");
         */
 
+        //System.out.println(dataParse);
+
         //Pass what?
-        DataStream<Tuple4<String, Double, Long, Object>> scorer = data.flatMap(new Scorer());
+        DataStream<Tuple4<String, Double, Long, Object>> scorer = dataParse.flatMap(new Scorer());//.keyBy(value -> value.f0);
 
         DataStream<Tuple5<String, Double, Long, Object, Double>> anomaly = scorer.flatMap(new AnomalyScorer()).keyBy(value -> value.f0);
 
-        DataStream<Tuple5<String, Double, Long, Boolean, String>> triggerer = anomaly.flatMap(new Triggerer());
+        DataStream<Tuple5<String, Double, Long, Boolean, Object>> triggerer = anomaly.flatMap(new Triggerer());
 
         triggerer.print().name("print-sink");
 
         env.execute("MachineOutlier");
     }
 
-    public static final class Scorer implements FlatMapFunction<Tuple3<String, String, String>, Tuple4<String, Double, Long, Object>> {
+    public static final class Scorer implements FlatMapFunction<Tuple3<String, Long, MachineMetadata>, Tuple4<String, Double, Long, Object>> {
 
-        private long previousTimestamp = 0;
-        private String dataTypeName = "machineMetadata";
-        private List<Object> observationList = new ArrayList<>();
-        private DataInstanceScorer dataInstanceScorer;
+        private static long previousTimestamp;
+        private static String dataTypeName;
+        private static List<Object> observationList;
+        private static DataInstanceScorer dataInstanceScorer;
 
+        static {
+            previousTimestamp = 0;
+            dataTypeName = "machineMetadata";
+            observationList = new ArrayList<>();
+            dataInstanceScorer = DataInstanceScorerFactory.getDataInstanceScorer(dataTypeName);
+        }
         @Override
-        public void flatMap(Tuple3<String, String, String> input, Collector<Tuple4<String, Double, Long, Object>> out){
+        public void flatMap(Tuple3<String, Long, MachineMetadata> input, Collector<Tuple4<String, Double, Long, Object>> out){
 
             long timestamp = input.getField(1);
-
             if (timestamp > previousTimestamp) {
                 // a new batch of observation, calculate the scores of old batch and then emit
                 if (!observationList.isEmpty()) {
                     List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                     for (ScorePackage scorePackage : scorePackageList) {
-                        //Pass to next!
                         out.collect(new Tuple4<String, Double, Long, Object>(scorePackage.getId(), scorePackage.getScore(), previousTimestamp, scorePackage.getObj()));
                     }
                     observationList.clear();
@@ -99,22 +119,24 @@ public class MachineOutlier {
 
             observationList.add(input.getField(2));
             //observationList.add(input.getValueByField(MachineOutlierConstants.Field.OBSERVATION));
-
-            //Do I need to acknowledge?
-            //collector.ack(input);
         }
-
     }
 
     public static final class AnomalyScorer implements FlatMapFunction<Tuple4<String, Double, Long, Object>, Tuple5<String, Double, Long, Object, Double>>{
-        private Map<String, Queue<Double>> slidingWindowMap = new HashMap<>();
-        private int windowLength = 10;
-        private long previousTimestamp = 0;
+        private static Map<String, Queue<Double>> slidingWindowMap;
+        private static int windowLength;
+        private static long previousTimestamp;
+
+        static {
+            slidingWindowMap = new HashMap<>();
+            windowLength = 10;
+            previousTimestamp = 0;
+        }
 
         @Override
         public void flatMap(Tuple4<String, Double, Long, Object> input, Collector<Tuple5<String, Double, Long, Object, Double>> out) {
             long timestamp =  input.getField(2);
-            String id = input.getField(0); //MACHINE ID
+            String id = input.getField(0);
             double dataInstanceAnomalyScore = input.getField(1);
 
             Queue<Double> slidingWindow = slidingWindowMap.get(id);
@@ -139,16 +161,21 @@ public class MachineOutlier {
         }
     }
 
-    public static final class Triggerer implements FlatMapFunction<Tuple5<String, Double, Long, Object, Double>, Tuple5<String, Double, Long, Boolean, String>>{
+    public static final class Triggerer implements FlatMapFunction<Tuple5<String, Double, Long, Object, Double>, Tuple5<String, Double, Long, Boolean, Object>>{
         private static final double dupper = Math.sqrt(2);
-        private long previousTimestamp;
-        private List<Tuple> streamList;
-        private double minDataInstanceScore = Double.MAX_VALUE;
-        private double maxDataInstanceScore = 0;
+        private static long previousTimestamp;
+        private static List<Tuple> streamList;
+        private static double minDataInstanceScore = Double.MAX_VALUE;
+        private static double maxDataInstanceScore = 0;
+
+        static{
+            previousTimestamp = 0;
+            streamList = new ArrayList<>();
+        }
 
         @Override
-        public void flatMap(Tuple5<String, Double, Long, Object, Double> input, Collector<Tuple5<String, Double, Long, Boolean, String>> out) {
-            long timestamp = input.getField(0);
+        public void flatMap(Tuple5<String, Double, Long, Object, Double> input, Collector<Tuple5<String, Double, Long, Boolean, Object>> out) {
+            long timestamp = input.getField(2);
 
             if (timestamp > previousTimestamp) {
                 // new batch of stream scores
@@ -173,7 +200,7 @@ public class MachineOutlier {
                         }
 
                         if (isAbnormal) {
-                            out.collect(new Tuple5<String, Double, Long, Boolean, String>(streamProfile.getField(0), streamScore, streamProfile.getField(2), isAbnormal, streamProfile.getField(3)));
+                            out.collect(new Tuple5<String, Double, Long, Boolean, Object>(streamProfile.getField(0), streamScore, streamProfile.getField(2), isAbnormal, streamProfile.getField(3)));
                         }
                     }
 
