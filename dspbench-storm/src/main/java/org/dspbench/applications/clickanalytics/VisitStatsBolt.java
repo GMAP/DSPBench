@@ -25,6 +25,7 @@ public class VisitStatsBolt extends AbstractBolt {
         
         collector.emit(input, new Values(total, uniqueCount, input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override

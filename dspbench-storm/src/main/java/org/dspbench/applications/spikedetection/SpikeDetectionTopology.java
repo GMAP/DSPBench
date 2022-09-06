@@ -33,7 +33,7 @@ public class SpikeDetectionTopology extends BasicTopology {
 
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(new Fields(SpikeDetectionConstants.Field.DEVICE_ID, SpikeDetectionConstants.Field.TIMESTAMP, SpikeDetectionConstants.Field.VALUE));
+        spout.setFields(new Fields(SpikeDetectionConstants.Field.DEVICE_ID, SpikeDetectionConstants.Field.TIMESTAMP, SpikeDetectionConstants.Field.VALUE, SpikeDetectionConstants.Field.INITTIME));
         
         builder.setSpout(SpikeDetectionConstants.Component.SPOUT, spout, spoutThreads);
         

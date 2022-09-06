@@ -42,6 +42,7 @@ public class GlobalMedianCalculatorBolt extends AbstractBolt {
         } else {
             medianCalc.remove(value);
         }
+        super.calculateThroughput();
     }
     
 }

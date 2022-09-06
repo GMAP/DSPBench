@@ -3,6 +3,7 @@ package org.dspbench.applications.clickanalytics;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
 
 import java.util.HashMap;
@@ -24,19 +25,18 @@ public class RepeatVisitBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        String time = super.getUnixTime();
         String clientKey = input.getStringByField(Field.CLIENT_KEY);
         String url = input.getStringByField(Field.URL);
         String key = url + ":" + clientKey;
 
         if (map.containsKey(key)) {
-            collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString(), time));
+            collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString(), input.getStringByField(WordCountConstants.Field.INITTIME)));
         } else {
             map.put(key, null);
-            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString(), time));
+            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString(), input.getStringByField(WordCountConstants.Field.INITTIME)));
         }
-
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override

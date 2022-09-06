@@ -81,6 +81,7 @@ public class SpeedCalculatorBolt extends AbstractBolt {
         
         collector.emit(input, new Values(new Date(), roadID, averageSpeed, count, input.getStringByField(TrafficMonitoringConstants.Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override

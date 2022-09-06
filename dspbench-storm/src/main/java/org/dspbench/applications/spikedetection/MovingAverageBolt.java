@@ -36,13 +36,13 @@ public class MovingAverageBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        String time = super.getUnixTime();
         String deviceID = input.getStringByField(Field.DEVICE_ID);
         double nextDouble = input.getDoubleByField(Field.VALUE);
         double movingAvergeInstant = movingAverage(deviceID, nextDouble);
 
-        collector.emit(input, new Values(deviceID, movingAvergeInstant, nextDouble, time));
+        collector.emit(input, new Values(deviceID, movingAvergeInstant, nextDouble,  input.getStringByField(Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     public double movingAverage(String deviceID, double nextDouble) {

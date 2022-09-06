@@ -32,6 +32,7 @@ public class WordCountBolt extends AbstractBolt {
 
         collector.emit(input, new Values(word, count.get(), input.getStringByField(WordCountConstants.Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
 }

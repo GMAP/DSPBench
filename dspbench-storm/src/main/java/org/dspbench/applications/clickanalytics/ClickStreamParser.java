@@ -3,6 +3,8 @@ package org.dspbench.applications.clickanalytics;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+
+import java.time.Instant;
 import java.util.List;
 
 import org.dspbench.spout.parser.Parser;
@@ -25,7 +27,7 @@ public class ClickStreamParser extends Parser {
         
         try {
             ClickStream clickstream = gson.fromJson(input, ClickStream.class);
-            values = new StreamValues(clickstream.ip, clickstream.url, clickstream.clientKey);
+            values = new StreamValues(clickstream.ip, clickstream.url, clickstream.clientKey, Instant.now().toEpochMilli() + "");
         } catch (JsonSyntaxException ex) {
             LOG.error("Error parsing JSON encoded clickstream: " + input, ex);
         }

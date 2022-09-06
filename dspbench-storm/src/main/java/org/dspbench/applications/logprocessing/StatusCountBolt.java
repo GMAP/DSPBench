@@ -7,6 +7,7 @@ import org.apache.storm.tuple.Values;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dspbench.applications.clickanalytics.ClickAnalyticsConstants;
 import org.dspbench.bolt.AbstractBolt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,6 @@ public class StatusCountBolt  extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        String time = super.getUnixTime();
         int statusCode = input.getIntegerByField(Field.RESPONSE);
         int count = 0;
         
@@ -37,8 +37,9 @@ public class StatusCountBolt  extends AbstractBolt {
         count++;
         counts.put(statusCode, count);
         
-        collector.emit(input, new Values(statusCode, count, time));
+        collector.emit(input, new Values(statusCode, count, input.getStringByField(Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override

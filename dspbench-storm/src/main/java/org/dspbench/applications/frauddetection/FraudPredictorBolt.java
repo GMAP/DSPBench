@@ -12,7 +12,6 @@ import org.dspbench.applications.frauddetection.predictor.Prediction;
 import org.dspbench.applications.frauddetection.predictor.MarkovModelPredictor;
 
 /**
- *
  * @author maycon
  */
 public class FraudPredictorBolt extends AbstractBolt {
@@ -29,16 +28,16 @@ public class FraudPredictorBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        String time = super.getUnixTime();
+        String time = input.getStringByField(FraudDetectionConstants.Field.INITTIME);
         String entityID = input.getString(0);
-        String record   = input.getString(1);
-        Prediction p    = predictor.execute(entityID, record);
+        String record = input.getString(1);
+        Prediction p = predictor.execute(entityID, record);
 
         // send outliers
         if (p.isOutlier()) {
             collector.emit(input, new Values(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), time));
         }
-        
+
         collector.ack(input);
         super.calculateLatency(Long.parseLong(time));
         super.calculateThroughput();

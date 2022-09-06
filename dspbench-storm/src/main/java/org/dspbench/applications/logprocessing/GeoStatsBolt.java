@@ -35,6 +35,7 @@ public class GeoStatsBolt extends AbstractBolt {
         
         collector.emit(input, new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city), input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override

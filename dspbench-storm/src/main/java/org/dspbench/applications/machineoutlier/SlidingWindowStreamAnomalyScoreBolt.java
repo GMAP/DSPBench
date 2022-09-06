@@ -54,6 +54,7 @@ public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
 
         collector.emit(new Values(id, sumScore, timestamp, input.getValue(3), dataInstanceAnomalyScore, input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override

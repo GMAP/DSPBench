@@ -2,6 +2,8 @@ package org.dspbench.applications.spikedetection;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import java.time.Instant;
 import java.util.List;
 
 import org.dspbench.spout.parser.Parser;
@@ -82,7 +84,7 @@ public class SensorParser extends Parser {
             values.add(fields[MOTEID_FIELD]);
             values.add(date.toDate());
             values.add(Double.parseDouble(fields[valueFieldKey]));
-            
+            values.add(Instant.now().toEpochMilli() + "");
             int msgId = String.format("%s:%s", fields[MOTEID_FIELD], date.toString()).hashCode();
             values.setMessageId(msgId);
             

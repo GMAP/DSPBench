@@ -48,6 +48,7 @@ public class OutlierDetectionBolt extends AbstractBolt {
         } else {
             processPerPlugMedianTuple(tuple);
         }
+        super.calculateThroughput();
     }
 
     private void processPerPlugMedianTuple(Tuple tuple) {

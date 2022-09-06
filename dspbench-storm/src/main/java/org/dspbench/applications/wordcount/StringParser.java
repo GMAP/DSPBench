@@ -1,9 +1,12 @@
 package org.dspbench.applications.wordcount;
 
 import com.google.common.collect.ImmutableList;
+
+import java.time.Instant;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.dspbench.spout.parser.Parser;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.stream.StreamValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +22,7 @@ public class StringParser extends Parser {
     public List<StreamValues> parse(String str) {
         if (StringUtils.isBlank(str))
             return null;
-        
-        return ImmutableList.of(new StreamValues(str));
+
+        return ImmutableList.of(new StreamValues(str,  Instant.now().toEpochMilli() + ""));
     }
 }

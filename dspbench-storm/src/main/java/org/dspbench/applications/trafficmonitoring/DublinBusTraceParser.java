@@ -3,6 +3,8 @@ package org.dspbench.applications.trafficmonitoring;
 import com.google.common.collect.ImmutableList;
 import org.dspbench.spout.parser.Parser;
 import org.dspbench.util.stream.StreamValues;
+
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -50,7 +52,7 @@ public class DublinBusTraceParser extends Parser {
             
             int msgId = String.format("%s:%s", carId, date.toString()).hashCode();
                         
-            StreamValues values = new StreamValues(carId, date, occ, speed, bearing, lat, lon);
+            StreamValues values = new StreamValues(carId, date, occ, speed, bearing, lat, lon, Instant.now().toEpochMilli() + "");
             values.setMessageId(msgId);
             
             return ImmutableList.of(values);

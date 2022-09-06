@@ -54,6 +54,7 @@ public class PlugMedianCalculatorBolt extends AbstractBolt {
         } else {
             medianCalc.remove(value);
         }
+        super.calculateThroughput();
     }
 
     @Override

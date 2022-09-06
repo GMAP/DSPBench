@@ -1,6 +1,8 @@
 package org.dspbench.applications.machineoutlier;
 
 import com.google.common.collect.ImmutableList;
+
+import java.time.Instant;
 import java.util.List;
 
 import org.dspbench.applications.machineoutlier.MachineMetadata;
@@ -34,6 +36,7 @@ public class GoogleTracesParser extends Parser {
         values.add(id);
         values.add(timestamp);
         values.add(new MachineMetadata(timestamp, id, cpu, memory));
+        values.add(Instant.now().toEpochMilli() + "");
         values.setMessageId(msgId);
         
         return ImmutableList.of(values);
