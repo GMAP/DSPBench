@@ -23,6 +23,7 @@ public class WordCount {
         String topic = "books";
         String groupId = UUID.randomUUID().toString();
 
+        /*
         KafkaSource<String> source = KafkaSource.<String>builder()
                 .setBootstrapServers(brokers)
                 .setTopics(topic)
@@ -32,8 +33,8 @@ public class WordCount {
                 .build();
 
         DataStream<String> text = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
-
-        //DataStream<String> text = env.readTextFile("/home/gabriel/Downloads/bible.txt");
+        */
+        DataStream<String> text = env.readTextFile("/home/gabriel/Downloads/bible.txt");
 
         DataStream<Tuple2<String, Integer>> counts =
                 text.flatMap(new Tokenizer())

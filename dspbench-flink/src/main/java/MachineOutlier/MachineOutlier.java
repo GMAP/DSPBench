@@ -23,10 +23,10 @@ public class MachineOutlier {
         // Get things from .properties?
 
         String brokers = "192.168.20.167:9092";
-        String topic = "machineoutlier";
+        String topic = "machineOut";
         String groupId = UUID.randomUUID().toString();
 
-        /*
+        /* REDO THIS
         KafkaSource<Tuple3<String, String, String>> source = KafkaSource.<Tuple3<String, String, String>>builder()
                 .setBootstrapServers(brokers)
                 .setTopics(topic)
