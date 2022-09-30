@@ -13,16 +13,31 @@ jar {
 }
 
 repositories {
+    maven {
+        url 'https://clojars.org/repo/'
+    }
+
+    maven {
+        url 'https://repo.osgeo.org/repository/release/'
+    }
+
     mavenCentral()
 }
 
 dependencies {
+    implementation 'joda-time:joda-time:2.10.14'
     implementation 'org.apache.flink:flink-java:1.15.1'
     implementation 'org.apache.flink:flink-clients:1.15.1'
     compileOnly 'org.apache.flink:flink-streaming-java:1.15.1'
     implementation 'org.apache.flink:flink-connector-kafka:1.15.1'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'com.aliasi:lingpipe:4.0.1'
+    implementation 'org.geotools:gt-shapefile:26.0'
+    implementation 'org.geotools:gt-xml:26.0'
+    implementation 'com.maxmind.geoip2:geoip2:2.15.0'
 }
 
 test {
