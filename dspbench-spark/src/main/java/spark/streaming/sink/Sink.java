@@ -1,7 +1,6 @@
 package spark.streaming.sink;
 
 import com.codahale.metrics.Timer;
-import java.util.concurrent.TimeUnit;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.VoidFunction;
@@ -9,6 +8,8 @@ import scala.Tuple2;
 import spark.streaming.function.BaseFunction;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  *

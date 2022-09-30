@@ -3,9 +3,8 @@ package spark.streaming.source;
 import java.util.*;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaInputDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.streaming.kafka010.ConsumerStrategies;
 import org.apache.spark.streaming.kafka010.KafkaUtils;
 import org.apache.spark.streaming.kafka010.LocationStrategies;
@@ -22,8 +21,13 @@ import spark.streaming.util.Tuple;
 public class KafkaSource extends BaseSource {
     private String kafkaTopics;
     private String kafkaHost;
-    
+
     @Override
+    public Dataset<Row> createStream() {
+        return null;
+    }
+    
+   /* @Override
     public void initialize(Configuration config, JavaStreamingContext context, String prefix) {
         super.initialize(config, context, prefix);
         
@@ -44,6 +48,6 @@ public class KafkaSource extends BaseSource {
         JavaDStream<Tuple2<String, Tuple>> lines = messages.map(new KafkaParser(config));
         
         return lines;
-    }
+    }*/
     
 }

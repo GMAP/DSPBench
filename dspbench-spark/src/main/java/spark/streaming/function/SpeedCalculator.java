@@ -18,8 +18,8 @@ public class SpeedCalculator extends BaseFunction implements Function2<List<Tupl
         super(config);
     }
     
-    @Override
-    public Optional<Tuple> call(List<Tuple> values, Optional<Tuple> state) throws Exception {
+
+   /* public Optional<Tuple> call(List<Tuple> values, Optional<Tuple> state) throws Exception {
         incReceived(values.size());
         
         Tuple newState = state.or(new Tuple(values));
@@ -35,7 +35,7 @@ public class SpeedCalculator extends BaseFunction implements Function2<List<Tupl
         
         incEmitted();
         return Optional.of(newState);
-    }
+    }*/
     
     private void updateTuple(Tuple state, Tuple tuple) {
         int roadID = tuple.getInt("roadID");
@@ -95,5 +95,10 @@ public class SpeedCalculator extends BaseFunction implements Function2<List<Tupl
         
         state.set("averageSpeed", averageSpeed);
         state.set("count", count);
+    }
+
+    @Override
+    public Optional<Object> call(List<Tuple> v1, Optional<Object> v2) throws Exception {
+        return null;
     }
 }

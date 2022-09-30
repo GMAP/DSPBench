@@ -22,14 +22,14 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'org.apache.spark', name: 'spark-core_2.12', version: '3.2.1'
-    implementation group: 'org.apache.spark', name: 'spark-sql_2.12', version: '3.2.1'
-    implementation group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '3.2.1'
-    implementation group: 'org.apache.spark', name: 'spark-streaming_2.12', version: '3.2.1'
-    implementation group: 'org.apache.spark', name: 'spark-sql-kafka-0-10_2.12', version: '3.2.1'
-    implementation group: 'org.apache.spark', name: 'spark-streaming-kafka-0-10_2.12', version: '3.2.1'
+    implementation group: 'org.apache.spark', name: 'spark-core_2.13', version: '3.3.0'
+    implementation group: 'org.apache.spark', name: 'spark-sql_2.13', version: '3.3.0'
+    //implementation group: 'org.apache.hadoop', name: 'hadoop-hdfs', version: '3.3.3'
+   // implementation group: 'org.apache.spark', name: 'spark-streaming_2.13', version: '3.3.0'
+    implementation group: 'org.apache.spark', name: 'spark-sql-kafka-0-10_2.13', version: '3.3.0'
+    implementation group: 'org.apache.spark', name: 'spark-streaming-kafka-0-10_2.13', version: '3.3.0'
 
-    implementation group: 'redis.clients', name: 'jedis', version: '3.5.1'
+    //implementation group: 'redis.clients', name: 'jedis', version: '3.5.1'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.1'
     implementation group: 'com.opencsv', name: 'opencsv', version: '5.5.2'
     implementation 'com.beust:jcommander:1.82'
@@ -42,10 +42,9 @@ dependencies {
     implementation 'net.postgis:postgis-jdbc:2.5.1'
     implementation 'com.baqend:bloom-filter:2.2.4'
     implementation 'com.google.guava:guava:31.0.1-jre'
-    implementation 'org.apache.hadoop:hadoop-core:1.2.1'
+    //implementation 'org.apache.hadoop:hadoop-core:1.2.1'
     implementation 'com.maxmind.geoip2:geoip2:2.15.0'
-    implementation 'joda-time:joda-time:2.10.13'
-
+    implementation 'joda-time:joda-time:2.11.1'
 
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'

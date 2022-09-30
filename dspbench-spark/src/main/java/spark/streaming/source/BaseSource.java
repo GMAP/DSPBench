@@ -1,7 +1,8 @@
 package spark.streaming.source;
 
-import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import scala.Tuple2;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
@@ -12,12 +13,12 @@ import spark.streaming.util.Tuple;
  */
 public abstract class BaseSource {
     protected Configuration config;
-    protected JavaStreamingContext context;
+    protected transient SparkSession session;
     
-    public void initialize(Configuration config, JavaStreamingContext context, String prefix) {
+    public void initialize(Configuration config, SparkSession session, String prefix) {
         this.config = config;
-        this.context = context;
+        this.session = session;
     }
     
-    public abstract JavaDStream<Tuple2<String, Tuple>> createStream();
+    public abstract Dataset<Row> createStream();
 }
