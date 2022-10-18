@@ -17,7 +17,6 @@ public class TransactionParser extends Parser {
     @Override
     public List<StreamValues> parse(String input) {
         String[] items = input.split(",", 2);
-        try { Thread.sleep (50); } catch (InterruptedException ex) {}
         return ImmutableList.of(new StreamValues(items[0], items[1], Instant.now().toEpochMilli() + ""));
     }
     

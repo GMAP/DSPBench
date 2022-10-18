@@ -39,7 +39,6 @@ public class FraudPredictorBolt extends AbstractBolt {
         }
 
         collector.ack(input);
-        super.calculateLatency(Long.parseLong(time));
         super.calculateThroughput();
     }
 

@@ -33,7 +33,6 @@ public class SpikeDetectionBolt extends AbstractBolt {
         }
         
         collector.ack(input);
-        super.calculateLatency(Long.parseLong(input.getStringByField(Field.INITTIME)));
         super.calculateThroughput();
     }
     

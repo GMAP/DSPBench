@@ -29,7 +29,7 @@ public class HouseLoadPredictorBolt extends LoadPredictorBolt {
     }
 
     @Override
-    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue) {
-        return new Values(predictedTimeStamp, keyString, predictedValue);
+    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue, String inittime) {
+        return new Values(predictedTimeStamp, keyString, predictedValue, inittime);
     }
 }

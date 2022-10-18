@@ -4,9 +4,12 @@ import org.apache.storm.Config;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import org.dspbench.applications.smartgrid.SmartGridConstants.*;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
 import org.dspbench.util.math.AverageTracker;
 import org.dspbench.util.math.SummaryArchive;
@@ -25,19 +28,21 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
     protected long sliceLength = 60l;
     protected int tickCounter = 0;
 
+    protected String inittime = "";
+
     protected Map<String, AverageTracker> trackers;
     protected Map<String, SummaryArchive> archiveMap;
-    
+
     public LoadPredictorBolt() {
         this(DEFAULT_EMIT_FREQUENCY_IN_SECONDS);
     }
-    
+
     public LoadPredictorBolt(int emitFrequencyInSeconds) {
         super();
-        
+
         if (emitFrequencyInSeconds < 1) {
-          throw new IllegalArgumentException(
-              "The emit frequency must be >= 1 seconds (you requested " + emitFrequencyInSeconds + " seconds)");
+            throw new IllegalArgumentException(
+                    "The emit frequency must be >= 1 seconds (you requested " + emitFrequencyInSeconds + " seconds)");
         }
         this.emitFrequencyInSeconds = emitFrequencyInSeconds;
     }
@@ -55,11 +60,16 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
             tickCounter = (tickCounter + 1) % 2;
             // time to emit
             if (tickCounter == 0) {
-                emitOutputStream();
+                emitOutputStream(this.inittime);
+                this.inittime = "";
             }
             return;
         }
-        
+
+        if (this.inittime.equals("")) {
+            this.inittime = tuple.getStringByField(Field.INITTIME);
+        }
+
         int type = tuple.getIntegerByField(Field.PROPERTY);
 
         if (type == Measurement.WORK) {
@@ -68,7 +78,7 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
 
         AverageTracker averageTracker = getTracker(getKey(tuple));
         long timestamp = tuple.getLongByField(Field.TIMESTAMP);
-        double value   = tuple.getDoubleByField(Field.VALUE);
+        double value = tuple.getDoubleByField(Field.VALUE);
 
         // Initialize the very first slice
         if (currentSliceStart == 0l) {
@@ -124,21 +134,22 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
         }
     }
 
-    protected void emitOutputStream() {
+    protected void emitOutputStream(String inittime) {
         for (String key : trackers.keySet()) {
             double currentAvg = trackers.get(key).retrieve();
             double median = 0;
-            
+
             if (archiveMap.containsKey(key)) {
                 median = archiveMap.get(key).getMedian();
             }
-            
+
             double prediction = predict(currentAvg, median);
             long predictedTimeStamp = currentSliceStart + 2 * sliceLength;
-            collector.emit(getOutputTuple(predictedTimeStamp, key, prediction));
+            collector.emit(getOutputTuple(predictedTimeStamp, key, prediction, inittime));
         }
+        super.calculateThroughput();
     }
-    
+
     @Override
     public Map<String, Object> getComponentConfiguration() {
         Map<String, Object> conf = new HashMap<>();
@@ -148,6 +159,8 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
 
     @Override
     public abstract Fields getDefaultFields();
+
     protected abstract String getKey(Tuple tuple);
-    protected abstract Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue);
+
+    protected abstract Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue, String inittime);
 }

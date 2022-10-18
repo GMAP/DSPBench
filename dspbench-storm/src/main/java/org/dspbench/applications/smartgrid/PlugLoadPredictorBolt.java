@@ -33,8 +33,8 @@ public class PlugLoadPredictorBolt extends LoadPredictorBolt {
     }
 
     @Override
-    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue) {
+    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue, String inittime) {
         String[] segments = keyString.split(":");
-        return new Values(predictedTimeStamp, segments[0], segments[1], segments[2], predictedValue);
+        return new Values(predictedTimeStamp, segments[0], segments[1], segments[2], predictedValue, inittime);
     }
 }
