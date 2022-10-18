@@ -1,13 +1,25 @@
 package spark.streaming.application;
 
+import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.streaming.DataStreamWriter;
+import org.apache.spark.sql.types.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.TrafficMonitoringConstants;
 import spark.streaming.constants.WordCountConstants;
+import spark.streaming.function.SSBeijingTaxiTraceParser;
+import spark.streaming.function.SSFilterNull;
+import spark.streaming.function.SSMapMatcher;
 import spark.streaming.util.Configuration;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.Metadata;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
+import spark.streaming.util.Tuple;
 
 public class TrafficMonitoring extends AbstractApplication {
     private static final Logger LOG = LoggerFactory.getLogger(TrafficMonitoring.class);
@@ -31,13 +43,27 @@ public class TrafficMonitoring extends AbstractApplication {
 
     @Override
     public DataStreamWriter buildApplication() {
+        StructType schema = new StructType(new StructField[]{
+                new StructField("carId", DataTypes.StringType, false, Metadata.empty()),
+                new StructField("date", DataTypes.StringType, false, Metadata.empty()),
+                new StructField("occ", DataTypes.BooleanType, false, Metadata.empty()),
+                new StructField("lat", DataTypes.DoubleType, false, Metadata.empty()),
+                new StructField("lon", DataTypes.DoubleType, false, Metadata.empty()),
+                new StructField("speed", DataTypes.IntegerType, false, Metadata.empty()),
+                new StructField("bearing", DataTypes.IntegerType, false, Metadata.empty()),
+                new StructField("roadId", DataTypes.IntegerType, true, Metadata.empty())
+        });
 
         Dataset<Row> rawRecords = createSource();
-        //USAR ENCODE E NAO CRIAR UM DATASET NOVO UNICAMENTE PARA FAZER O PARSER, POIS IREMOS FAZER OS TESTES COM O KAFKA Q ÉFODACE PRA ISSO
 
+        Dataset<Row> records = rawRecords
+                .as(Encoders.STRING())
+                .map(new SSBeijingTaxiTraceParser(config), RowEncoder.apply(schema));
 
+        Dataset<Row> roads = records.filter(new SSFilterNull<>())
+                .repartition(mapMatcherThreads).map(new SSMapMatcher(config), RowEncoder.apply(schema));
 
-        return null;
+        return createSink(roads);
     }
 
     @Override

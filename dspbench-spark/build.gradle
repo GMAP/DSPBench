@@ -9,6 +9,10 @@ targetCompatibility = 1.11
 
 version '1.0'
 
+jar {
+    enabled = true
+}
+
 repositories {
     maven {
         url 'https://clojars.org/repo/'
@@ -56,6 +60,7 @@ test {
 }
 
 shadowJar {
+    zip64 true
     baseName = project.name + '-uber'
     classifier = ''
     mergeServiceFiles()

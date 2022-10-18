@@ -1,17 +1,19 @@
 package spark.streaming.function;
 
+import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.sql.Row;
 import scala.Tuple2;
+import spark.streaming.util.Tuple;
 
 /**
  *
  * @author mayconbordin
  */
-public class FilterNull<K, V> extends BaseFunction implements Function<Tuple2<K, V>, Boolean> {
+public class SSFilterNull<K, V> extends BaseFunction implements FilterFunction<Row> {
 
     @Override
-    public Boolean call(Tuple2<K, V> input) throws Exception {
+    public boolean call(Row input) throws Exception {
         return input != null;
     }
-    
 }

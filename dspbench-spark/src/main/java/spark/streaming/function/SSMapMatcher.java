@@ -1,9 +1,9 @@
 package spark.streaming.function;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
+import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
@@ -13,57 +13,28 @@ import spark.streaming.model.gis.RoadGridList;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 /**
  *
  * @author mayconbordin
  */
-public class MapMatcher extends BaseFunction implements PairFunction<Tuple2<Integer, Tuple>, Integer, Tuple> {
-    private static final Logger LOG = LoggerFactory.getLogger(MapMatcher.class);
+public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Row> {
+    private static final Logger LOG = LoggerFactory.getLogger(SSMapMatcher.class);
 
     private transient RoadGridList sectors;
     private double latMin;
     private double latMax;
     private double lonMin;
     private double lonMax;
-    
-    public MapMatcher(Configuration config) {
+
+    public SSMapMatcher(Configuration config) {
         super(config);
         
         loadShapefile(config);
     }
-    
-    @Override
-    public Tuple2<Integer, Tuple> call(Tuple2<Integer, Tuple> input) throws Exception {
-        incBoth();
-        
-        // force loading shape file if not loaded
-        RoadGridList gridList = getSectors();
-        Tuple tuple = input._2;
-        
-        try {
-            int speed        = tuple.getInt("bearing");
-            int bearing      = tuple.getInt("speed");
-            double latitude  = tuple.getDouble("lat");
-            double longitude = tuple.getDouble("lon");
-            
-            if (speed <= 0) return null;
-            if (longitude > lonMax || longitude < lonMin || latitude > latMax || latitude < latMin) return null;
-            
-            GPSRecord record = new GPSRecord(longitude, latitude, speed, bearing);
-            
-            int roadID = gridList.fetchRoadID(record);
-            
-            if (roadID != -1) {
-                tuple.set("roadID", roadID);
-                return new Tuple2<>(roadID, tuple);
-            }
-        } catch (SQLException ex) {
-            LOG.error("Unable to fetch road ID", ex);
-        }
 
-        return null;
-    }
-    
     private RoadGridList getSectors() {
         if (sectors == null) {
             loadShapefile(getConfiguration());
@@ -90,5 +61,39 @@ public class MapMatcher extends BaseFunction implements PairFunction<Tuple2<Inte
             LOG.error("Error while loading shape file", ex);
             throw new RuntimeException("Error while loading shape file");
         }
+    }
+
+    @Override
+    public Row call(Row input) throws Exception {
+        RoadGridList gridList = getSectors();
+
+        try {
+            int speed        = input.getInt(5);
+            int bearing      = input.getInt(6);
+            double latitude  = input.getDouble(3);
+            double longitude = input.getDouble(4);
+
+            if (speed <= 0) return null;
+            if (longitude > lonMax || longitude < lonMin || latitude > latMax || latitude < latMin) return null;
+
+            GPSRecord record = new GPSRecord(longitude, latitude, speed, bearing);
+
+            int roadID = gridList.fetchRoadID(record);
+
+            if (roadID != -1) {
+                return RowFactory.create(input.get(0),
+                        input.get(1),
+                        input.get(2),
+                        latitude,
+                        longitude,
+                        speed,
+                        bearing,
+                        roadID);
+            }
+        } catch (SQLException ex) {
+            LOG.error("Unable to fetch road ID", ex);
+        }
+
+        return null;
     }
 }
