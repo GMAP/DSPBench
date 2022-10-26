@@ -3,9 +3,15 @@ package spark.streaming.function;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
+
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.streaming.GroupState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.streaming.model.gis.Road;
 import spark.streaming.util.Configuration;
 import spark.streaming.metrics.MetricsFactory;
 

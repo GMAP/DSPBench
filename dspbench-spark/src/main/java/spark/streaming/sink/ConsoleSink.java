@@ -4,6 +4,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.ForeachWriter;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
+import org.apache.spark.sql.streaming.Trigger;
 
 public class ConsoleSink extends BaseSink {
 
@@ -19,12 +20,13 @@ public class ConsoleSink extends BaseSink {
             @Override
             public void process(Row value) {
                 System.out.println(value);
-            }
+            } //TODO make formater as field=value,
 
             @Override
             public void close(Throwable errorOrNull) {
                 // Close the connection
             }
-        }).outputMode("update");
+        }).outputMode("update")
+          .trigger(Trigger.AvailableNow());
     }
 }

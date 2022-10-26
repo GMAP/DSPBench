@@ -20,7 +20,7 @@ import java.sql.SQLException;
  *
  * @author mayconbordin
  */
-public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Row> {
+public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Integer> {
     private static final Logger LOG = LoggerFactory.getLogger(SSMapMatcher.class);
 
     private transient RoadGridList sectors;
@@ -64,7 +64,7 @@ public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Row> 
     }
 
     @Override
-    public Row call(Row input) throws Exception {
+    public Integer call(Row input) throws Exception {
         RoadGridList gridList = getSectors();
 
         try {
@@ -73,27 +73,28 @@ public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Row> 
             double latitude  = input.getDouble(3);
             double longitude = input.getDouble(4);
 
-            if (speed <= 0) return null;
-            if (longitude > lonMax || longitude < lonMin || latitude > latMax || latitude < latMin) return null;
+            if (speed <= 0) return 0;
+            if (longitude > lonMax || longitude < lonMin || latitude > latMax || latitude < latMin) return 0;
 
             GPSRecord record = new GPSRecord(longitude, latitude, speed, bearing);
 
             int roadID = gridList.fetchRoadID(record);
 
             if (roadID != -1) {
-                return RowFactory.create(input.get(0),
+               /* return RowFactory.create(input.get(0),
                         input.get(1),
                         input.get(2),
                         latitude,
                         longitude,
                         speed,
                         bearing,
-                        roadID);
+                        roadID);*/
+                return roadID;
             }
         } catch (SQLException ex) {
             LOG.error("Unable to fetch road ID", ex);
         }
 
-        return null;
+        return 0;
     }
 }

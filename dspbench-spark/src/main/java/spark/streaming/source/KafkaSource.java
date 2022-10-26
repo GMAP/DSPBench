@@ -5,6 +5,12 @@ import java.util.*;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.catalyst.encoders.RowEncoder;
+import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.Metadata;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
 import org.apache.spark.streaming.kafka010.ConsumerStrategies;
 import org.apache.spark.streaming.kafka010.KafkaUtils;
 import org.apache.spark.streaming.kafka010.LocationStrategies;
@@ -21,33 +27,29 @@ import spark.streaming.util.Tuple;
 public class KafkaSource extends BaseSource {
     private String kafkaTopics;
     private String kafkaHost;
+    private int sourceThreads;
+    private int batchSize;
+    @Override
+    public void initialize(Configuration config, SparkSession context, String prefix) {
+        super.initialize(config, context, prefix);
+
+        kafkaHost = config.get(String.format(BaseConfig.KAFKA_HOST, prefix));
+        kafkaTopics = config.get(String.format(BaseConfig.KAFKA_SOURCE_TOPIC, prefix));
+        sourceThreads = config.getInt(String.format(BaseConfig.SOURCE_THREADS, prefix), 1);
+        batchSize = config.getInt(String.format(BaseConfig.BATCH_SIZE, prefix), 1000);
+    }
 
     @Override
     public Dataset<Row> createStream() {
-        return null;
+        return session.readStream()
+                .format("kafka")
+                .option("kafka.bootstrap.servers", kafkaHost)
+                .option("subscribe", kafkaTopics)
+                .option("startingOffsets", "earliest")
+                .option("maxOffsetsPerTrigger", batchSize)
+                .load()
+                .repartition(sourceThreads)
+                .selectExpr("CAST(value AS STRING)");
     }
-    
-   /* @Override
-    public void initialize(Configuration config, JavaStreamingContext context, String prefix) {
-        super.initialize(config, context, prefix);
-        
-        kafkaTopics = config.get(String.format(BaseConfig.KAFKA_SOURCE_TOPIC, prefix));
-        kafkaHost   = config.get(String.format(BaseConfig.KAFKA_HOST, prefix));
-    }
-    
-    @Override
-    public JavaDStream<Tuple2<String, Tuple>> createStream() {
-        List<String> topics = new ArrayList<>(Arrays.asList(kafkaTopics.split(",")));
-        HashMap<String, Object> kafkaParams = new HashMap<>();
-        kafkaParams.put("metadata.broker.list", kafkaHost);
-
-        JavaInputDStream<ConsumerRecord<String, String>> messages = KafkaUtils.createDirectStream(context,
-                LocationStrategies.PreferConsistent(),
-                ConsumerStrategies.Subscribe(topics, kafkaParams));
-
-        JavaDStream<Tuple2<String, Tuple>> lines = messages.map(new KafkaParser(config));
-        
-        return lines;
-    }*/
     
 }

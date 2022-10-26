@@ -16,7 +16,6 @@ public interface BaseConstants {
         String SOURCE_THREADS     = "%s.source.threads";
         String SOURCE_CLASS       = "%s.source.class";
         String SOURCE_PATH        = "%s.source.path";
-        String SOURCE_PARSER      = "%s.source.parser";
         String SOURCE_GENERATOR   = "%s.source.generator";
         String SOURCE_SOCKET_PORT = "%s.source.socket.port";
         String SOURCE_SOCKET_HOST = "%s.source.socket.host";
