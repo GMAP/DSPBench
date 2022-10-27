@@ -12,7 +12,7 @@ import java.util.Queue;
  * real-time-traf storm.realTraffic.gis FixedSizeQueue.java
  *
  * Copyright 2013 Xdata@SIAT
- * Created:2013-4-8 下午3:26:36
+ * Created:2013-4-8 3:26:36
  * email: gh.chen@siat.ac.cn
  *
  */
