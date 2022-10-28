@@ -97,6 +97,7 @@ public class FileSpout extends AbstractSpout {
                 collector.emit(values.getStreamId(), values, msgId);
             }
         }
+        super.calculateThroughput();
     }
 
 

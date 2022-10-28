@@ -57,6 +57,7 @@ public class KafkaSpout extends AbstractSpout {
     @Override
     public void nextTuple() {
         spout.nextTuple();
+        super.calculateThroughput();
     }
 
     @Override

@@ -29,6 +29,8 @@ import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.dspbench.util.config.Configuration.METRICS_ENABLED;
+
 /**
  * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
@@ -94,15 +96,17 @@ public abstract class AbstractBolt extends BaseRichBolt {
         this.config = Configuration.fromMap(stormConf);
         this.context = context;
         this.collector = collector;
-        File pathLa = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency").toFile();
-        File pathTrh = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile();
+        if (config.getBoolean(METRICS_ENABLED, false)) {
+            File pathLa = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency").toFile();
+            File pathTrh = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile();
 
-        pathLa.mkdirs();
-        pathTrh.mkdirs();
+            pathLa.mkdirs();
+            pathTrh.mkdirs();
 
-        queue = new ArrayBlockingQueue<>(50);
+            queue = new ArrayBlockingQueue<>(50);
 
-        this.file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
+            this.file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
+        }
         initialize();
     }
 
