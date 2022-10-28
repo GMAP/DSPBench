@@ -44,7 +44,7 @@ public class CDRDataGenerator {
             .put(6, "Channel unacceptable")
             .put(7, "Call awarded and being delivered in an established channel")
             .put(8, "Preemption")
-            .put(9, "Preemption—circuit reserved for reuse")
+            .put(9, "Preemption-circuit reserved for reuse")
             .put(16, "Normal call clearing")
             .put(17, "User busy")
             .put(18, "No user responding")

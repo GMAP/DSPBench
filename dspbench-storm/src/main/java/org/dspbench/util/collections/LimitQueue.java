@@ -26,7 +26,7 @@ public class LimitQueue<E> implements Queue<E> {
     }  
       
     /** 
-     * 出队 
+     *
      * @return 
      */  
     @Override  
@@ -35,7 +35,7 @@ public class LimitQueue<E> implements Queue<E> {
     }  
       
     /** 
-     * 获取队列 
+     *
      * @return 
      */  
     public Queue<E> getQueue(){  
@@ -43,7 +43,7 @@ public class LimitQueue<E> implements Queue<E> {
     }  
       
     /** 
-     * 获取限制大小 
+     *
      * @return 
      */  
     public int getLimit(){  
