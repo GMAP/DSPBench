@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.streaming.application.SentimentAnalysis;
 import spark.streaming.application.TrafficMonitoring;
 import spark.streaming.application.WordCount;
 import spark.streaming.util.Configuration;
@@ -56,6 +57,7 @@ public class StruturedStreamingRunner {
         driver.addApp("wordcount", WordCount.class);
        // driver.addApp("log-processing", LogProcessing.class);
         driver.addApp("trafficmonitoring", TrafficMonitoring.class);
+        driver.addApp("sentimentanalysis", SentimentAnalysis.class);
     }
 
     public void run() throws InterruptedException {
