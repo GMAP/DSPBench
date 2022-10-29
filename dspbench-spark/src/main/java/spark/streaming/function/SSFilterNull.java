@@ -8,7 +8,7 @@ import spark.streaming.util.Tuple;
 
 /**
  *
- * @author mayconbordin
+ * @author luandopke
  */
 public class SSFilterNull<K, V> extends BaseFunction implements FilterFunction<Row> {
 

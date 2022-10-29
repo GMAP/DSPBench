@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 /**
- * @author mayconbordin
+ * @author luandopke
  */
 public class SSBeijingTaxiTraceParser extends BaseFunction implements MapFunction<String, Row> {
     private static final Logger LOG = LoggerFactory.getLogger(SSBeijingTaxiTraceParser.class);

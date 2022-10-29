@@ -18,7 +18,7 @@ import java.sql.SQLException;
 
 /**
  *
- * @author mayconbordin
+ * @author luandopke
  */
 public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Integer> {
     private static final Logger LOG = LoggerFactory.getLogger(SSMapMatcher.class);

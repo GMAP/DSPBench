@@ -15,7 +15,7 @@ import spark.streaming.util.Configuration;
 import java.time.Instant;
 
 /**
- * @author mayconbordin
+ * @author luandopke
  */
 public class SSTweetParser extends BaseFunction implements MapFunction<String, Row> {
     private static final Logger LOG = LoggerFactory.getLogger(SSTweetParser.class);

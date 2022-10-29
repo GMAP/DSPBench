@@ -45,7 +45,7 @@ public class SentimentAnalysis extends AbstractApplication {
                 .repartition(classifierThreads)
                 .map(new SSCalculateSentiment(config), Encoders.kryo(Row.class));
 
-        return createSink(sentiments.filter(new SSFilterNull<>()));
+        return createSink(sentiments);
     }
 
     @Override

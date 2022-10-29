@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * @author mayconbordin
+ * @author luandopke
  */
 public class SSSpeedCalculator extends BaseFunction implements MapGroupsWithStateFunction<Integer, Row, Road, Row> {
 
