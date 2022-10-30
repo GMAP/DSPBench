@@ -7,10 +7,7 @@ import com.google.common.collect.Lists;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.streaming.application.FraudDetection;
-import spark.streaming.application.SentimentAnalysis;
-import spark.streaming.application.TrafficMonitoring;
-import spark.streaming.application.WordCount;
+import spark.streaming.application.*;
 import spark.streaming.util.Configuration;
 
 import java.io.FileInputStream;
@@ -60,6 +57,7 @@ public class StruturedStreamingRunner {
         driver.addApp("trafficmonitoring", TrafficMonitoring.class);
         driver.addApp("sentimentanalysis", SentimentAnalysis.class);
         driver.addApp("frauddetection", FraudDetection.class);
+        driver.addApp("spikedetection", SpikeDetection.class);
     }
 
     public void run() throws InterruptedException {
@@ -94,7 +92,6 @@ public class StruturedStreamingRunner {
 
         config.setAppName(applicationName);
         config.setMaster(master);
-
 
         var query = app.getContext(applicationName, config);
 
