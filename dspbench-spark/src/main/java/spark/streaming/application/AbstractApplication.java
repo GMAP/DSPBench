@@ -48,7 +48,7 @@ public abstract class AbstractApplication implements Serializable {
         return source.createStream();
     }
     protected DataStreamWriter<Row> createSink(Dataset<Row> dt) {
-        String sinkClass = config.get(getConfigKey(BaseConfig.SINK_CLASS));
+        String sinkClass = config.get(getConfigKey(BaseConfig.SINK_CLASS), "spark.streaming.sink.ConsoleSink"); //TODO fix more sinks
         BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         source.initialize(config, session);
         return source.sinkStream(dt);

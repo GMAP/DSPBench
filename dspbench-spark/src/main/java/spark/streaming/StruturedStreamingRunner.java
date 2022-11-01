@@ -58,6 +58,7 @@ public class StruturedStreamingRunner {
         driver.addApp("sentimentanalysis", SentimentAnalysis.class);
         driver.addApp("frauddetection", FraudDetection.class);
         driver.addApp("spikedetection", SpikeDetection.class);
+        driver.addApp("clickanalytics", ClickAnalytics.class);
     }
 
     public void run() throws InterruptedException {
@@ -93,17 +94,18 @@ public class StruturedStreamingRunner {
         config.setAppName(applicationName);
         config.setMaster(master);
 
-        var query = app.getContext(applicationName, config);
-
-        try {
-            if (timeoutInSeconds != null) {
-                query.start().awaitTermination(TimeUnit.SECONDS.toMillis(timeoutInSeconds));
-            } else {
-                query.start().awaitTermination();
-            }
-        } catch (TimeoutException | StreamingQueryException e) {
-            throw new RuntimeException(e);
-        }
+        app.getContext(applicationName, config);
+//        var query = app.getContext(applicationName, config);
+//
+//        try {
+//            if (timeoutInSeconds != null) {
+//                query.start().awaitTermination(TimeUnit.SECONDS.toMillis(timeoutInSeconds));
+//            } else {
+//                query.start().awaitTermination();
+//            }
+//        } catch (TimeoutException | StreamingQueryException e) {
+//            throw new RuntimeException(e);
+//        }
 
     }
 
