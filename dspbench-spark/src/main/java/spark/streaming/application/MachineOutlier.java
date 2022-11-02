@@ -47,15 +47,15 @@ public class MachineOutlier extends AbstractApplication {
                 .repartition(scorerThreads)
                 .flatMap(new SSObservationScore(config), Encoders.kryo(Row.class));
 
-        var anonaly = score.filter(new SSFilterNull<>())
+        var anomaly = score.filter(new SSFilterNull<>())
                 .repartition(anomalyScorerThreads)
                 .map(new SSSlidingWindowStreamAnomalyScore(config), Encoders.kryo(Row.class));
-//        var spikes = averages
-//                .repartition(spikeDetectorThreads)
-//                .map(new SSSpikeDetector(config), Encoders.kryo(Row.class))
-//                .filter(new SSFilterNull<>());
 
-        return createSink(anonaly);
+        var alert = anomaly.filter(new SSFilterNull<>())
+                .repartition(alertTriggerThreads)
+                .flatMap(new SSAlertTrigger(config), Encoders.kryo(Row.class));
+
+        return createSink(alert);
     }
 
     @Override
