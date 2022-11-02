@@ -11,11 +11,11 @@ import spark.streaming.util.Configuration;
 /**
  * @author luandopke
  */
-public class SpikeDetector extends BaseFunction implements MapFunction<Row, Row> {
-    private static final Logger LOG = LoggerFactory.getLogger(SpikeDetector.class);
+public class SSSpikeDetector extends BaseFunction implements MapFunction<Row, Row> {
+    private static final Logger LOG = LoggerFactory.getLogger(SSSpikeDetector.class);
     private double spikeThreshold;
 
-    public SpikeDetector(Configuration config) {
+    public SSSpikeDetector(Configuration config) {
         super(config);
         spikeThreshold = config.getDouble(SpikeDetectionConstants.Config.SPIKE_DETECTOR_THRESHOLD, 0.03d);
     }

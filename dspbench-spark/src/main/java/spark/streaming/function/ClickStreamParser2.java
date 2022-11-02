@@ -14,7 +14,7 @@ import java.time.Instant;
 /**
  * @author luandopke
  */
-public class ClickStreamParser2 extends BaseFunction implements MapFunction<String, Row> {
+public class ClickStreamParser2 extends BaseFunction implements MapFunction<Row, Row> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickStreamParser2.class);
 
@@ -23,18 +23,12 @@ public class ClickStreamParser2 extends BaseFunction implements MapFunction<Stri
     }
 
     @Override
-    public Row call(String value) throws Exception {
+    public Row call(Row value) throws Exception {
 
-        try {
-            ClickStream clickstream = new Gson().fromJson(value, ClickStream.class);
-            return RowFactory.create(clickstream.ip,
-                    clickstream.url,
-                    clickstream.clientKey, Instant.now().toEpochMilli() + "", "2");
-        } catch (JsonSyntaxException ex) {
-            LOG.error("Error parsing JSON encoded clickstream: " + value, ex);
-        }
+            return RowFactory.create(value.get(0),
+                    value.get(1),
+                    value.get(2), value.get(3), "2");
 
-        return RowFactory.create();
     }
 
     private static class ClickStream {

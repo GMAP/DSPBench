@@ -34,7 +34,7 @@ public class ClickAnalytics extends AbstractApplication {
 
     @Override
     public void initialize() {
-        parserThreads = config.getInt(ClickAnalyticsConstants.Config.PARSER_THREADS, 1);
+        parserThreads =        config.getInt(ClickAnalyticsConstants.Config.PARSER_THREADS, 1);
         repeatsThreads       = config.getInt(ClickAnalyticsConstants.Config.REPEATS_THREADS, 1);
         geographyThreads     = config.getInt(ClickAnalyticsConstants.Config.GEOGRAPHY_THREADS, 1);
         totalStatsThreads    = config.getInt(ClickAnalyticsConstants.Config.TOTAL_STATS_THREADS, 1);
@@ -46,19 +46,17 @@ public class ClickAnalytics extends AbstractApplication {
     public DataStreamWriter buildApplication() {
         var rawRecords = createSource();
 
-      /*  var records = rawRecords
+        var records = rawRecords
                 .repartition(parserThreads)
                 .as(Encoders.STRING())
-                .map(new ClickStreamParser(config), Encoders.kryo(Row.class));*/
+                .map(new ClickStreamParser(config), Encoders.kryo(Row.class));
 
-        var records2 = rawRecords
+        var records2 = records
                 .repartition(parserThreads)
-                .as(Encoders.STRING())
                 .map(new ClickStreamParser2(config), Encoders.kryo(Row.class));
 
-        var records3 = rawRecords
+        var records3 = records
                 .repartition(parserThreads)
-                .as(Encoders.STRING())
                 .map(new ClickStreamParser3(config), Encoders.kryo(Row.class));
         try {
             var a =createSink(records3).start();
@@ -69,8 +67,8 @@ public class ClickAnalytics extends AbstractApplication {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
+        //testado com kafka, ele executa dois ao mesmo tempo porém le de novo do source como se fosse outra query, discutir isto com o dalvan quinta
+        //três opçoes: se jogar pro spark streaming, aceitar esse comportamento de ler de novo do source ou fazer o processamento em batch;
 
 //        var averages = records.filter(new SSFilterNull<>())
 //                .repartition(movingAverageThreads)

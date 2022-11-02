@@ -40,7 +40,7 @@ public class SSTweetParser extends BaseFunction implements MapFunction<String, R
             if (value.isEmpty() || (!value.startsWith("{") && !value.startsWith("[")))
                 return RowFactory.create();
 
-            parser = new JSONParser();//todo ajustar pra ser global
+            parser = new JSONParser();//todo ajust to global
             JSONObject tweet = (JSONObject) parser.parse(value);
 
             if (tweet.containsKey(DATA_FIELD)) {

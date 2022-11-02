@@ -1,6 +1,5 @@
 package spark.streaming.function;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Row;
@@ -9,20 +8,16 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.util.Configuration;
 
-import java.time.Instant;
-
 /**
  * @author luandopke
  */
-public class SensorParser extends BaseFunction implements MapFunction<String, Row> {
-    private static final Logger LOG = LoggerFactory.getLogger(SensorParser.class);
+public class SSSensorParser extends BaseFunction implements MapFunction<String, Row> {
+    private static final Logger LOG = LoggerFactory.getLogger(SSSensorParser.class);
     private static final DateTimeFormatter formatterMillis = new DateTimeFormatterBuilder()
             .appendYear(4, 4).appendLiteral("-").appendMonthOfYear(2).appendLiteral("-")
             .appendDayOfMonth(2).appendLiteral(" ").appendHourOfDay(2).appendLiteral(":")
@@ -48,7 +43,7 @@ public class SensorParser extends BaseFunction implements MapFunction<String, Ro
 
     private final int valueFieldKey;
 
-    public SensorParser(Configuration config) {
+    public SSSensorParser(Configuration config) {
         super(config);
 
         String valueField = config.get(SpikeDetectionConstants.Config.PARSER_VALUE_FIELD);

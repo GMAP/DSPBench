@@ -9,17 +9,16 @@ import spark.streaming.model.Moving;
 import spark.streaming.util.Configuration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author luandopke
  */
-public class FlatMovingAverage extends BaseFunction implements FlatMapGroupsWithStateFunction<Integer, Row, Moving, Row> {
+public class SSFlatMovingAverage extends BaseFunction implements FlatMapGroupsWithStateFunction<Integer, Row, Moving, Row> {
     private int movingAverageWindow;
 
-    public FlatMovingAverage(Configuration config) {
+    public SSFlatMovingAverage(Configuration config) {
         super(config);
         movingAverageWindow = config.getInt(SpikeDetectionConstants.Config.MOVING_AVERAGE_WINDOW, 1000);
     }

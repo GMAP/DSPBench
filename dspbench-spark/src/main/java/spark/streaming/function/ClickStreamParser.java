@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import spark.streaming.util.Configuration;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author luandopke
@@ -34,7 +35,7 @@ public class ClickStreamParser extends BaseFunction implements MapFunction<Strin
             ClickStream clickstream = new Gson().fromJson(value, ClickStream.class);
             return RowFactory.create(clickstream.ip,
                     clickstream.url,
-                    clickstream.clientKey, Instant.now().toEpochMilli() + "");
+                    clickstream.clientKey, UUID.randomUUID());
         } catch (JsonSyntaxException ex) {
             LOG.error("Error parsing JSON encoded clickstream: " + value, ex);
         }
