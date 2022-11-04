@@ -6,6 +6,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 import org.apache.spark.sql.streaming.GroupStateTimeout;
 import org.apache.spark.sql.streaming.OutputMode;
+import org.apache.spark.sql.streaming.StreamingQueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.ClickAnalyticsConstants;
@@ -26,7 +27,8 @@ public class ClickAnalytics extends AbstractApplication {
     private int spoutThreads;
     private int visitSinkThreads;
     private int locationSinkThreads;
-
+    private String visitSink;
+    private String locationSink;
 
     public ClickAnalytics(String appName, Configuration config) {
         super(appName, config);
@@ -34,16 +36,17 @@ public class ClickAnalytics extends AbstractApplication {
 
     @Override
     public void initialize() {
-        parserThreads =        config.getInt(ClickAnalyticsConstants.Config.PARSER_THREADS, 1);
-        repeatsThreads       = config.getInt(ClickAnalyticsConstants.Config.REPEATS_THREADS, 1);
-        geographyThreads     = config.getInt(ClickAnalyticsConstants.Config.GEOGRAPHY_THREADS, 1);
-        totalStatsThreads    = config.getInt(ClickAnalyticsConstants.Config.TOTAL_STATS_THREADS, 1);
-        geoStatsThreads      = config.getInt(ClickAnalyticsConstants.Config.GEO_STATS_THREADS, 1);
-
+        parserThreads = config.getInt(ClickAnalyticsConstants.Config.PARSER_THREADS, 1);
+        repeatsThreads = config.getInt(ClickAnalyticsConstants.Config.REPEATS_THREADS, 1);
+        geographyThreads = config.getInt(ClickAnalyticsConstants.Config.GEOGRAPHY_THREADS, 1);
+        totalStatsThreads = config.getInt(ClickAnalyticsConstants.Config.TOTAL_STATS_THREADS, 1);
+        geoStatsThreads = config.getInt(ClickAnalyticsConstants.Config.GEO_STATS_THREADS, 1);
+        visitSink = config.get(ClickAnalyticsConstants.Component.SINK_VISIT);
+        locationSink = config.get(ClickAnalyticsConstants.Component.SINK_LOCATION);
     }
 
     @Override
-    public DataStreamWriter buildApplication() {
+    public DataStreamWriter buildApplication() throws StreamingQueryException {
         var rawRecords = createSource();
 
         var records = rawRecords
@@ -58,15 +61,13 @@ public class ClickAnalytics extends AbstractApplication {
         var records3 = records
                 .repartition(parserThreads)
                 .map(new ClickStreamParser3(config), Encoders.kryo(Row.class));
-        try {
-            var a =createSink(records3).start();
-            var b = createSink(records2).start();
 
-            a.awaitTermination();
-            b.awaitTermination();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        var a = createMultiSink(records3, visitSink);
+        var b = createMultiSink(records2, locationSink);
+
+        a.awaitTermination();
+        b.awaitTermination();
+
         //testado com kafka, ele executa dois ao mesmo tempo porém le de novo do source como se fosse outra query, discutir isto com o dalvan quinta
         //três opçoes: se jogar pro spark streaming, aceitar esse comportamento de ler de novo do source ou fazer o processamento em batch;
 
@@ -80,7 +81,7 @@ public class ClickAnalytics extends AbstractApplication {
 //                .map(new SpikeDetector(config), Encoders.kryo(Row.class))
 //                .filter(new SSFilterNull<>());
 
-        return createSink(records2);
+        return createSink(true);
     }
 
     @Override

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
+import org.apache.spark.sql.streaming.StreamingQueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.application.AbstractApplication;
@@ -48,6 +49,9 @@ public class AppDriver {
                 return application.buildApplication();
             } catch (ReflectiveOperationException ex) {
                 LOG.error("Unable to load application class", ex);
+                return null;
+            } catch (StreamingQueryException e) {
+                LOG.error("Unable to query application");
                 return null;
             }
         }
