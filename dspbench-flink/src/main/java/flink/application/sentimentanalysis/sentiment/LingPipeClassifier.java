@@ -3,6 +3,8 @@ package flink.application.sentimentanalysis.sentiment;
 import com.aliasi.classify.ConditionalClassification;
 import com.aliasi.classify.LMClassifier;
 import com.aliasi.util.AbstractExternalizable;
+import flink.constants.SentimentAnalysisConstants;
+import org.apache.flink.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +17,9 @@ public class LingPipeClassifier implements SentimentClassifier {
     private LMClassifier classifier;
     
     @Override
-    public void initialize() {
+    public void initialize(Configuration config) {
         try {
-            String clsPath = DEFAULT_PATH;//config.getString(Conf.LINGPIPE_CLASSIFIER_PATH, DEFAULT_PATH);
+            String clsPath = config.getString(SentimentAnalysisConstants.Conf.LINGPIPE_CLASSIFIER_PATH, DEFAULT_PATH);
             classifier = (LMClassifier) AbstractExternalizable.readObject(new File(clsPath));
         } catch (ClassNotFoundException | IOException ex) {
             LOG.error(ex.getMessage(), ex);

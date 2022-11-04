@@ -1,7 +1,6 @@
 package flink.constants;
 /**
  *
- * @author Maycon Viana Bordin <mayconbordin@gmail.com>
  */
 public interface BaseConstants {
     String BASE_PREFIX = "flink";

@@ -1,6 +1,7 @@
 package flink.source;
 
 import flink.util.Configurations;
+import flink.util.Metrics;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -9,11 +10,11 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
  *
  * @author gabrielfim
  */
-public abstract class BaseSource {
+public abstract class BaseSource{
     protected Configuration config;
     protected transient StreamExecutionEnvironment env;
     protected String prefix;
-    
+
     public void initialize(Configuration config, StreamExecutionEnvironment env, String prefix) {
         this.config = config;
         this.env = env;

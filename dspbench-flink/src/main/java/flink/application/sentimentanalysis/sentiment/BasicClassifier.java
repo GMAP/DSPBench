@@ -5,6 +5,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import flink.constants.SentimentAnalysisConstants;
+import org.apache.flink.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +21,11 @@ public class BasicClassifier implements SentimentClassifier {
     private SortedMap<String, Integer> afinnSentimentMap;
     
     @Override
-    public void initialize() {
+    public void initialize(Configuration config) {
         afinnSentimentMap = Maps.newTreeMap();
         
         try {
-            String path = DEFAULT_PATH;//config.getString(Conf.BASIC_CLASSIFIER_PATH, DEFAULT_PATH);
+            String path = config.getString(SentimentAnalysisConstants.Conf.BASIC_CLASSIFIER_PATH, DEFAULT_PATH);
             final URL url = Resources.getResource(path);
             final String text = Resources.toString(url, Charsets.UTF_8);
             final Iterable<String> lineSplit = Splitter.on("\n").trimResults().omitEmptyStrings().split(text);
@@ -43,31 +45,31 @@ public class BasicClassifier implements SentimentClassifier {
     public SentimentResult classify(String str) {
         //Remove all punctuation and new line chars in the tweet.
         final String text = str.replaceAll("\\p{Punct}|\\n", " ").toLowerCase();
-        
+
         //Splitting the tweet on empty space.
         final Iterable<String> words = Splitter.on(' ')
                                                .trimResults()
                                                .omitEmptyStrings()
                                                .split(text);
         int sentimentOfCurrentTweet = 0;
-        
-        //Loop thru all the words and find the sentiment of this text
+
+        //Loop through all the words and find the sentiment of this text
         for (final String word : words) {
             if (afinnSentimentMap.containsKey(word)){
                 sentimentOfCurrentTweet += afinnSentimentMap.get(word);
             }
         }
-        
+
         SentimentResult result = new SentimentResult();
         result.setScore(sentimentOfCurrentTweet);
-        
+
         if (sentimentOfCurrentTweet > 0)
             result.setSentiment(SentimentResult.Sentiment.Positive);
         else if (sentimentOfCurrentTweet < 0)
             result.setSentiment(SentimentResult.Sentiment.Negative);
         else
             result.setSentiment(SentimentResult.Sentiment.Neutral);
-        
+
         return result;
     }
     

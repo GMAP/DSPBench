@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 /**
  *
- * @author mayconbordin
  */
 public class Configurations extends Configuration implements Serializable {
     public static final String GEOIP_INSTANCE = "geoip.instance";

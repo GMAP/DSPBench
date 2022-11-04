@@ -2,7 +2,6 @@ package flink.application.sentimentanalysis.sentiment;
 
 /**
  *
- * @author mayconbordin
  */
 public class SentimentResult {
     public static enum Sentiment {

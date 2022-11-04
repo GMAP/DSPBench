@@ -39,37 +39,17 @@ public class WordCount extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple2<String, String>> dataParse = data.map(new StringParser());
+        DataStream<Tuple2<String, String>> dataParse = data.map(new StringParser(config));
 
         // Process
-        DataStream<Tuple3<String, Integer, String>> count = dataParse.filter(value -> (value != null)).flatMap(new Tokenizer())
-                .name("tokenizer")
-                .keyBy(value -> value.f0)
-                .sum(1)
-                .name("counter")
-                .setParallelism(wordCountThreads);
+        DataStream<Tuple3<String, Integer, String>> splitter = dataParse.filter(value -> (value != null)).flatMap(new Splitter(config)).setParallelism(splitSentenceThreads);
+
+        DataStream<Tuple3<String, Integer, String>> count = splitter.keyBy(value -> value.f0).flatMap(new Counter(config)).setParallelism(wordCountThreads);
 
         // Sink
         createSink(count);
 
         return env;
-    }
-
-    public static final class Tokenizer
-            implements FlatMapFunction<Tuple2<String, String>, Tuple3<String, Integer, String>> {
-
-        @Override
-        public void flatMap(Tuple2<String, String> value, Collector<Tuple3<String, Integer, String>> out) {
-            // normalize and split the line
-            String[] tokens = value.f0.toLowerCase().split("\\W");
-
-            // emit the pairs
-            for (String token : tokens) {
-                if (token.length() > 0) {
-                    out.collect(new Tuple3<>(token, 1, value.f1));
-                }
-            }
-        }
     }
 
     @Override
