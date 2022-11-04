@@ -13,4 +13,9 @@ public interface ClickAnalyticsConstants extends BaseConstants {
         String TOTAL_STATS_THREADS   = "ca.total_stats.threads";
         String GEO_STATS_THREADS     = "ca.geo_stats.threads";
     }
+
+    interface Component {
+        String SINK_VISIT = "ca.visit.sink.class";
+        String SINK_LOCATION = "ca.location.sink.class";
+    }
 }

@@ -53,7 +53,7 @@ public class StruturedStreamingRunner {
         driver = new AppDriver();
 
         driver.addApp("wordcount", WordCount.class);
-       // driver.addApp("log-processing", LogProcessing.class);
+        // driver.addApp("log-processing", LogProcessing.class);
         driver.addApp("trafficmonitoring", TrafficMonitoring.class);
         driver.addApp("sentimentanalysis", SentimentAnalysis.class);
         driver.addApp("frauddetection", FraudDetection.class);
@@ -97,12 +97,13 @@ public class StruturedStreamingRunner {
 
         app.getContext(applicationName, config);
         var query = app.getContext(applicationName, config);
-
         try {
-            if (timeoutInSeconds != null) {
-                query.start().awaitTermination(TimeUnit.SECONDS.toMillis(timeoutInSeconds));
-            } else {
-                query.start().awaitTermination();
+            if (query != null) {
+                if (timeoutInSeconds != null) {
+                    query.start().awaitTermination(TimeUnit.SECONDS.toMillis(timeoutInSeconds));
+                } else {
+                    query.start().awaitTermination();
+                }
             }
         } catch (TimeoutException | StreamingQueryException e) {
             throw new RuntimeException(e);

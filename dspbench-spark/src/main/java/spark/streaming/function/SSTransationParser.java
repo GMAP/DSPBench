@@ -32,8 +32,6 @@ public class SSTransationParser extends BaseFunction implements MapFunction<Stri
             String[] items = value.split(",", 2);
 
             return RowFactory.create(items[0], items[1]);
-
-
         } catch (NumberFormatException ex) {
             LOG.error("Error parsing numeric value", ex);
         } catch (IllegalArgumentException ex) {
