@@ -54,34 +54,33 @@ public class ClickAnalytics extends AbstractApplication {
                 .as(Encoders.STRING())
                 .map(new ClickStreamParser(config), Encoders.kryo(Row.class));
 
-        var records2 = records
-                .repartition(parserThreads)
-                .map(new ClickStreamParser2(config), Encoders.kryo(Row.class));
+        //TODO can join two operators in one, using groupbykey and mapgroupswithstate.
+        var repeats = records
+                .repartition(repeatsThreads)
+                .map(new SSRepeatVisit(config), Encoders.kryo(Row.class));
 
-        var records3 = records
-                .repartition(parserThreads)
-                .map(new ClickStreamParser3(config), Encoders.kryo(Row.class));
+        var visitStats = repeats
+                .repartition(totalStatsThreads)
+                .map(new SSVisitStats(config), Encoders.kryo(Row.class));
 
-        var a = createMultiSink(records3, visitSink);
-        var b = createMultiSink(records2, locationSink);
 
-        a.awaitTermination();
-        b.awaitTermination();
+        var geos = records
+                .repartition(geographyThreads)
+                .map(new SSGeography(config), Encoders.kryo(Row.class));
 
-        //testado com kafka, ele executa dois ao mesmo tempo porém le de novo do source como se fosse outra query, discutir isto com o dalvan quinta
-        //três opçoes: se jogar pro spark streaming, aceitar esse comportamento de ler de novo do source ou fazer o processamento em batch;
+        var geoStats = geos
+                .repartition(geoStatsThreads)
+                .filter(new SSFilterNull<>())
+                .map(new SSGeoStats(config), Encoders.kryo(Row.class));
 
-//        var averages = records.filter(new SSFilterNull<>())
-//                .repartition(movingAverageThreads)
-//                .groupByKey((MapFunction<Row, Integer>) row -> row.getInt(0), Encoders.INT())
-//                .flatMapGroupsWithState(new FlatMovingAverage(config), OutputMode.Update(), Encoders.kryo(Moving.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
-//
-//        var spikes = averages
-//                .repartition(spikeDetectorThreads)
-//                .map(new SpikeDetector(config), Encoders.kryo(Row.class))
-//                .filter(new SSFilterNull<>());
 
-        return createSink(true);
+        var visitS = createMultiSink(visitStats, visitSink);
+        var locationS = createMultiSink(geoStats, locationSink);
+
+        visitS.awaitTermination();
+        locationS.awaitTermination();
+
+        return createSink();
     }
 
     @Override

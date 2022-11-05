@@ -35,7 +35,7 @@ public class ClickStreamParser extends BaseFunction implements MapFunction<Strin
             ClickStream clickstream = new Gson().fromJson(value, ClickStream.class);
             return RowFactory.create(clickstream.ip,
                     clickstream.url,
-                    clickstream.clientKey, UUID.randomUUID());
+                    clickstream.clientKey);
         } catch (JsonSyntaxException ex) {
             LOG.error("Error parsing JSON encoded clickstream: " + value, ex);
         }

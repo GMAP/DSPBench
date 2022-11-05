@@ -2,13 +2,14 @@ package spark.streaming.util.geoip;
 
 import spark.streaming.util.Configuration;
 
+import java.io.Serializable;
 
 
 /**
  *
  * @author mayconbordin
  */
-public class IPLocationFactory {
+public class IPLocationFactory implements Serializable {
     public static final String GEOIP2 = "geoip2";
     
     public static IPLocation create(String name, Configuration config) {
