@@ -4,6 +4,7 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.configuration.Configuration;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -14,13 +15,14 @@ import java.time.Instant;
 import java.util.Date;
 
 /**
- * @author mayconbordin
  */
 public class JsonTweetParser extends JsonParser  implements MapFunction<String, Tuple4<String, String, Date, String>> {
     private static final Logger LOG = LoggerFactory.getLogger(JsonTweetParser.class);
     private static final DateTimeFormatter datetimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     public Tuple4<String, String, Date, String> map(String input) {
+        super.calculateThroughput();
+
         Tuple1<JSONObject> parsed = super.parse(input);
 
         JSONObject tweet = (JSONObject) parsed.getField(0);

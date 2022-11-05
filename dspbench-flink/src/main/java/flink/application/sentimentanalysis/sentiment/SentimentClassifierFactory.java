@@ -4,7 +4,6 @@ import org.apache.flink.configuration.Configuration;
 
 /**
  *
- * @author mayconbordin
  */
 public class SentimentClassifierFactory {
     public static final String LINGPIPE = "lingpipe";
@@ -24,7 +23,7 @@ public class SentimentClassifierFactory {
                 throw new IllegalArgumentException("There is not sentiment classifier named " + classifierName);
         }
         
-        classifier.initialize();
+        classifier.initialize(config);
         
         return classifier;
     }

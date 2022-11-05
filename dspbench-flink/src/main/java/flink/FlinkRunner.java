@@ -4,8 +4,15 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Lists;
+import flink.application.clickanalytics.ClickAnalytics;
+import flink.application.logprocessing.LogProcessing;
+import flink.application.machineoutiler.MachineOutlier;
 import flink.application.sentimentanalysis.SentimentAnalysis;
+import flink.application.smartgrid.SmartGrid;
+import flink.application.spikedetection.SpikeDetection;
+import flink.application.trafficmonitoring.TrafficMonitoring;
 import flink.application.wordcount.WordCount;
+import flink.application.frauddetection.FraudDetection;
 import flink.util.Configurations;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -22,7 +29,7 @@ import java.util.Random;
 /**
  * Utility class to run a Spark Streaming application
  *
- * @author Maycon Viana Bordin <mayconbordin@gmail.com>
+ * @author Gabriel Rustick Fim
  */
 public class FlinkRunner {
     private static final Logger LOG = LoggerFactory.getLogger(FlinkRunner.class);
@@ -49,20 +56,14 @@ public class FlinkRunner {
     public FlinkRunner() {
         driver = new AppDriver();
 
-        /*
-        driver.addApp("bargainindex"        , BargainIndexTopology.class);
-        driver.addApp("clickanalytics"      , ClickAnalyticsTopology.class);
-        driver.addApp("frauddetection"      , FraudDetectionTopology.class);
-        driver.addApp("logprocessing"       , LogProcessingTopology.class);
-        driver.addApp("machineoutlier"      , MachineOutlierTopology.class);
-
-        driver.addApp("spamfilter"          , SpamFilterTopology.class);
-        driver.addApp("spikedetection"      , SpikeDetectionTopology.class);
-        driver.addApp("trendingtopics"      , TrendingTopicsTopology.class);
-        driver.addApp("trafficmonitoring"   , TrafficMonitoringTopology.class);
-        driver.addApp("smartgrid"           , SmartGridTopology.class);
-        */
-        driver.addApp("sentimentanalysis"   , SentimentAnalysis.class);
+        driver.addApp("clickanalytics", ClickAnalytics.class);
+        driver.addApp("frauddetection", FraudDetection.class);
+        driver.addApp("logprocessing", LogProcessing.class);
+        driver.addApp("machineoutlier", MachineOutlier.class);
+        driver.addApp("sentimentanalysis", SentimentAnalysis.class);
+        driver.addApp("spikedetection", SpikeDetection.class);
+        driver.addApp("smartgrid", SmartGrid.class);
+        driver.addApp("trafficmonitoring", TrafficMonitoring.class);
         driver.addApp("wordcount", WordCount.class);
     }
 
@@ -99,13 +100,7 @@ public class FlinkRunner {
         StreamExecutionEnvironment exec = app.getContext(applicationName, config);
 
         try {
-            if (timeoutInSeconds != null) {
-                //System.out.println("Hello1 " + exec);
-                exec.execute();
-            } else {
-                //System.out.println("Hello2 " + exec);
-                exec.execute();
-            }
+            exec.execute(applicationName);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

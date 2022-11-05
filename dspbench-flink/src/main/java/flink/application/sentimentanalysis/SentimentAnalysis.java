@@ -39,7 +39,7 @@ public class SentimentAnalysis extends AbstractApplication {
         DataStream<Tuple4<String, String, Date, String>> dataParse = data.map(new JsonTweetParser());
 
         // Process
-        DataStream<Tuple6<String, String, Date, String, Double, String>> calculate = dataParse.flatMap(new SentimentCalculator()).setParallelism(classifierThreads);
+        DataStream<Tuple6<String, String, Date, String, Double, String>> calculate = dataParse.filter(value -> (value != null)).flatMap(new SentimentCalculator(config)).setParallelism(classifierThreads);
 
         // Sink
         createSink(calculate);
