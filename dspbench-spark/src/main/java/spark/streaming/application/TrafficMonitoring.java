@@ -68,7 +68,8 @@ public class TrafficMonitoring extends AbstractApplication {
                 .repartition(mapMatcherThreads)
                 .groupByKey(new SSMapMatcher(config), Encoders.INT());
 
-        var speed = roads.mapGroupsWithState(new SSSpeedCalculator(config), Encoders.kryo(Road.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout())
+        var speed = roads
+                .mapGroupsWithState(new SSSpeedCalculator(config), Encoders.kryo(Road.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout())
                 .repartition(speedCalculatorThreads);
 
         return createSink(speed);

@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import spark.streaming.constants.ClickAnalyticsConstants;
 import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.function.*;
+import spark.streaming.model.CountryStats;
 import spark.streaming.model.Moving;
+import spark.streaming.model.VisitStats;
+import spark.streaming.model.gis.Road;
 import spark.streaming.util.Configuration;
 
 import java.util.concurrent.TimeoutException;
@@ -54,15 +57,15 @@ public class ClickAnalytics extends AbstractApplication {
                 .as(Encoders.STRING())
                 .map(new ClickStreamParser(config), Encoders.kryo(Row.class));
 
-        //TODO can join two operators in one, using groupbykey and mapgroupswithstate.
         var repeats = records
                 .repartition(repeatsThreads)
-                .map(new SSRepeatVisit(config), Encoders.kryo(Row.class));
+                .groupByKey((MapFunction<Row, String>) row -> row.get(1) + ":" + row.get(2), Encoders.STRING())
+                .flatMapGroupsWithState(new SSFlatRepeatVisit(config), OutputMode.Append(), Encoders.BOOLEAN(), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
         var visitStats = repeats
                 .repartition(totalStatsThreads)
-                .map(new SSVisitStats(config), Encoders.kryo(Row.class));
-
+                .groupByKey((MapFunction<Row, Integer>) row -> 0, Encoders.INT())
+                .flatMapGroupsWithState(new SSVisitStats(config), OutputMode.Append(), Encoders.kryo(VisitStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
         var geos = records
                 .repartition(geographyThreads)
@@ -71,8 +74,8 @@ public class ClickAnalytics extends AbstractApplication {
         var geoStats = geos
                 .repartition(geoStatsThreads)
                 .filter(new SSFilterNull<>())
-                .map(new SSGeoStats(config), Encoders.kryo(Row.class));
-
+                .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
+                .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Append(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
         var visitS = createMultiSink(visitStats, visitSink);
         var locationS = createMultiSink(geoStats, locationSink);

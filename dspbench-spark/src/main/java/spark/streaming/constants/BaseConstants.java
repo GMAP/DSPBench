@@ -10,6 +10,7 @@ public interface BaseConstants {
     String BASE_PREFIX = "spark";
     
     interface BaseConfig {
+        String OUTPUT_MODE         = "spark.output.mode";
         String BATCH_SIZE         = "%s.batch.size";
         String CHECKPOINT_PATH    = "%s.checkpoint.path";
         

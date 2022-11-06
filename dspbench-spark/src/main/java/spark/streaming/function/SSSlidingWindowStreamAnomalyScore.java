@@ -33,7 +33,7 @@ public class SSSlidingWindowStreamAnomalyScore extends BaseFunction implements M
 
     @Override
     public Row call(Row input) throws Exception {
-        long timestamp = input.getLong(2);
+        long timestamp = input.getLong(2); //TODO change to window spark method
         String id = input.getString(0);
         double dataInstanceAnomalyScore = input.getDouble(1);
 

@@ -4,6 +4,8 @@ import org.apache.spark.api.java.function.FlatMapGroupsWithStateFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.streaming.GroupState;
+import spark.streaming.constants.SpikeDetectionConstants;
+import spark.streaming.model.Moving;
 import spark.streaming.model.VisitStats;
 import spark.streaming.util.Configuration;
 
@@ -14,27 +16,24 @@ import java.util.List;
 /**
  * @author luandopke
  */
-public class SSVisitStats extends BaseFunction implements FlatMapGroupsWithStateFunction<Integer, Row, VisitStats, Row> {
+public class SSFlatRepeatVisit extends BaseFunction implements FlatMapGroupsWithStateFunction<String, Row, Boolean, Row> {
 
-    public SSVisitStats(Configuration config) {
+    public SSFlatRepeatVisit(Configuration config) {
         super(config);
     }
 
     @Override
-    public Iterator<Row> call(Integer key, Iterator<Row> values, GroupState<VisitStats> state) throws Exception {
-        VisitStats stats;
-        Row tuple;
+    public Iterator<Row> call(String key, Iterator<Row> values, GroupState<Boolean> state) throws Exception {
         List<Row> tuples = new ArrayList<>();
+        Row tuple;
         while (values.hasNext()) {
             tuple = values.next();
             if (!state.exists()) {
-                stats = new VisitStats();
+                tuples.add(RowFactory.create(tuple.get(2), tuple.get(1), Boolean.TRUE));
+                state.update(true);
             } else {
-                stats = state.get();
+                tuples.add(RowFactory.create(tuple.get(2), tuple.get(1), Boolean.FALSE));
             }
-            stats.add(tuple.getBoolean(2));
-            state.update(stats);
-            tuples.add(RowFactory.create(stats.getTotal(), stats.getUniqueCount()));
         }
         return tuples.iterator();
     }

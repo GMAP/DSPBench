@@ -5,6 +5,7 @@ import org.apache.spark.sql.ForeachWriter;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 import org.apache.spark.sql.streaming.Trigger;
+import spark.streaming.constants.BaseConstants;
 
 public class ConsoleSink extends BaseSink {
 
@@ -26,7 +27,7 @@ public class ConsoleSink extends BaseSink {
             public void close(Throwable errorOrNull) {
                 // Close the connection
             }
-        }).outputMode("update")
+        }).outputMode(config.get(BaseConstants.BaseConfig.OUTPUT_MODE, "update"))
           .trigger(Trigger.AvailableNow());
     }
 }

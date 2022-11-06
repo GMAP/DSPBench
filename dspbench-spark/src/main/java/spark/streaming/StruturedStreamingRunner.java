@@ -95,7 +95,6 @@ public class StruturedStreamingRunner {
         config.setAppName(applicationName);
         config.setMaster(master);
 
-        app.getContext(applicationName, config);
         var query = app.getContext(applicationName, config);
         try {
             if (query != null) {
