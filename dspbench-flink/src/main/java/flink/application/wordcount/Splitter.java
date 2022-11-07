@@ -18,8 +18,9 @@ import org.slf4j.LoggerFactory;
 public class Splitter extends Metrics implements FlatMapFunction<Tuple2<String, String>, Tuple3<String, Integer, String>>  {
 
     private static final Logger LOG = LoggerFactory.getLogger(Splitter.class);
-    Configuration config;
     private static final String splitregex = "\\W";
+
+    Configuration config;
 
     public Splitter(Configuration config){
         super.initialize(config);

@@ -7,6 +7,7 @@ import flink.application.trafficmonitoring.gis.GPSRecord;
 import flink.application.trafficmonitoring.gis.RoadGridList;
 import flink.constants.SentimentAnalysisConstants;
 import flink.constants.TrafficMonitoringConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
@@ -25,7 +26,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Locale;
 
-public class MapMatching implements FlatMapFunction<Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>, Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>>  {
+public class MapMatching extends Metrics implements FlatMapFunction<Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>, Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>>  {
 
     private static final Logger LOG = LoggerFactory.getLogger(MapMatching.class);
 
@@ -35,10 +36,11 @@ public class MapMatching implements FlatMapFunction<Tuple8<String, DateTime, Boo
     private double lonMin;
     private double lonMax;
 
-    Configuration configs;
+    Configuration config;
 
     public MapMatching(Configuration config) {
-        configs = config;
+        this.config = config;
+        super.initialize(config);
         loadShapefile(config);
     }
 
@@ -60,7 +62,7 @@ public class MapMatching implements FlatMapFunction<Tuple8<String, DateTime, Boo
 
     private RoadGridList getSectors() {
         if (sectors == null) {
-            loadShapefile(configs);
+            loadShapefile(config);
         }
 
         return sectors;
@@ -68,6 +70,7 @@ public class MapMatching implements FlatMapFunction<Tuple8<String, DateTime, Boo
 
     @Override
     public void flatMap(Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String> input, Collector<Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>> out){
+        super.initialize(config);
         RoadGridList gridList = getSectors();
         try {
             int speed = input.getField(3);
@@ -85,6 +88,7 @@ public class MapMatching implements FlatMapFunction<Tuple8<String, DateTime, Boo
             if (roadID != -1) {
                 out.collect(new Tuple9<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer, String>(input.f0, input.f1, input.f2, input.f3, input.f4, input.f5, input.f6, roadID,input.f7));
             }
+            super.calculateThroughput();
         } catch (SQLException ex) {
             System.out.println("Unable to fetch road ID " + ex);
         }

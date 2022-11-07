@@ -19,7 +19,7 @@ import java.util.concurrent.BlockingQueue;
 public class Metrics {
     Configuration config;
     private final Map<String, Long> throughput = new HashMap<>();
-    private BlockingQueue<String> queue;
+    private BlockingQueue<String> queue = new ArrayBlockingQueue<>(50);;
     protected String configPrefix = BaseConstants.BASE_PREFIX;
     private File file;
     private static final Logger LOG = LoggerFactory.getLogger(Metrics.class);
@@ -32,12 +32,25 @@ public class Metrics {
         pathLa.mkdirs();
         pathTrh.mkdirs();
 
-        queue = new ArrayBlockingQueue<>(50);
+        this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
+    }
+
+    public void initialize(Configuration config, String sinkName) {
+        this.config = config;
+        if (!this.configPrefix.contains(sinkName)) {
+            this.configPrefix = String.format("%s.%s", configPrefix, sinkName);
+        }
+        File pathLa = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "latency").toFile();
+        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
+
+        pathLa.mkdirs();
+        pathTrh.mkdirs();
 
         this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
     }
 
     public void calculateThroughput() {
+
         if (config.getBoolean(Configurations.METRICS_ENABLED, false)) {
             long unixTime = 0;
             if (config.getString(Configurations.METRICS_INTERVAL_UNIT, "seconds").equals("seconds")) {
@@ -45,14 +58,13 @@ public class Metrics {
             } else {
                 unixTime = Instant.now().toEpochMilli();
             }
-
             Long ops = throughput.get(unixTime + "");
             if (ops == null) {
                 for (Map.Entry<String, Long> entry : this.throughput.entrySet()) {
                     this.queue.add(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
                 }
                 throughput.clear();
-                if (queue.size() >= 10) {
+                if (queue.size() >= 3) {
                     SaveMetrics();
                 }
             }

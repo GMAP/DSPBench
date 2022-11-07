@@ -16,7 +16,6 @@ public class StringParser extends Parser implements MapFunction<String, Tuple2<S
 
     Configuration config;
 
-
     public StringParser(Configuration config){
         super.initialize(config);
         this.config = config;

@@ -20,7 +20,15 @@ public class JsonTweetParser extends JsonParser  implements MapFunction<String, 
     private static final Logger LOG = LoggerFactory.getLogger(JsonTweetParser.class);
     private static final DateTimeFormatter datetimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
+    Configuration config;
+
+    public JsonTweetParser(Configuration config){
+        super.initialize(config);
+        this.config = config;
+    }
+
     public Tuple4<String, String, Date, String> map(String input) {
+        super.initialize(config);
         super.calculateThroughput();
 
         Tuple1<JSONObject> parsed = super.parse(input);

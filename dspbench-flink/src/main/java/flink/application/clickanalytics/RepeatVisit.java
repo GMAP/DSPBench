@@ -6,6 +6,7 @@ import flink.application.sentimentanalysis.sentiment.SentimentResult;
 import flink.application.trafficmonitoring.gis.RoadGridList;
 import flink.constants.SentimentAnalysisConstants;
 import flink.constants.TrafficMonitoringConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
@@ -23,14 +24,18 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class RepeatVisit implements FlatMapFunction<Tuple4<String, String, String, String>, Tuple4<String, String, String, String>> {
+public class RepeatVisit extends Metrics implements FlatMapFunction<Tuple4<String, String, String, String>, Tuple4<String, String, String, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RepeatVisit.class);
 
     private static Map<String, Void> map;
 
+    Configuration config;
+
     public RepeatVisit(Configuration config) {
         getVisits();
+        super.initialize(config);
+        this.config = config;
     }
 
     private Map<String, Void>  getVisits() {
@@ -44,6 +49,7 @@ public class RepeatVisit implements FlatMapFunction<Tuple4<String, String, Strin
 
     @Override
     public void flatMap(Tuple4<String, String, String, String> input, Collector<Tuple4<String, String, String, String>> out) {
+        super.initialize(config);
         getVisits();
 
         String clientKey = input.getField(2);
@@ -55,8 +61,8 @@ public class RepeatVisit implements FlatMapFunction<Tuple4<String, String, Strin
             out.collect(new Tuple4<String, String, String,String>(clientKey, url, Boolean.FALSE.toString(), initTime));
         } else {
             map.put(key, null);
-        out.collect(new Tuple4<String, String, String,String>(clientKey, url, Boolean.TRUE.toString(), initTime));
+            out.collect(new Tuple4<String, String, String,String>(clientKey, url, Boolean.TRUE.toString(), initTime));
         }
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 }

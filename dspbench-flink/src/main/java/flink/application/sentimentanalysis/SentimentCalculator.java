@@ -4,6 +4,7 @@ import flink.application.sentimentanalysis.sentiment.SentimentClassifier;
 import flink.application.sentimentanalysis.sentiment.SentimentClassifierFactory;
 import flink.application.sentimentanalysis.sentiment.SentimentResult;
 import flink.constants.SentimentAnalysisConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
@@ -17,22 +18,24 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.Locale;
 
-public class SentimentCalculator implements FlatMapFunction<Tuple4<String, String, Date, String>, Tuple6<String, String, Date, String, Double, String>> {
+public class SentimentCalculator extends Metrics implements FlatMapFunction<Tuple4<String, String, Date, String>, Tuple6<String, String, Date, String, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SentimentCalculator.class);
 
-    private static final DateTimeFormatter datetimeFormatter = DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy")
-            .withLocale(Locale.ENGLISH);
-
     private SentimentClassifier classifier;
 
+    Configuration config;
+
     public SentimentCalculator(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         String classifierType = config.getString(SentimentAnalysisConstants.Conf.CLASSIFIER_TYPE, SentimentClassifierFactory.BASIC);
         classifier = SentimentClassifierFactory.create(classifierType, config);
     }
 
     @Override
     public void flatMap(Tuple4<String, String, Date, String> input, Collector<Tuple6<String, String, Date, String, Double, String>> out) {
+        super.initialize(config);
         String tweetId = input.getField(0);
         String text = input.getField(1);
         Date timestamp = input.getField(2);
@@ -41,6 +44,6 @@ public class SentimentCalculator implements FlatMapFunction<Tuple4<String, Strin
         SentimentResult result = classifier.classify(text);
 
         out.collect(new Tuple6<String, String, Date, String, Double, String>(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore(), time));
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 }

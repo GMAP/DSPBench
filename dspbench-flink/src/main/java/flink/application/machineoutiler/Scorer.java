@@ -6,6 +6,7 @@ import flink.application.sentimentanalysis.sentiment.SentimentClassifierFactory;
 import flink.application.sentimentanalysis.sentiment.SentimentResult;
 import flink.constants.MachineOutlierConstants;
 import flink.constants.SentimentAnalysisConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -19,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class Scorer implements FlatMapFunction<Tuple4<String, Long, MachineMetadata, String>, Tuple5<String, Double, Long, Object,String>> {
+public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Long, MachineMetadata, String>, Tuple5<String, Double, Long, Object,String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Scorer.class);
 
@@ -27,11 +28,12 @@ public class Scorer implements FlatMapFunction<Tuple4<String, Long, MachineMetad
     private static String dataTypeName;
     private static List<Object> observationList;
     private static DataInstanceScorer dataInstanceScorer;
-    Configuration configs;
+    Configuration config;
 
     public Scorer(Configuration config) {
+        super.initialize(config);
         previousTimestamp = 0;
-        configs = config;
+        this.config = config;
         createScorer(config);
         getList();
 
@@ -56,8 +58,9 @@ public class Scorer implements FlatMapFunction<Tuple4<String, Long, MachineMetad
 
     @Override
     public void flatMap(Tuple4<String, Long, MachineMetadata, String> input, Collector<Tuple5<String, Double, Long, Object,String>> out) {
+        super.initialize(config);
         getList();
-        createScorer(configs);
+        createScorer(config);
         long timestamp = input.getField(1);
         if (timestamp > previousTimestamp) {
             // a new batch of observation, calculate the scores of old batch and then emit
@@ -73,6 +76,6 @@ public class Scorer implements FlatMapFunction<Tuple4<String, Long, MachineMetad
         }
 
         observationList.add(input.getField(2));
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 }

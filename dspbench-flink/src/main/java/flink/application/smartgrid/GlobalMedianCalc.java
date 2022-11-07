@@ -4,6 +4,7 @@ import flink.application.smartgrid.window.SlidingWindow;
 import flink.application.smartgrid.window.SlidingWindowCallback;
 import flink.application.smartgrid.window.SlidingWindowEntry;
 import flink.constants.SmartGridConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
@@ -13,14 +14,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class GlobalMedianCalc implements FlatMapFunction<Tuple7<Long, String, String, String, Double, Integer, String>, Tuple5<String, String, Long, Double, String>> {
+public class GlobalMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Long, String, String, String, Double, Integer, String>, Tuple5<String, String, Long, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalMedianCalc.class);
 
     private static RunningMedianCalculator medianCalc;
     private long lastUpdatedTs;
 
+    Configuration config;
+
     public GlobalMedianCalc(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         createMed();
     }
 
@@ -34,6 +39,7 @@ public class GlobalMedianCalc implements FlatMapFunction<Tuple7<Long, String, St
 
     @Override
     public void flatMap(Tuple7<Long, String, String, String, Double, Integer, String> input, Collector<Tuple5<String, String, Long, Double, String>> out) {
+        super.initialize(config);
         createMed();
         int operation  = input.getField(5);
         double value   = input.getField(4);
@@ -49,6 +55,6 @@ public class GlobalMedianCalc implements FlatMapFunction<Tuple7<Long, String, St
         } else {
             medianCalc.remove(value);
         }
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 }

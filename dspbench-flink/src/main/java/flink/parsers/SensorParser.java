@@ -25,6 +25,8 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple4<S
     private String valueField;
     private int valueFieldKey;
 
+    Configuration config;
+
     private static final ImmutableMap<String, Integer> fieldList = ImmutableMap.<String, Integer>builder()
             .put("temp", 4)
             .put("humid", 5)
@@ -33,12 +35,15 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple4<S
             .build();
 
     public SensorParser(Configuration config){
+        super.initialize(config);
+        this.config = config;
         valueField = config.getString(SpikeDetectionConstants.Conf.PARSER_VALUE_FIELD, "temp");
         valueFieldKey = fieldList.get(valueField);
     }
 
     @Override
     public Tuple4<String, Date, Double, String> map(String value) throws Exception {
+        super.initialize(config);
         super.calculateThroughput();
         DateTimeFormatter formatterMillis = new DateTimeFormatterBuilder()
                 .appendYear(4, 4).appendLiteral("-").appendMonthOfYear(2).appendLiteral("-")

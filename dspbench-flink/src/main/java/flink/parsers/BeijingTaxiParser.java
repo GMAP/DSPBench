@@ -14,9 +14,16 @@ import java.time.Instant;
  */
 public class BeijingTaxiParser extends Metrics implements MapFunction<String, Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>> {
 
+    Configuration config;
+
+    public BeijingTaxiParser(Configuration config){
+        super.initialize(config);
+        this.config = config;
+    }
+
     @Override
     public Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String> map(String value) throws Exception {
-
+        super.initialize(config);
         super.calculateThroughput();
 
         String[] temp = value.split(",");

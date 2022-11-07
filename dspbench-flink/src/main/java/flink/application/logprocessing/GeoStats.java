@@ -1,5 +1,6 @@
 package flink.application.logprocessing;
 
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -13,13 +14,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GeoStats implements FlatMapFunction<Tuple3<String, String, String>, Tuple5<String, Integer, String, Integer, String>> {
+public class GeoStats extends Metrics implements FlatMapFunction<Tuple3<String, String, String>, Tuple5<String, Integer, String, Integer, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GeoStats.class);
 
     private static Map<String, CountryStats> stats;
 
+    Configuration config;
+
     public GeoStats(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         getStats();
     }
 
@@ -33,6 +38,7 @@ public class GeoStats implements FlatMapFunction<Tuple3<String, String, String>,
 
     @Override
     public void flatMap(Tuple3<String, String, String> input, Collector<Tuple5<String, Integer, String, Integer, String>> out) {
+        super.initialize(config);
         getStats();
         String country = input.getField(0);
         String city    = input.getField(1);
@@ -44,7 +50,7 @@ public class GeoStats implements FlatMapFunction<Tuple3<String, String, String>,
         stats.get(country).cityFound(city);
 
         out.collect(new Tuple5<String, Integer, String, Integer, String>(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city), input.f2));
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 
     private class CountryStats {

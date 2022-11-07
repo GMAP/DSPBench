@@ -15,8 +15,16 @@ public class SmartPlugParser extends Parser implements MapFunction<String, Tuple
 
     private static final Logger LOG = LoggerFactory.getLogger(SmartPlugParser.class);
 
+    Configuration config;
+
+    public SmartPlugParser(Configuration config){
+        super.initialize(config);
+        this.config = config;
+    }
+
     @Override
     public Tuple8<String, Long, Double, Integer, String, String, String, String> map(String input) throws Exception {
+        super.initialize(config);
         super.calculateThroughput();
         String[] temp = input.split(",");
 

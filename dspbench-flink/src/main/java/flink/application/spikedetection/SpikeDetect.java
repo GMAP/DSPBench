@@ -2,6 +2,7 @@ package flink.application.spikedetection;
 
 import flink.application.logprocessing.GeoStats;
 import flink.constants.SpikeDetectionConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -15,16 +16,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class SpikeDetect implements FlatMapFunction<Tuple4<String, Double, Double, String>, Tuple5<String, Double, Double, String, String>> {
+public class SpikeDetect extends Metrics implements FlatMapFunction<Tuple4<String, Double, Double, String>, Tuple5<String, Double, Double, String, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpikeDetect.class);
 
     private static double spikeThreshold;
 
-    Configuration configs;
+    Configuration config;
 
     public SpikeDetect(Configuration config) {
-        configs = config;
+        super.initialize(config);
+        this.config = config;
         spikeThres(config);
     }
 
@@ -39,7 +41,8 @@ public class SpikeDetect implements FlatMapFunction<Tuple4<String, Double, Doubl
 
     @Override
     public void flatMap(Tuple4<String, Double, Double, String> input, Collector<Tuple5<String, Double, Double, String, String>> out) {
-        spikeThres(configs);
+        super.initialize(config);
+        spikeThres(config);
         String deviceID = input.getField(0);
         double movingAverageInstant = input.getField(1);
         double nextDouble = input.getField(2);
@@ -47,6 +50,6 @@ public class SpikeDetect implements FlatMapFunction<Tuple4<String, Double, Doubl
         if (Math.abs(nextDouble - movingAverageInstant) > spikeThreshold * movingAverageInstant) {
             out.collect(new Tuple5<String, Double, Double, String, String>(deviceID, movingAverageInstant, nextDouble, "spike detected", input.f3));
         }
-        //super.calculateThroughput();
+        super.calculateThroughput();
 }
 }

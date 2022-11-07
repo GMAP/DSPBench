@@ -64,7 +64,7 @@ public class SmartGrid extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple8<String, Long, Double, Integer, String, String, String, String>> dataParse = data.map(new SmartPlugParser());
+        DataStream<Tuple8<String, Long, Double, Integer, String, String, String, String>> dataParse = data.map(new SmartPlugParser(config));
 
         // Process
         DataStream<Tuple7<Long, String, String, String, Double, Integer, String>> slideWindow = dataParse.filter(value -> (value != null)).flatMap(new SlideWindow(config)).setParallelism(slidingWindowThreads);
@@ -88,9 +88,10 @@ public class SmartGrid extends AbstractApplication {
         DataStream<Tuple6<Long,String, String, String, Double, String>> plugLoadPredictor = dataParse.keyBy(value -> value.f6).window(TumblingProcessingTimeWindows.of(Time.seconds(plugLoadFrequency))).apply(new PlugLoadPredict(config)).setParallelism(plugLoadThreads);
 
         // Sink
-        createSink(outlierDetect);
-        createSink(houseLoadPredictor);
-        createSink(plugLoadPredictor);
+        createSinkSGOutlier(outlierDetect, "outlier");
+
+        createSinkSGHouse(houseLoadPredictor, "prediction");
+        createSinkSGPlug(plugLoadPredictor, "prediction");
 
         return env;
     }
