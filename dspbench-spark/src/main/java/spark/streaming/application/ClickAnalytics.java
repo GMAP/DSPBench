@@ -27,9 +27,6 @@ public class ClickAnalytics extends AbstractApplication {
     private int geographyThreads;
     private int totalStatsThreads;
     private int geoStatsThreads;
-    private int spoutThreads;
-    private int visitSinkThreads;
-    private int locationSinkThreads;
     private String visitSink;
     private String locationSink;
 

@@ -34,7 +34,6 @@ public class SSVolumeCount extends BaseFunction implements MapGroupsWithStateFun
             state.update(count);
             values.next();
         }
-        state.setTimeoutTimestamp(state.getCurrentWatermarkMs(), "59 minutes");
         return RowFactory.create(key, count.longValue());
     }
 }

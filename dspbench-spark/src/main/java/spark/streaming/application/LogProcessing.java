@@ -27,13 +27,11 @@ public class LogProcessing extends AbstractApplication {
     private int parserThreads;
     private int volumeCountThreads;
     private int statusCountThreads;
-    private int totalStatsThreads;
+    private int geographyThreads;
     private int geoStatsThreads;
-    private int spoutThreads;
-    private int visitSinkThreads;
-    private int locationSinkThreads;
     private String volumeSink;
     private String statusSink;
+    private String geoSink;
 
     public LogProcessing(String appName, Configuration config) {
         super(appName, config);
@@ -44,14 +42,12 @@ public class LogProcessing extends AbstractApplication {
         parserThreads = config.getInt(LogProcessingConstants.Config.PARSER_THREADS, 1);
         volumeCountThreads = config.getInt(LogProcessingConstants.Config.VOLUME_COUNTER_THREADS, 1);
         statusCountThreads = config.getInt(LogProcessingConstants.Config.STATUS_COUNTER_THREADS, 1);
-      /*
-        totalStatsThreads = config.getInt(ClickAnalyticsConstants.Config.TOTAL_STATS_THREADS, 1);
-        geoStatsThreads = config.getInt(ClickAnalyticsConstants.Config.GEO_STATS_THREADS, 1);
-        visitSink = config.get(ClickAnalyticsConstants.Component.SINK_VISIT);
-        locationSink = config.get(ClickAnalyticsConstants.Component.SINK_LOCATION);*/
+        geographyThreads = config.getInt(LogProcessingConstants.Config.GEO_FINDER_THREADS, 1);
+        geoStatsThreads = config.getInt(LogProcessingConstants.Config.GEO_STATS_THREADS, 1);
 
         volumeSink = config.get(LogProcessingConstants.Component.VOLUME_SINK);
         statusSink = config.get(LogProcessingConstants.Component.STATUS_SINK);
+        geoSink = config.get(LogProcessingConstants.Component.GEO_SINK);
     }
 
     @Override
@@ -75,20 +71,16 @@ public class LogProcessing extends AbstractApplication {
 
         var volumeCount = records
                 .repartition(volumeCountThreads)
-                .withWatermark("timestamp", "1 minute")
+                .withWatermark("timestamp", "1 hour")
                 .groupByKey((MapFunction<Row, Long>) row -> row.getLong(2), Encoders.LONG())
                 .mapGroupsWithState(new SSVolumeCount(config), Encoders.kryo(MutableLong.class), Encoders.kryo(Row.class), GroupStateTimeout.EventTimeTimeout());
 
 
-      /*  var statusCount = records
+        var statusCount = records
                 .repartition(statusCountThreads)
                 .groupByKey((MapFunction<Row, Integer>) row -> row.getInt(4), Encoders.INT())
-                .mapGroupsWithState(new SSStatusCount(config), Encoders.LONG(), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());*/
+                .mapGroupsWithState(new SSStatusCount(config), Encoders.LONG(), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
-      /*    var visitStats = repeats
-                .repartition(totalStatsThreads)
-                .groupByKey((MapFunction<Row, Integer>) row -> 0, Encoders.INT())
-                .flatMapGroupsWithState(new SSVisitStats(config), OutputMode.Append(), Encoders.kryo(VisitStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
         var geos = records
                 .repartition(geographyThreads)
@@ -98,19 +90,16 @@ public class LogProcessing extends AbstractApplication {
                 .repartition(geoStatsThreads)
                 .filter(new SSFilterNull<>())
                 .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
-                .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Append(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
+                .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Update(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
-        var visitS = createMultiSink(visitStats, visitSink);
-        var locationS = createMultiSink(geoStats, locationSink);
-
-        visitS.awaitTermination();
-        locationS.awaitTermination();*/
 
         var counts = createMultiSink(volumeCount, volumeSink);
-        // var status = createMultiSink(statusCount, statusSink);
+        var status = createMultiSink(statusCount, statusSink);
+        var geo = createMultiSink(geoStats, geoSink);
 
         counts.awaitTermination();
-        //  status.awaitTermination();
+        status.awaitTermination();
+        geo.awaitTermination();
 
         return createSink();
     }
