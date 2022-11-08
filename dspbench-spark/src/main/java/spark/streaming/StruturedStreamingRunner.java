@@ -60,6 +60,7 @@ public class StruturedStreamingRunner {
         driver.addApp("spikedetection", SpikeDetection.class);
         driver.addApp("clickanalytics", ClickAnalytics.class);
         driver.addApp("machineoutlier", MachineOutlier.class);
+        driver.addApp("logprocessing", LogProcessing.class);
     }
 
     public void run() throws InterruptedException {
