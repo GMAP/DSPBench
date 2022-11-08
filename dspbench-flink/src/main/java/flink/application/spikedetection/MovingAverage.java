@@ -6,6 +6,7 @@ import flink.application.sentimentanalysis.sentiment.SentimentClassifierFactory;
 import flink.application.sentimentanalysis.sentiment.SentimentResult;
 import flink.constants.SentimentAnalysisConstants;
 import flink.constants.SpikeDetectionConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -19,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class MovingAverage implements FlatMapFunction<Tuple4<String, Date, Double, String>, Tuple4<String, Double, Double, String>> {
+public class MovingAverage extends Metrics implements FlatMapFunction<Tuple4<String, Date, Double, String>, Tuple4<String, Double, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverage.class);
 
@@ -27,10 +28,11 @@ public class MovingAverage implements FlatMapFunction<Tuple4<String, Date, Doubl
     private static Map<String, LinkedList<Double>> deviceIDtoStreamMap;
     private static Map<String, Double> deviceIDtoSumOfEvents;
 
-    Configuration configs;
+    Configuration config;
 
     public MovingAverage(Configuration config) {
-        configs = config;
+        super.initialize(config);
+        this.config = config;
         window(config);
         IdMap();
         IdSum();
@@ -62,15 +64,15 @@ public class MovingAverage implements FlatMapFunction<Tuple4<String, Date, Doubl
 
     @Override
     public void flatMap(Tuple4<String, Date, Double, String> input, Collector<Tuple4<String, Double, Double, String>> out) {
-
-        window(configs);
+        super.initialize(config);
+        window(config);
 
         String deviceID = input.getField(0);
         double nextDouble = input.getField(2);
         double movingAverageInstant = movingAverage(deviceID, nextDouble);
 
         out.collect(new Tuple4<String, Double, Double, String>(deviceID, movingAverageInstant, nextDouble, input.f3));
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 
     private double movingAverage(String deviceID, double nextDouble) {

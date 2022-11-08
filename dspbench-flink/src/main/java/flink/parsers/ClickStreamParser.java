@@ -16,8 +16,16 @@ public class ClickStreamParser extends Parser implements MapFunction<String, Tup
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickStreamParser.class);
 
+    Configuration config;
+
+    public ClickStreamParser(Configuration config){
+        super.initialize(config);
+        this.config = config;
+    }
+
     @Override
     public Tuple4<String, String, String, String> map(String value) throws Exception {
+        super.initialize(config);
         super.calculateThroughput();
         Gson gson = new Gson();
         try {

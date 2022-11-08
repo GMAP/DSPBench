@@ -1,5 +1,6 @@
 package flink.application.logprocessing;
 
+import flink.util.Metrics;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.flink.api.common.functions.FlatMapFunction;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VolumeCount implements FlatMapFunction<Tuple7<Object, Object, Long, Object, Object, Object, String>, Tuple3<Long, Long, String>> {
+public class VolumeCount extends Metrics implements FlatMapFunction<Tuple7<Object, Object, Long, Object, Object, Object, String>, Tuple3<Long, Long, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VolumeCount.class);
 
@@ -22,7 +23,11 @@ public class VolumeCount implements FlatMapFunction<Tuple7<Object, Object, Long,
 
     int windowSize = 60;
 
+    Configuration config;
+
     public VolumeCount(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         getBuffer();
         getCount();
     }
@@ -43,6 +48,7 @@ public class VolumeCount implements FlatMapFunction<Tuple7<Object, Object, Long,
 
     @Override
     public void flatMap(Tuple7<Object, Object, Long, Object, Object, Object, String> input, Collector<Tuple3<Long, Long, String>> out) {
+        super.initialize(config);
         getBuffer();
         getCount();
 
@@ -64,6 +70,6 @@ public class VolumeCount implements FlatMapFunction<Tuple7<Object, Object, Long,
         }
 
         out.collect(new Tuple3<Long, Long, String>(minute, count.longValue(), input.f6));
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 }

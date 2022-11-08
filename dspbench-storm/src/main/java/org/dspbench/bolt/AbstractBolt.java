@@ -169,8 +169,4 @@ public abstract class AbstractBolt extends BaseRichBolt {
     public void setConfigPrefix(String configPrefix) {
         this.configPrefix = configPrefix;
     }
-
-    protected ITaskHook getMeterHook() {
-        return new BoltMeterHook();
-    }
 }

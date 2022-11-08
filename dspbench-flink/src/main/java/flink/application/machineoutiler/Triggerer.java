@@ -1,5 +1,6 @@
 package flink.application.machineoutiler;
 
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class Triggerer implements FlatMapFunction<Tuple6<String, Double, Long, Object, Double, String>, Tuple6<String, Double, Long, Boolean, Object, String>> {
+public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String, Double, Long, Object, Double, String>, Tuple6<String, Double, Long, Boolean, Object, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Triggerer.class);
 
@@ -21,7 +22,11 @@ public class Triggerer implements FlatMapFunction<Tuple6<String, Double, Long, O
     private static double minDataInstanceScore = Double.MAX_VALUE;
     private static double maxDataInstanceScore = 0;
 
+    Configuration config;
+
     public Triggerer(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         getList();
         previousTimestamp = 0;
     }
@@ -36,6 +41,7 @@ public class Triggerer implements FlatMapFunction<Tuple6<String, Double, Long, O
 
     @Override
     public void flatMap(Tuple6<String, Double, Long, Object, Double, String> input, Collector<Tuple6<String, Double, Long, Boolean, Object, String>> out) {
+        super.initialize(config);
         getList();
         long timestamp = input.getField(2);
 
@@ -84,7 +90,7 @@ public class Triggerer implements FlatMapFunction<Tuple6<String, Double, Long, O
         }
 
         streamList.add(input);
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 
     private List<Tuple> identifyAbnormalStreams() {

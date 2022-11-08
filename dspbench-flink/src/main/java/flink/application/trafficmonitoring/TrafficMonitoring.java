@@ -41,15 +41,15 @@ public class TrafficMonitoring extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>> dataParse = data.map(new BeijingTaxiParser());
+        DataStream<Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>> dataParse = data.map(new BeijingTaxiParser(config));
 
         // Process
         DataStream<Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>> mapMatch = dataParse.filter(value -> (value != null)).flatMap(new MapMatching(config)).setParallelism(mapMatcherThreads);
 
-        DataStream<Tuple5<Date, Integer, Integer, Integer, String>> speedCalc = mapMatch.keyBy(value -> value.f7).filter(value -> (value != null)).flatMap(new SpeedCalculator(config)).setParallelism(speedCalcThreads);
+        DataStream<Tuple5<Date, Integer, Integer, Integer, String>> speedCalc = mapMatch.keyBy(value -> value.f7).flatMap(new SpeedCalculator(config)).setParallelism(speedCalcThreads);
 
         // Sink
-        createSink(speedCalc);
+        createSinkTM(speedCalc);
 
         return env;
     }

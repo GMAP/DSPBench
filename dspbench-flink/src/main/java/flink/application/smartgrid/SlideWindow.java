@@ -8,6 +8,7 @@ import flink.application.smartgrid.window.SlidingWindowCallback;
 import flink.application.smartgrid.window.SlidingWindowEntry;
 import flink.constants.SentimentAnalysisConstants;
 import flink.constants.SmartGridConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
@@ -25,13 +26,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class SlideWindow implements FlatMapFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple7<Long, String, String, String, Double, Integer, String>> {
+public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple7<Long, String, String, String, Double, Integer, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SlideWindow.class);
 
     private static SlidingWindow window;
 
+    Configuration config;
+
     public SlideWindow(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         createWindow();
     }
 
@@ -45,6 +50,7 @@ public class SlideWindow implements FlatMapFunction<Tuple8<String, Long, Double,
 
     @Override
     public void flatMap(Tuple8<String, Long, Double, Integer, String, String, String, String> input, Collector<Tuple7<Long, String, String, String, Double, Integer, String>> out) {
+        super.initialize(config);
         createWindow();
         int type = input.getField(3);
 
@@ -69,7 +75,7 @@ public class SlideWindow implements FlatMapFunction<Tuple8<String, Long, Double,
         });
 
         out.collect(new Tuple7<Long, String, String, String, Double, Integer, String>(windowEntry.ts, windowEntry.houseId, windowEntry.houseHoldId, windowEntry.plugId, windowEntry.value, 1, input.f7));
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 
     private class SlidingWindowEntryImpl implements SlidingWindowEntry {

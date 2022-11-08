@@ -4,6 +4,7 @@ import flink.application.trafficmonitoring.gis.GPSRecord;
 import flink.application.trafficmonitoring.gis.Road;
 import flink.application.trafficmonitoring.gis.RoadGridList;
 import flink.constants.TrafficMonitoringConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.tuple.Tuple8;
@@ -20,19 +21,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpeedCalculator implements FlatMapFunction<Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>, Tuple5<Date, Integer, Integer, Integer, String>>  {
+public class SpeedCalculator extends Metrics implements FlatMapFunction<Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>, Tuple5<Date, Integer, Integer, Integer, String>>  {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeedCalculator.class);
 
     private Map<Integer, Road> roads;
 
+    Configuration config;
+
     public SpeedCalculator(Configuration config) {
+        this.config = config;
+        super.initialize(config);
         roads = new HashMap<>();
     }
 
     @Override
     public void flatMap(Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String> input, Collector<Tuple5<Date, Integer, Integer, Integer, String>> out){
-
+        super.initialize(config);
         int roadID = input.getField(7);
         int speed  = input.getField(3);
 
@@ -89,5 +94,6 @@ public class SpeedCalculator implements FlatMapFunction<Tuple9<String, DateTime,
         }
 
         out.collect(new Tuple5<Date, Integer, Integer, Integer, String>(new Date(), roadID, averageSpeed, count, input.f8));
+        super.calculateThroughput();
     }
 }

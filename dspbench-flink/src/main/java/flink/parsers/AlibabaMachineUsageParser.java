@@ -16,8 +16,16 @@ public class AlibabaMachineUsageParser extends Parser implements MapFunction<Str
 
     private static final Logger LOG = LoggerFactory.getLogger(AlibabaMachineUsageParser.class);
 
+    Configuration config;
+
+    public AlibabaMachineUsageParser(Configuration config){
+        super.initialize(config);
+        this.config = config;
+    }
+
     @Override
     public Tuple4<String, Long, MachineMetadata, String> map(String value) throws Exception {
+        super.initialize(config);
         super.calculateThroughput();
         String[] temp = value.split(",");
         return new Tuple4<>(

@@ -4,6 +4,7 @@ import flink.constants.FraudDetectionConstants;
 import flink.application.frauddetection.predictor.MarkovModelPredictor;
 import flink.application.frauddetection.predictor.ModelBasedPredictor;
 import flink.application.frauddetection.predictor.Prediction;
+import flink.util.Metrics;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
@@ -13,13 +14,17 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FraudPredictor implements FlatMapFunction<Tuple3<String, String, String>, Tuple4<String, Double, String,String>> {
+public class FraudPredictor extends Metrics implements FlatMapFunction<Tuple3<String, String, String>, Tuple4<String, Double, String,String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(FraudPredictor.class);
 
     private ModelBasedPredictor predictor;
 
+    Configuration config;
+
     public FraudPredictor(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         String strategy = config.getString(FraudDetectionConstants.Conf.PREDICTOR_MODEL, "mm");
 
         if (strategy.equals("mm")) {
@@ -29,6 +34,7 @@ public class FraudPredictor implements FlatMapFunction<Tuple3<String, String, St
 
     @Override
     public void flatMap(Tuple3<String, String, String> input, Collector<Tuple4<String, Double, String, String>> out){
+        super.initialize(config);
         String entityID = input.getField(0);
         String record = input.getField(1);
         String initTime = input.getField(2);
@@ -38,5 +44,6 @@ public class FraudPredictor implements FlatMapFunction<Tuple3<String, String, St
         if (p.isOutlier()) {
             out.collect(new Tuple4<>(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), initTime));
         }
+        super.calculateThroughput();
     }
 }

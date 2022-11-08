@@ -2,7 +2,9 @@ package flink.application.smartgrid;
 
 import flink.application.clickanalytics.GeoStats;
 import flink.application.trafficmonitoring.collections.FixedMap;
+import flink.constants.BaseConstants;
 import flink.constants.SmartGridConstants;
+import flink.util.Configurations;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -12,10 +14,14 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
+import java.io.*;
+import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, Long, Double, String>,Tuple5<String, String, Long, Double, String>, Tuple5<Long, Long, String, Double, String>> {
 
@@ -25,7 +31,13 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, 
     private static Map<String, OutlierTracker> outliers;
     private static PriorityQueue<ComparableTuple> unprocessedMessages;
 
+    Metric metrics = new Metric();
+
+    Configuration config;
+
     public OutlierDetect(Configuration config) {
+        metrics.initialize(config);
+        this.config = config;
         med();
         outl();
         msg();
@@ -57,7 +69,7 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, 
 
     @Override
     public void flatMap1(Tuple5<String, String, Long, Double, String> input, Collector<Tuple5<Long, Long, String, Double, String>> out) throws Exception {
-
+        metrics.initialize(config);
         med();
         outl();
         msg();
@@ -81,12 +93,12 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, 
         } else {
             processPerPlugMedianTuple(input);
         }
-        //super.calculateThroughput();
+        metrics.calculateThroughput();
     }
 
     @Override
     public void flatMap2(Tuple5<String, String, Long, Double, String> input, Collector<Tuple5<Long, Long, String, Double, String>> out) throws Exception {
-
+        metrics.initialize(config);
         med();
         outl();
         msg();
@@ -110,7 +122,7 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, 
         } else {
             processPerPlugMedianTuple(input);
         }
-        //super.calculateThroughput();
+        metrics.calculateThroughput();
     }
 
     private Tuple5<Long, Long, String, Double, String> processPerPlugMedianTuple(Tuple tuple) {
@@ -168,5 +180,65 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, 
             Long field2 = o.tuple.getField(2);
             return field1.compareTo(field2);
         }
+    }
+}
+
+class Metric implements Serializable {
+    Configuration config;
+    private final Map<String, Long> throughput = new HashMap<>();
+    private BlockingQueue<String> queue = new ArrayBlockingQueue<>(50);;
+    protected String configPrefix = BaseConstants.BASE_PREFIX;
+    private File file;
+
+    private static final Logger LOG = LoggerFactory.getLogger(flink.util.Metrics.class);
+
+    public void initialize(Configuration config) {
+        this.config = config;
+        File pathLa = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "latency").toFile();
+        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
+
+        pathLa.mkdirs();
+        pathTrh.mkdirs();
+
+        this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
+    }
+
+    public void calculateThroughput() {
+        if (config.getBoolean(Configurations.METRICS_ENABLED, false)) {
+            long unixTime = 0;
+            if (config.getString(Configurations.METRICS_INTERVAL_UNIT, "seconds").equals("seconds")) {
+                unixTime = Instant.now().getEpochSecond();
+            } else {
+                unixTime = Instant.now().toEpochMilli();
+            }
+            Long ops = throughput.get(unixTime + "");
+            if (ops == null) {
+                for (Map.Entry<String, Long> entry : this.throughput.entrySet()) {
+                    this.queue.add(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
+                }
+                throughput.clear();
+                if (queue.size() >= 3) {
+                    SaveMetrics();
+                }
+            }
+
+            ops = (ops == null) ? 1L : ++ops;
+
+            throughput.put(unixTime + "", ops);
+        }
+    }
+
+    public void SaveMetrics() {
+        new Thread(() -> {
+            try {
+                try (Writer writer = new FileWriter(this.file, true)) {
+                    writer.append(this.queue.take());
+                } catch (IOException ex) {
+                    System.out.println("Error while writing the file " + file + " - " + ex);
+                }
+            } catch (Exception e) {
+                System.out.println("Error while creating the file " + e.getMessage());
+            }
+        }).start();
     }
 }

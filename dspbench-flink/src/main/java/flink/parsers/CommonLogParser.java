@@ -19,9 +19,16 @@ public class CommonLogParser extends Parser implements MapFunction<String, Tuple
 
     private static final Logger LOG = LoggerFactory.getLogger(CommonLogParser.class);
 
+    Configuration config;
+
+    public CommonLogParser(Configuration config){
+        super.initialize(config);
+        this.config = config;
+    }
+
     @Override
     public Tuple7<Object, Object, Long, Object, Object, Object, String> map(String value) throws Exception {
-
+        super.initialize(config);
         super.calculateThroughput();
 
         Map<String, Object> entry = parseLine(value);

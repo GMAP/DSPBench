@@ -49,12 +49,10 @@ public interface BaseConstants {
         
         String GEOIP_INSTANCE = "storm.geoip.instance";
         String GEOIP2_DB = "storm.geoip2.db";
-
-        String METRICS_INTERVAL_UNIT = "metrics.interval.unit";
     }
 
     interface BaseComponent {
-        String SPOUT = "spout";
+        String SOURCE = "source";
         String SINK  = "sink";
     }
 }

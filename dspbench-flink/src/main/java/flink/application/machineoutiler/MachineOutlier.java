@@ -43,17 +43,17 @@ public class MachineOutlier extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple4<String, Long, MachineMetadata, String>> dataParse = data.map(new AlibabaMachineUsageParser());
+        DataStream<Tuple4<String, Long, MachineMetadata, String>> dataParse = data.map(new AlibabaMachineUsageParser(config));
 
         // Process
         DataStream<Tuple5<String, Double, Long, Object, String>> scorer = dataParse.filter(value -> (value != null)).flatMap(new Scorer(config));
 
-        DataStream<Tuple6<String, Double, Long, Object, Double, String>> anomaly = scorer.keyBy(value -> value.f0).filter(value -> (value != null)).flatMap(new AnomalyScorer(config));
+        DataStream<Tuple6<String, Double, Long, Object, Double, String>> anomaly = scorer.keyBy(value -> value.f0).flatMap(new AnomalyScorer(config));
 
-        DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> triggerer = anomaly.filter(value -> (value != null)).flatMap(new Triggerer(config));
+        DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> triggerer = anomaly.flatMap(new Triggerer(config));
 
         // Sink
-        createSink(triggerer);
+        createSinkMO(triggerer);
 
         return env;
     }

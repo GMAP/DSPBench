@@ -1,5 +1,6 @@
 package flink.application.smartgrid;
 
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
@@ -10,14 +11,18 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlugMedianCalc implements FlatMapFunction<Tuple7<Long, String, String, String, Double, Integer, String>, Tuple5<String, String, Long, Double, String>> {
+public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Long, String, String, String, Double, Integer, String>, Tuple5<String, String, Long, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlugMedianCalc.class);
 
     private static Map<String, RunningMedianCalculator> runningMedians;
     private static Map<String, Long> lastUpdatedTsMap;
 
+    Configuration config;
+
     public PlugMedianCalc(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         runMed();
         tsMap();
     }
@@ -40,6 +45,7 @@ public class PlugMedianCalc implements FlatMapFunction<Tuple7<Long, String, Stri
 
     @Override
     public void flatMap(Tuple7<Long, String, String, String, Double, Integer, String> input, Collector<Tuple5<String, String, Long, Double, String>> out) {
+        super.initialize(config);
         runMed();
         tsMap();
 
@@ -69,7 +75,7 @@ public class PlugMedianCalc implements FlatMapFunction<Tuple7<Long, String, Stri
         } else {
             medianCalc.remove(value);
         }
-        //super.calculateThroughput();
+        super.calculateThroughput();
     }
 
     private String getKey(Tuple tuple) {

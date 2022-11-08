@@ -47,9 +47,10 @@ public class SpikeDetection extends AbstractApplication {
         // Process
         DataStream<Tuple4<String, Double, Double, String>> movingAvg = dataParse.filter(value -> (value != null)).keyBy(value -> value.f0).flatMap(new MovingAverage(config)).setParallelism(movingAverageThreads);
 
-        DataStream<Tuple5<String, Double, Double, String, String>> spikeDetect = movingAvg.filter(value -> (value != null)).flatMap(new SpikeDetect(config)).setParallelism(spikeDetectorThreads);
+        DataStream<Tuple5<String, Double, Double, String, String>> spikeDetect = movingAvg.flatMap(new SpikeDetect(config)).setParallelism(spikeDetectorThreads);
+
         // Sink
-        createSink(spikeDetect);
+        createSinkSD(spikeDetect);
 
         return env;
     }

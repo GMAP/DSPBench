@@ -4,6 +4,7 @@ import flink.application.smartgrid.window.SlidingWindow;
 import flink.application.smartgrid.window.SlidingWindowCallback;
 import flink.application.smartgrid.window.SlidingWindowEntry;
 import flink.constants.SmartGridConstants;
+import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
@@ -21,21 +22,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class HouseLoadPredict implements WindowFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple4<Long,String, Double, String>, String, TimeWindow> {
+public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple4<Long,String, Double, String>, String, TimeWindow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HouseLoadPredict.class);
     protected static long sliceLength = 60l;
     protected static long currentSliceStart;
+
     protected String inittime = "";
     protected int tickCounter = 0;
     protected static Map<String, AverageTracker> trackers;
     protected static Map<String, SummaryArchive> archiveMap;
 
+    Configuration config;
+
     public HouseLoadPredict(Configuration config) {
+        super.initialize(config);
+        this.config = config;
         track();
         archMap();
         sliceLength = 60l;
@@ -59,7 +63,7 @@ public class HouseLoadPredict implements WindowFunction<Tuple8<String, Long, Dou
 
     @Override
     public void apply(String s, TimeWindow window, Iterable<Tuple8<String, Long, Double, Integer, String, String, String, String>> input, Collector<Tuple4<Long, String, Double, String>> out) throws Exception {
-
+        super.initialize(config);
         for (Tuple8<String, Long, Double, Integer, String, String, String, String> in : input) {
 
             if (inittime.equals("")) {
@@ -99,8 +103,11 @@ public class HouseLoadPredict implements WindowFunction<Tuple8<String, Long, Dou
         tickCounter = (tickCounter + 1) % 2;
         // time to emit
         if (tickCounter == 0) {
-            Tuple4<Long,String, Double, String> dados = emitOutputStream(inittime);
-            out.collect(new Tuple4<Long,String, Double, String>(dados.f0, dados.f1, dados.f2, dados.f3));
+            for (Iterator<Tuple4<Long, String, Double, String>> it = emitOutputStream(inittime); it.hasNext(); ) {
+                Tuple4<Long, String, Double, String> in = it.next();
+                out.collect(new Tuple4<Long,String, Double, String>(in.f0, in.f1, in.f2, in.f3));
+            }
+            super.calculateThroughput();
             inittime = "";
         }
     }
@@ -108,10 +115,13 @@ public class HouseLoadPredict implements WindowFunction<Tuple8<String, Long, Dou
     protected double predict(double currentAvg, double median) {
         return currentAvg + median;
     }
-    protected Tuple4<Long,String, Double, String> emitOutputStream(String inittime) {
+
+    protected Iterator<Tuple4<Long,String, Double, String>> emitOutputStream(String inittime) {
 
         track();
         archMap();
+
+        List<Tuple4<Long,String, Double, String>> tuples = new ArrayList<>();
 
         for (String key : trackers.keySet()) {
             double currentAvg = trackers.get(key).retrieve();
@@ -123,10 +133,11 @@ public class HouseLoadPredict implements WindowFunction<Tuple8<String, Long, Dou
 
             double prediction = predict(currentAvg, median);
             long predictedTimeStamp = currentSliceStart + 2 * sliceLength;
-            return new Tuple4<Long,String, Double, String>(predictedTimeStamp, key, prediction, inittime);
+
+            tuples.add(new Tuple4<Long,String, Double, String>(predictedTimeStamp, key, prediction, inittime));
         }
 
-        return null;
+        return tuples.iterator();
     }
     private AverageTracker getTracker(String trackerId) {
 

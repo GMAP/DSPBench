@@ -35,13 +35,13 @@ public class FraudDetection extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple3<String, String, String>> dataParse = data.map(new TransactionParser());
+        DataStream<Tuple3<String, String, String>> dataParse = data.map(new TransactionParser(config));
 
         // Process
-        DataStream<Tuple4<String, Double, String,String>> fraudPredict = dataParse.keyBy(value -> value.f0).filter(value -> (value != null)).flatMap(new FraudPredictor(config)).setParallelism(predictorThreads).keyBy(value -> value.f0);
+        DataStream<Tuple4<String, Double, String,String>> fraudPredict = dataParse.keyBy(value -> value.f0).filter(value -> (value != null)).flatMap(new FraudPredictor(config)).setParallelism(predictorThreads);
 
         // Sink
-        createSink(fraudPredict);
+        createSinkFD(fraudPredict);
 
         return env;
     }
