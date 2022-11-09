@@ -1,12 +1,16 @@
 package spark.streaming.application;
 
+import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
+import org.apache.spark.sql.streaming.GroupStateTimeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.WordCountConstants;
+import spark.streaming.function.SSStatusCount;
+import spark.streaming.function.SSWordCount;
 import spark.streaming.function.Split;
 import spark.streaming.util.Configuration;
 
@@ -39,7 +43,10 @@ public class WordCount extends AbstractApplication {
                 .as(Encoders.STRING())
                 .flatMap(new Split(config), Encoders.STRING());
 
-        Dataset<Row> wordCounts = words.repartition(pairCounterThreads).groupBy("value").count();
+        Dataset<Row> wordCounts = words
+                .repartition(pairCounterThreads)
+                .groupByKey((MapFunction<String, String>) row -> row, Encoders.STRING())
+                .mapGroupsWithState(new SSWordCount(config), Encoders.LONG(), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
         return createSink(wordCounts);
     }
