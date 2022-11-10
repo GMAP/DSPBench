@@ -58,7 +58,8 @@ public class LogProcessing extends AbstractApplication {
                 new StructField("minute", DataTypes.LongType, true, Metadata.empty()),
                 new StructField("request", DataTypes.StringType, true, Metadata.empty()),
                 new StructField("response", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("bytesize", DataTypes.IntegerType, true, Metadata.empty())
+                new StructField("bytesize", DataTypes.IntegerType, true, Metadata.empty()),
+                new StructField("inittime", DataTypes.LongType, false, Metadata.empty())
         });
 
 
@@ -93,9 +94,9 @@ public class LogProcessing extends AbstractApplication {
                 .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Update(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
 
-        var counts = createMultiSink(volumeCount, volumeSink);
-        var status = createMultiSink(statusCount, statusSink);
-        var geo = createMultiSink(geoStats, geoSink);
+        var counts = createMultiSink(volumeCount, volumeSink, "volumeSink");
+        var status = createMultiSink(statusCount, statusSink, "statusSink");
+        var geo = createMultiSink(geoStats, geoSink, "geoSink");
 
         counts.awaitTermination();
         status.awaitTermination();

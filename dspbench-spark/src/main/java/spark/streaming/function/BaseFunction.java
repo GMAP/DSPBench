@@ -31,7 +31,7 @@ public abstract class BaseFunction implements Serializable {
     private transient MetricRegistry metrics;
     private transient Counter tuplesReceived;
     private transient Counter tuplesEmitted;
-    private transient Configuration config;
+    private Configuration config;
     private String configStr;
 
     private final Map<String, Long> throughput = new HashMap<>();
@@ -43,6 +43,7 @@ public abstract class BaseFunction implements Serializable {
     public BaseFunction(Configuration config) {
         this();
         this.configStr = config.toString();
+        this.config = config;
         if (config.getBoolean(config.METRICS_ENABLED, false)) {
             File pathTrh = Paths.get(config.get(Configuration.METRICS_OUTPUT), "throughput").toFile();
             pathTrh.mkdirs();

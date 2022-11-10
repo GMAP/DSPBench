@@ -37,6 +37,7 @@ public class SSObservationScore extends BaseFunction implements FlatMapFunction<
 
     @Override
     public Iterator<Row> call(Row input) throws Exception {
+        super.calculateThroughput();
         List<Row> tuples = new ArrayList<>();
         long timestamp = input.getLong(1);
         //TODO: implements spark windowing method
@@ -45,7 +46,7 @@ public class SSObservationScore extends BaseFunction implements FlatMapFunction<
             if (!observationList.isEmpty()) {
                 List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                 for (ScorePackage scorePackage : scorePackageList) {
-                    tuples.add(RowFactory.create(scorePackage.getId(), scorePackage.getScore(), previousTimestamp, scorePackage.getObj()));
+                    tuples.add(RowFactory.create(scorePackage.getId(), scorePackage.getScore(), previousTimestamp, scorePackage.getObj(), input.get(input.size() - 1)));
                 }
                 observationList.clear();
             }

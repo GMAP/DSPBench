@@ -32,6 +32,7 @@ public class SSAlibabaMachineUsageParser extends BaseFunction implements MapFunc
 
     @Override
     public Row call(String value) throws Exception {
+        super.calculateThroughput();
         String[] items = value.split(",");
 
         if (items.length != 9)
@@ -44,7 +45,8 @@ public class SSAlibabaMachineUsageParser extends BaseFunction implements MapFunc
 
         return RowFactory.create(id,
                 timestamp,
-                new MachineMetadata(timestamp, id, cpu, memory)
+                new MachineMetadata(timestamp, id, cpu, memory),
+                Instant.now().toEpochMilli()
         );
     }
 }

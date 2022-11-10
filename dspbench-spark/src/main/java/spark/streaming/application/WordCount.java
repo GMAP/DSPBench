@@ -9,15 +9,13 @@ import org.apache.spark.sql.streaming.GroupStateTimeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.WordCountConstants;
-import spark.streaming.function.SSStatusCount;
-import spark.streaming.function.SSWordCount;
-import spark.streaming.function.Split;
+import spark.streaming.function.*;
 import spark.streaming.util.Configuration;
 
 public class WordCount extends AbstractApplication {
     private static final Logger LOG = LoggerFactory.getLogger(WordCount.class);
 
-    private int batchSize;
+    private int parserThreads;
     private int splitterThreads;
     private int singleCounterThreads;
     private int pairCounterThreads;
@@ -28,10 +26,10 @@ public class WordCount extends AbstractApplication {
 
     @Override
     public void initialize() {
-        batchSize = config.getInt(getConfigKey(WordCountConstants.Config.BATCH_SIZE), 1000);
         splitterThreads = config.getInt(WordCountConstants.Config.SPLITTER_THREADS, 1);
         singleCounterThreads = config.getInt(WordCountConstants.Config.SINGLE_COUNTER_THREADS, 1);
         pairCounterThreads = config.getInt(WordCountConstants.Config.PAIR_COUNTER_THREADS, 1);
+        parserThreads = config.getInt(WordCountConstants.Config.PARSER_THREADS, 1);
     }
 
     @Override
@@ -39,13 +37,17 @@ public class WordCount extends AbstractApplication {
 
         Dataset<Row> lines = createSource();
 
-        Dataset<String> words = lines.repartition(splitterThreads)
+        Dataset<Row> records = lines.repartition(parserThreads)
                 .as(Encoders.STRING())
-                .flatMap(new Split(config), Encoders.STRING());
+                .map(new SSWordcountParser(config), Encoders.kryo(Row.class));
+
+        Dataset<Row> words = records.repartition(splitterThreads)
+                .filter(new SSFilterNull<>())
+                .flatMap(new Split(config),  Encoders.kryo(Row.class));
 
         Dataset<Row> wordCounts = words
                 .repartition(pairCounterThreads)
-                .groupByKey((MapFunction<String, String>) row -> row, Encoders.STRING())
+                .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
                 .mapGroupsWithState(new SSWordCount(config), Encoders.LONG(), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
         return createSink(wordCounts);

@@ -15,6 +15,7 @@ import scala.Tuple2;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -39,9 +40,10 @@ public class SSBeijingTaxiTraceParser extends BaseFunction implements MapFunctio
 
     @Override
     public Row call(String value) throws Exception {
+        super.calculateThroughput();
         String[] fields = value.toString().replace("\"", "").split(",");
         if (fields.length != 7)
-            return RowFactory.create();
+            return null;
 
         try {
             String carId = fields[ID_FIELD];
@@ -57,7 +59,7 @@ public class SSBeijingTaxiTraceParser extends BaseFunction implements MapFunctio
                     Double.parseDouble(fields[LON_FIELD]),
                     ((Double) Double.parseDouble(fields[SPEED_FIELD])).intValue(),
                     Integer.parseInt(fields[DIR_FIELD]),
-                    null);
+                    Instant.now().toEpochMilli());
         } catch (NumberFormatException ex) {
             LOG.error("Error parsing numeric value", ex);
         } catch (IllegalArgumentException ex) {

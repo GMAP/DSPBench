@@ -65,6 +65,7 @@ public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Integ
 
     @Override
     public Integer call(Row input) throws Exception {
+        super.calculateThroughput();
         RoadGridList gridList = getSectors();
 
         try {
@@ -81,14 +82,6 @@ public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Integ
             int roadID = gridList.fetchRoadID(record);
 
             if (roadID != -1) {
-               /* return RowFactory.create(input.get(0),
-                        input.get(1),
-                        input.get(2),
-                        latitude,
-                        longitude,
-                        speed,
-                        bearing,
-                        roadID);*/
                 return roadID;
             }
         } catch (SQLException ex) {

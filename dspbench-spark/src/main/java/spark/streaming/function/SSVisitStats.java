@@ -26,6 +26,7 @@ public class SSVisitStats extends BaseFunction implements FlatMapGroupsWithState
         Row tuple;
         List<Row> tuples = new ArrayList<>();
         while (values.hasNext()) {
+            super.calculateThroughput();
             tuple = values.next();
             if (!state.exists()) {
                 stats = new VisitStats();
@@ -34,7 +35,7 @@ public class SSVisitStats extends BaseFunction implements FlatMapGroupsWithState
             }
             stats.add(tuple.getBoolean(2));
             state.update(stats);
-            tuples.add(RowFactory.create(stats.getTotal(), stats.getUniqueCount()));
+            tuples.add(RowFactory.create(stats.getTotal(), stats.getUniqueCount(), tuple.get(tuple.size() - 1)));
         }
         return tuples.iterator();
     }

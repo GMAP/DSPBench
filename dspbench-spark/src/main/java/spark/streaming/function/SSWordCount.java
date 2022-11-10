@@ -11,23 +11,28 @@ import java.util.Iterator;
 /**
  * @author luandopke
  */
-public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunction<String, String, Long, Row> {
+public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunction<String, Row, Long, Row> {
 
     public SSWordCount(Configuration config) {
         super(config);
     }
 
     @Override
-    public Row call(String key, Iterator<String> values, GroupState<Long> state) throws Exception {
-        long count =0;
+    public Row call(String key, Iterator<Row> values, GroupState<Long> state) throws Exception {
+        long count = 0, inittime = 0;
         while (values.hasNext()) {
+            var tuple = values.next();
+            if (inittime == 0)
+                inittime =tuple.getLong(tuple.size() - 1);
+
             if (state.exists()) {
                 count = state.get();
             }
             count++;
             state.update(count);
-            values.next();
+
+            super.calculateThroughput();
         }
-        return RowFactory.create(key, count);
+        return RowFactory.create(key, count, inittime); //get the older latency
     }
 }

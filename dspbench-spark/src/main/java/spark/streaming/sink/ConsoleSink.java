@@ -12,22 +12,24 @@ public class ConsoleSink extends BaseSink {
     @Override
     public DataStreamWriter<Row> sinkStream(Dataset<Row> dt) {
         return dt.writeStream().foreach(new ForeachWriter<Row>() {
+                    @Override
+                    public boolean open(long partitionId, long version) {
+                        return true;
+                    }
 
-            @Override
-            public boolean open(long partitionId, long version) {
-                return true;
-            }
+                    @Override
+                    public void process(Row value) {
+                        System.out.println(value);
+                        calculateThroughput();
+                        if (value != null)
+                            calculateLatency(value.getLong(value.size() - 1));
+                    } //TODO make formater as field=value,
 
-            @Override
-            public void process(Row value) {
-                System.out.println(value);
-            } //TODO make formater as field=value,
-
-            @Override
-            public void close(Throwable errorOrNull) {
-                // Close the connection
-            }
-        }).outputMode(config.get(BaseConstants.BaseConfig.OUTPUT_MODE, "update"))
-          .trigger(Trigger.AvailableNow());
+                    @Override
+                    public void close(Throwable errorOrNull) {
+                        // Close the connection
+                    }
+                }).outputMode(config.get(BaseConstants.BaseConfig.OUTPUT_MODE, "update"))
+                .trigger(Trigger.AvailableNow());
     }
 }

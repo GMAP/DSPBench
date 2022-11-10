@@ -25,8 +25,12 @@ public class SSGeoStats extends BaseFunction implements FlatMapGroupsWithStateFu
         List<Row> tuples = new ArrayList<>();
         CountryStats stats;
         String city;
+        Row value;
         while (values.hasNext()) {
-            city = values.next().getString(1);
+            super.calculateThroughput();
+
+            value = values.next();
+            city = value.getString(1);
             if (!state.exists()) {
                 stats = new CountryStats(key);
             } else {
@@ -34,7 +38,7 @@ public class SSGeoStats extends BaseFunction implements FlatMapGroupsWithStateFu
             }
             stats.cityFound(city);
             state.update(stats);
-            tuples.add(RowFactory.create(key, stats.getCountryTotal(), city, stats.getCityTotal(city)));
+            tuples.add(RowFactory.create(key, stats.getCountryTotal(), city, stats.getCityTotal(city), value.get(value.size() - 1)));
         }
         return tuples.iterator();
     }

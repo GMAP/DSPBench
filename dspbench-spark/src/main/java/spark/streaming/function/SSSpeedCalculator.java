@@ -28,8 +28,12 @@ public class SSSpeedCalculator extends BaseFunction implements MapGroupsWithStat
         int roadID = key;
         int averageSpeed = 0;
         int count = 0;
+        long inittime = 0;
         while (values.hasNext()) {
             Row tuple = values.next();
+            if (inittime == 0)
+                inittime = tuple.getLong(tuple.size() - 1);
+
             int speed = tuple.getAs("speed");
             if (!state.exists()) {
                 Road road = new Road(roadID);
@@ -80,7 +84,8 @@ public class SSSpeedCalculator extends BaseFunction implements MapGroupsWithStat
                 }
                 state.update(road);
             }
+            super.calculateThroughput();
         }
-        return RowFactory.create(new Date(), roadID, averageSpeed, count);
+        return RowFactory.create(new Date(), roadID, averageSpeed, count, inittime);
     }
 }

@@ -15,6 +15,7 @@ import spark.streaming.util.Configuration;
 import spark.streaming.util.DateUtils;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class SSCommonLogParser extends BaseFunction implements MapFunction<Strin
 
     @Override
     public Row call(String value) throws Exception {
+        super.calculateThroughput();
         Map<String, Object> entry = parseLine(value);
 
         if (entry == null) {
@@ -51,7 +53,7 @@ public class SSCommonLogParser extends BaseFunction implements MapFunction<Strin
         }
 
         long minute = DateUtils.getMinuteForTime((Date) entry.get(TIMESTAMP));
-        return RowFactory.create(entry.get(IP), entry.get(TIMESTAMP), minute, entry.get(REQUEST), entry.get(RESPONSE), entry.get(BYTE_SIZE));
+        return RowFactory.create(entry.get(IP), entry.get(TIMESTAMP), minute, entry.get(REQUEST), entry.get(RESPONSE), entry.get(BYTE_SIZE), Instant.now().toEpochMilli());
     }
     public static Map<String, Object> parseLine(String logLine) {
         Map<String, Object> entry = new HashMap<>();

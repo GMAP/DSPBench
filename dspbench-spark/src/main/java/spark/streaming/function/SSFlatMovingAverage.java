@@ -28,8 +28,10 @@ public class SSFlatMovingAverage extends BaseFunction implements FlatMapGroupsWi
         List<Row> tuples = new ArrayList<>();
         double value = 0, avg = 0;
         Moving mov;
+        Row tuple;
         while (values.hasNext()) {
-            value = values.next().getDouble(2);
+            tuple = values.next();
+            value = tuple.getDouble(2);
             avg = value;
 
             if (!state.exists()) {
@@ -46,7 +48,8 @@ public class SSFlatMovingAverage extends BaseFunction implements FlatMapGroupsWi
             }
 
             state.update(mov);
-            tuples.add(RowFactory.create(key, avg, value));
+            tuples.add(RowFactory.create(key, avg, value, tuple.get(tuple.size() - 1)));
+            super.calculateThroughput();
         }
         return tuples.iterator();
     }

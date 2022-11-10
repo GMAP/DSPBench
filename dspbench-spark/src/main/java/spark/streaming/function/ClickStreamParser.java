@@ -30,12 +30,13 @@ public class ClickStreamParser extends BaseFunction implements MapFunction<Strin
 
     @Override
     public Row call(String value) throws Exception {
-
+        super.calculateThroughput();
         try {
             ClickStream clickstream = new Gson().fromJson(value, ClickStream.class);
             return RowFactory.create(clickstream.ip,
                     clickstream.url,
-                    clickstream.clientKey);
+                    clickstream.clientKey,
+                    Instant.now().toEpochMilli());
         } catch (JsonSyntaxException ex) {
             LOG.error("Error parsing JSON encoded clickstream: " + value, ex);
         }

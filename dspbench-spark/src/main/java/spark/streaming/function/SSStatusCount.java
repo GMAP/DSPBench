@@ -21,14 +21,19 @@ public class SSStatusCount extends BaseFunction implements MapGroupsWithStateFun
     @Override
     public Row call(Integer key, Iterator<Row> values, GroupState<Long> state) throws Exception {
         long count = 0;
+        long inittime = 0;
+        Row tuple;
         while (values.hasNext()) {
+            super.calculateThroughput();
+            tuple = values.next();
+            if (inittime == 0)
+                inittime = tuple.getLong(tuple.size() - 1);
             if (state.exists()) {
                 count = state.get();
             }
             count++;
             state.update(count);
-            values.next();
         }
-        return RowFactory.create(key, count);
+        return RowFactory.create(key, count, inittime);
     }
 }

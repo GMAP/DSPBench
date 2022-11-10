@@ -54,7 +54,7 @@ public class TrafficMonitoring extends AbstractApplication {
                 new StructField("lon", DataTypes.DoubleType, true, Metadata.empty()),
                 new StructField("speed", DataTypes.IntegerType, true, Metadata.empty()),
                 new StructField("bearing", DataTypes.IntegerType, true, Metadata.empty()),
-                new StructField("roadId", DataTypes.IntegerType, true, Metadata.empty())
+                new StructField("inittime", DataTypes.LongType, false, Metadata.empty())
         });
 
         var rawRecords = createSource();

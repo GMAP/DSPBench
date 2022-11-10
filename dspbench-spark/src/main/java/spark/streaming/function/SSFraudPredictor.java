@@ -29,14 +29,14 @@ public class SSFraudPredictor extends BaseFunction implements MapFunction<Row, R
 
     @Override
     public Row call(Row value) throws Exception {
-
+        super.calculateThroughput();
         String entityID = value.getString(0);
         String record = value.getString(1);
         Prediction p = predictor.execute(entityID, record);
 
         // send outliers
         if (p.isOutlier()) {
-            return RowFactory.create(entityID, p.getScore(), StringUtils.join(p.getStates(), ","));
+            return RowFactory.create(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), value.get(value.size() - 1));
         }
         return null;
     }

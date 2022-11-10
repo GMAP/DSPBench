@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.util.Configuration;
 
+import java.time.Instant;
+
 /**
  * @author luandopke
  */
@@ -52,7 +54,7 @@ public class SSSensorParser extends BaseFunction implements MapFunction<String, 
 
     @Override
     public Row call(String value) throws Exception {
-
+        super.calculateThroughput();
         String[] fields = value.split("\\s+");
 
         if (fields.length != 8)
@@ -75,7 +77,8 @@ public class SSSensorParser extends BaseFunction implements MapFunction<String, 
         try {
             return RowFactory.create(Integer.parseInt(fields[MOTEID_FIELD]),
                     date.toDate(),
-                    Double.parseDouble(fields[valueFieldKey])
+                    Double.parseDouble(fields[valueFieldKey]),
+                    Instant.now().toEpochMilli()
                     );
 
         } catch (NumberFormatException ex) {

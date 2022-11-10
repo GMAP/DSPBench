@@ -29,6 +29,7 @@ public class SSGeography extends BaseFunction implements MapFunction<Row, Row> {
 
     @Override
     public Row call(Row input) throws Exception {
+        super.calculateThroughput();
         String ip = input.getString(0);
 
         Location location = IPLocationFactory.create(ipResolver, super.getConfiguration()).resolve(ip);
@@ -36,7 +37,7 @@ public class SSGeography extends BaseFunction implements MapFunction<Row, Row> {
         if (location != null) {
             String city = location.getCity();
             String country = location.getCountryName();
-            return RowFactory.create(country, city);
+            return RowFactory.create(country, city, input.get(input.size() - 1));
         }
         return null;
     }

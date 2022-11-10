@@ -27,11 +27,11 @@ public class SSTransationParser extends BaseFunction implements MapFunction<Stri
 
     @Override
     public Row call(String value) throws Exception {
-
+        super.calculateThroughput();
         try {
             String[] items = value.split(",", 2);
 
-            return RowFactory.create(items[0], items[1]);
+            return RowFactory.create(items[0], items[1], Instant.now().toEpochMilli());
         } catch (NumberFormatException ex) {
             LOG.error("Error parsing numeric value", ex);
         } catch (IllegalArgumentException ex) {

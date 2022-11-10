@@ -22,18 +22,24 @@ public class SSVolumeCount extends BaseFunction implements MapGroupsWithStateFun
 
     @Override
     public Row call(Long key, Iterator<Row> values, GroupState<MutableLong> state) throws Exception {
+        long inittime = 0;
         MutableLong count = new MutableLong();
+        Row tuple;
         if (state.hasTimedOut())
             state.remove();
 
         while (values.hasNext()) {
+            tuple = values.next();
+            if (inittime == 0)
+                inittime = tuple.getLong(tuple.size() - 1);
+            super.calculateThroughput();
+
             if (state.exists()) {
                 count = state.get();
             }
             count.increment();
             state.update(count);
-            values.next();
         }
-        return RowFactory.create(key, count.longValue());
+        return RowFactory.create(key, count.longValue(), inittime);
     }
 }

@@ -33,7 +33,7 @@ public class SSTweetParser extends BaseFunction implements MapFunction<String, R
 
     @Override
     public Row call(String value) throws Exception {
-
+        super.calculateThroughput();
         try {
             value = value.trim();
 
@@ -56,7 +56,8 @@ public class SSTweetParser extends BaseFunction implements MapFunction<String, R
 
             return RowFactory.create(id,
                     text,
-                    timestamp.toDate());
+                    timestamp.toDate(),
+                    Instant.now().toEpochMilli());
 
         } catch (NumberFormatException ex) {
             LOG.error("Error parsing numeric value", ex);

@@ -33,6 +33,7 @@ public class SSSlidingWindowStreamAnomalyScore extends BaseFunction implements M
 
     @Override
     public Row call(Row input) throws Exception {
+        super.calculateThroughput();
         long timestamp = input.getLong(2); //TODO change to window spark method
         String id = input.getString(0);
         double dataInstanceAnomalyScore = input.getDouble(1);
@@ -54,6 +55,6 @@ public class SSSlidingWindowStreamAnomalyScore extends BaseFunction implements M
             sumScore += score;
         }
 
-        return RowFactory.create(id, sumScore, timestamp, input.get(3), dataInstanceAnomalyScore);
+        return RowFactory.create(id, sumScore, timestamp, input.get(3), dataInstanceAnomalyScore, input.get(input.size() - 1));
     }
 }

@@ -35,6 +35,7 @@ public class SSAlertTrigger extends BaseFunction implements FlatMapFunction<Row,
 
     @Override
     public Iterator<Row> call(Row input) throws Exception {
+        super.calculateThroughput();
         long timestamp = input.getLong(2);
         List<Row> tuples = new ArrayList<>();
         if (timestamp > previousTimestamp) {
@@ -45,8 +46,7 @@ public class SSAlertTrigger extends BaseFunction implements FlatMapFunction<Row,
                 double minScore = abnormalStreams.get(0).getDouble(1);
                 double medianScore = abnormalStreams.get(medianIdx).getDouble(1);
 
-                for (int i = 0; i < abnormalStreams.size(); ++i) {
-                    Row streamProfile = abnormalStreams.get(i);
+                for (Row streamProfile : abnormalStreams) {
                     double streamScore = streamProfile.getDouble(1);
                     double curDataInstScore = streamProfile.getDouble(4);
                     boolean isAbnormal = false;
@@ -60,7 +60,7 @@ public class SSAlertTrigger extends BaseFunction implements FlatMapFunction<Row,
                     }
 
                     if (isAbnormal) {
-                        tuples.add(RowFactory.create(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.get(3)));
+                        tuples.add(RowFactory.create(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.get(3), input.get(input.size() - 1)));
                     }
                 }
 
