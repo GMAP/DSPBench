@@ -1,5 +1,6 @@
 package flink.application.frauddetection;
 
+import flink.application.smartgrid.RunningMedianCalculator;
 import flink.constants.FraudDetectionConstants;
 import flink.application.frauddetection.predictor.MarkovModelPredictor;
 import flink.application.frauddetection.predictor.ModelBasedPredictor;
@@ -25,19 +26,25 @@ public class FraudPredictor extends Metrics implements FlatMapFunction<Tuple3<St
     public FraudPredictor(Configuration config) {
         super.initialize(config);
         this.config = config;
-        String strategy = config.getString(FraudDetectionConstants.Conf.PREDICTOR_MODEL, "mm");
+    }
 
-        if (strategy.equals("mm")) {
+    private ModelBasedPredictor createPred(){
+        String strategy = config.getString(FraudDetectionConstants.Conf.PREDICTOR_MODEL, "mm");
+        if (predictor == null && strategy.equals("mm")) {
             predictor = new MarkovModelPredictor(config);
         }
+
+        return predictor;
     }
 
     @Override
     public void flatMap(Tuple3<String, String, String> input, Collector<Tuple4<String, Double, String, String>> out){
         super.initialize(config);
+        createPred();
         String entityID = input.getField(0);
         String record = input.getField(1);
         String initTime = input.getField(2);
+
         Prediction p = predictor.execute(entityID, record);
 
         // send outliers

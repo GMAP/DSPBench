@@ -19,7 +19,7 @@ import java.util.concurrent.BlockingQueue;
 public class Metrics {
     Configuration config;
     private final Map<String, Long> throughput = new HashMap<>();
-    private BlockingQueue<String> queue = new ArrayBlockingQueue<>(50);;
+    private BlockingQueue<String> queue = new ArrayBlockingQueue<>(150);;
     protected String configPrefix = BaseConstants.BASE_PREFIX;
     private File file;
     private static final Logger LOG = LoggerFactory.getLogger(Metrics.class);
@@ -64,7 +64,7 @@ public class Metrics {
                     this.queue.add(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
                 }
                 throughput.clear();
-                if (queue.size() >= 3) {
+                if (queue.size() >= 10) {
                     SaveMetrics();
                 }
             }

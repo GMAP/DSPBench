@@ -26,7 +26,6 @@ public class GlobalMedianCalc extends Metrics implements FlatMapFunction<Tuple7<
     public GlobalMedianCalc(Configuration config) {
         super.initialize(config);
         this.config = config;
-        createMed();
     }
 
     private RunningMedianCalculator createMed(){

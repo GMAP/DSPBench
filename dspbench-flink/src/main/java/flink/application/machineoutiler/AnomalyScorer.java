@@ -18,7 +18,7 @@ public class AnomalyScorer extends Metrics implements FlatMapFunction<Tuple5<Str
     private static final Logger LOG = LoggerFactory.getLogger(AnomalyScorer.class);
 
     private static Map<String, Queue<Double>> slidingWindowMap;
-    private static int windowLength;
+    private static int windowLength = 10;
     private static long previousTimestamp;
 
     Configuration config;
@@ -26,7 +26,6 @@ public class AnomalyScorer extends Metrics implements FlatMapFunction<Tuple5<Str
     public AnomalyScorer(Configuration config) {
         super.initialize(config);
         this.config = config;
-        getWindow();
         windowLength = 10;
         previousTimestamp = 0;
     }
@@ -54,7 +53,7 @@ public class AnomalyScorer extends Metrics implements FlatMapFunction<Tuple5<Str
 
         // update sliding window
         slidingWindow.add(dataInstanceAnomalyScore);
-        if (slidingWindow.size() > this.windowLength) {
+        if (slidingWindow.size() > windowLength) {
             slidingWindow.poll();
         }
         slidingWindowMap.put(id, slidingWindow);

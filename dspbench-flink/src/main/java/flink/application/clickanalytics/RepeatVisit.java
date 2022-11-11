@@ -33,7 +33,6 @@ public class RepeatVisit extends Metrics implements FlatMapFunction<Tuple4<Strin
     Configuration config;
 
     public RepeatVisit(Configuration config) {
-        getVisits();
         super.initialize(config);
         this.config = config;
     }

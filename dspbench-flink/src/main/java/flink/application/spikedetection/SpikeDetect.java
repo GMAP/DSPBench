@@ -27,7 +27,6 @@ public class SpikeDetect extends Metrics implements FlatMapFunction<Tuple4<Strin
     public SpikeDetect(Configuration config) {
         super.initialize(config);
         this.config = config;
-        spikeThres(config);
     }
 
     private double  spikeThres(Configuration config) {

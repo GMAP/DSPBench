@@ -27,7 +27,6 @@ public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String,
     public Triggerer(Configuration config) {
         super.initialize(config);
         this.config = config;
-        getList();
         previousTimestamp = 0;
     }
 
@@ -43,6 +42,7 @@ public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String,
     public void flatMap(Tuple6<String, Double, Long, Object, Double, String> input, Collector<Tuple6<String, Double, Long, Boolean, Object, String>> out) {
         super.initialize(config);
         getList();
+
         long timestamp = input.getField(2);
 
         if (timestamp > previousTimestamp) {

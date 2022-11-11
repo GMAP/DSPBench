@@ -41,7 +41,6 @@ public class MapMatching extends Metrics implements FlatMapFunction<Tuple8<Strin
     public MapMatching(Configuration config) {
         this.config = config;
         super.initialize(config);
-        loadShapefile(config);
     }
 
     private void loadShapefile(Configuration config) {
@@ -71,6 +70,7 @@ public class MapMatching extends Metrics implements FlatMapFunction<Tuple8<Strin
     @Override
     public void flatMap(Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String> input, Collector<Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>> out){
         super.initialize(config);
+        loadShapefile(config);
         RoadGridList gridList = getSectors();
         try {
             int speed = input.getField(3);

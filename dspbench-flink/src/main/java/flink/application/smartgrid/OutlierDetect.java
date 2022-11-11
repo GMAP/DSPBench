@@ -38,9 +38,6 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, 
     public OutlierDetect(Configuration config) {
         metrics.initialize(config);
         this.config = config;
-        med();
-        outl();
-        msg();
     }
 
     private FixedMap<Long, Double>  med() {
