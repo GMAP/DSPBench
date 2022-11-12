@@ -31,8 +31,7 @@ public class SSSpeedCalculator extends BaseFunction implements MapGroupsWithStat
         long inittime = 0;
         while (values.hasNext()) {
             Row tuple = values.next();
-            if (inittime == 0)
-                inittime = tuple.getLong(tuple.size() - 1);
+            inittime = tuple.getLong(tuple.size() - 1);
 
             int speed = tuple.getAs("speed");
             if (!state.exists()) {

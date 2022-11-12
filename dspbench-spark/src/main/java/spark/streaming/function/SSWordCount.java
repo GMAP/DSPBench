@@ -22,8 +22,7 @@ public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunct
         long count = 0, inittime = 0;
         while (values.hasNext()) {
             var tuple = values.next();
-            if (inittime == 0)
-                inittime =tuple.getLong(tuple.size() - 1);
+            inittime = tuple.getLong(tuple.size() - 1);
 
             if (state.exists()) {
                 count = state.get();
@@ -33,6 +32,6 @@ public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunct
 
             super.calculateThroughput();
         }
-        return RowFactory.create(key, count, inittime); //get the older latency
+        return RowFactory.create(key, count, inittime);
     }
 }

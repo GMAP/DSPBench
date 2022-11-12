@@ -37,4 +37,14 @@ public interface SmartGridConstants extends BaseConstants {
         String OUTLIER_SINK     = "sg.outlier.sink.class";
         String PREDICTION_SINK  = "sg.prediction.sink.class";
     }
+
+    interface Measurement {
+        int WORK = 0;
+        int LOAD = 1;
+    }
+
+    interface SlidingWindowAction {
+        int ADD = 1;
+        int REMOVE = -1;
+    }
 }

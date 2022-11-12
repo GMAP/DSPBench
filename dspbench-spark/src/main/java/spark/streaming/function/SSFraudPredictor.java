@@ -32,12 +32,12 @@ public class SSFraudPredictor extends BaseFunction implements MapFunction<Row, R
         super.calculateThroughput();
         String entityID = value.getString(0);
         String record = value.getString(1);
-        Prediction p = predictor.execute(entityID, record);
-
-        // send outliers
-        if (p.isOutlier()) {
-            return RowFactory.create(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), value.get(value.size() - 1));
-        }
+//        Prediction p = predictor.execute(entityID, record);
+//
+//        // send outliers
+//        if (p.isOutlier()) {
+//            return RowFactory.create(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), value.get(value.size() - 1));
+//        }
         return null;
     }
 }

@@ -30,8 +30,7 @@ public class SSVolumeCount extends BaseFunction implements MapGroupsWithStateFun
 
         while (values.hasNext()) {
             tuple = values.next();
-            if (inittime == 0)
-                inittime = tuple.getLong(tuple.size() - 1);
+            inittime = tuple.getLong(tuple.size() - 1);
             super.calculateThroughput();
 
             if (state.exists()) {

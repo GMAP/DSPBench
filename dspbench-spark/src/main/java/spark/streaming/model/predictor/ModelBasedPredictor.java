@@ -17,11 +17,13 @@
 
 package spark.streaming.model.predictor;
 
+import java.util.List;
+
 /**
  * Base class for all model based predictors
  * @author pranab
  *
  */
 public abstract class ModelBasedPredictor {
-    public abstract Prediction execute(String entityID, String record);
+    public abstract Prediction execute(String entityID, List<String> record);
 }

@@ -26,8 +26,8 @@ public class SSStatusCount extends BaseFunction implements MapGroupsWithStateFun
         while (values.hasNext()) {
             super.calculateThroughput();
             tuple = values.next();
-            if (inittime == 0)
-                inittime = tuple.getLong(tuple.size() - 1);
+            inittime = tuple.getLong(tuple.size() - 1);
+
             if (state.exists()) {
                 count = state.get();
             }
