@@ -94,9 +94,9 @@ public class LogProcessing extends AbstractApplication {
                 .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Update(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
 
-        var counts = createMultiSink(volumeCount, volumeSink, "volumeSink");
-        var status = createMultiSink(statusCount, statusSink, "statusSink");
-        var geo = createMultiSink(geoStats, geoSink, "geoSink");
+        var counts = createMultiSink(volumeCount, volumeSink, "volumeSink", 1);
+        var status = createMultiSink(statusCount, statusSink, "statusSink", 2);
+        var geo = createMultiSink(geoStats, geoSink, "geoSink", 3);
 
         counts.awaitTermination();
         status.awaitTermination();

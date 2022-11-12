@@ -5,12 +5,13 @@ import org.apache.spark.api.java.function.MapGroupsWithStateFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.streaming.GroupState;
-import spark.streaming.model.gis.Road;
 import spark.streaming.util.Configuration;
 
-import java.util.Date;
 import java.util.Iterator;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 /**
  * @author luandopke
  */
@@ -18,6 +19,18 @@ public class SSVolumeCount extends BaseFunction implements MapGroupsWithStateFun
 
     public SSVolumeCount(Configuration config) {
         super(config);
+    }
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
+    @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
     }
 
     @Override
@@ -29,9 +42,9 @@ public class SSVolumeCount extends BaseFunction implements MapGroupsWithStateFun
             state.remove();
 
         while (values.hasNext()) {
+            Calculate();
             tuple = values.next();
             inittime = tuple.getLong(tuple.size() - 1);
-            super.calculateThroughput();
 
             if (state.exists()) {
                 count = state.get();

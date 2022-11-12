@@ -15,6 +15,10 @@ import spark.streaming.util.Configuration;
 
 import java.time.Instant;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 /**
  * @author luandopke
  */
@@ -36,6 +40,11 @@ public class SSSensorParser extends BaseFunction implements MapFunction<String, 
     private static final int HUMID_FIELD = 5;
     private static final int LIGHT_FIELD = 6;
     private static final int VOLT_FIELD = 7;
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
+
+
     private static final ImmutableMap<String, Integer> fieldList = ImmutableMap.<String, Integer>builder()
             .put("temp", TEMP_FIELD)
             .put("humid", HUMID_FIELD)
@@ -51,10 +60,19 @@ public class SSSensorParser extends BaseFunction implements MapFunction<String, 
         String valueField = config.get(SpikeDetectionConstants.Config.PARSER_VALUE_FIELD);
         valueFieldKey = fieldList.get(valueField);
     }
+    @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
 
     @Override
     public Row call(String value) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         String[] fields = value.split("\\s+");
 
         if (fields.length != 8)

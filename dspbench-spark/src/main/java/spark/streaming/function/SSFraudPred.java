@@ -21,12 +21,13 @@ public class SSFraudPred extends BaseFunction implements FlatMapGroupsWithStateF
 
     public SSFraudPred(Configuration config) {
         super(config);
-        queue = new ArrayBlockingQueue<>(20);
         predictor = new MarkovModelPredictor(getConfiguration());
     }
-    private MarkovModelPredictor predictor;
-    private static Map<String, Long> throughput= new HashMap<>();;
-    private static BlockingQueue<String> queue;
+
+    private final MarkovModelPredictor predictor;
+    private static Map<String, Long> throughput = new HashMap<>();
+    ;
+    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);;
 
     @Override
     public Iterator<Row> call(String entityID, Iterator<Row> values, GroupState<FraudRecord> state) throws Exception {

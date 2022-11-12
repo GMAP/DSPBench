@@ -1,8 +1,5 @@
 package spark.streaming.function;
 
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.spark.api.java.function.Function;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -10,6 +7,10 @@ import scala.Tuple2;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.DateUtils;
 import spark.streaming.util.Tuple;
+
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -29,6 +30,11 @@ public class CommonLogParser extends BaseFunction implements Function<Tuple2<Str
 
     public CommonLogParser(Configuration config) {
         super(config);
+    }
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
     }
 
     @Override

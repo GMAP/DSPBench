@@ -11,14 +11,30 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 /**
  * @author luandopke
  */
 public class SSGeoStats extends BaseFunction implements FlatMapGroupsWithStateFunction<String, Row, CountryStats, Row> {
+    private static Map<String, Long> throughput = new HashMap<>();
 
+    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
     public SSGeoStats(Configuration config) {
         super(config);
     }
+    @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
+
 
     @Override
     public Iterator<Row> call(String key, Iterator<Row> values, GroupState<CountryStats> state) throws Exception {
@@ -27,7 +43,7 @@ public class SSGeoStats extends BaseFunction implements FlatMapGroupsWithStateFu
         String city;
         Row value;
         while (values.hasNext()) {
-            super.calculateThroughput();
+            Calculate();
 
             value = values.next();
             city = value.getString(1);

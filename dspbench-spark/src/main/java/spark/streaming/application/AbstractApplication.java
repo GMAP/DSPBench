@@ -58,18 +58,18 @@ public abstract class AbstractApplication implements Serializable {
         String sinkClass = config.get(getConfigKey(BaseConfig.SINK_CLASS), "spark.streaming.sink.ConsoleSink");
         BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         source.initialize(config, session);
-        return source.sinkStream(dt);
+        return source.sinkStream(dt, 1);
     }
 
     protected DataStreamWriter<Row> createSink() {
         return null;
     }
 
-    protected StreamingQuery createMultiSink(Dataset<Row> dt, String sinkClass, String name) {
+    protected StreamingQuery createMultiSink(Dataset<Row> dt, String sinkClass, String name, int seq) {
         BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         source.initialize(config, session, name);
         try {
-            return source.sinkStream(dt).start();
+            return source.sinkStream(dt, seq).start();
         } catch (TimeoutException e) {
             throw new RuntimeException(e);
         }

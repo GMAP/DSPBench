@@ -74,8 +74,8 @@ public class ClickAnalytics extends AbstractApplication {
                 .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
                 .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Append(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
-        var visitS = createMultiSink(visitStats, visitSink, "visitSink");
-        var locationS = createMultiSink(geoStats, locationSink, "locationSink");
+        var visitS = createMultiSink(visitStats, visitSink, "visitSink", 1);
+        var locationS = createMultiSink(geoStats, locationSink, "locationSink", 2);
 
         visitS.awaitTermination();
         locationS.awaitTermination();

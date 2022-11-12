@@ -28,6 +28,11 @@ public class PairSink<K> extends BaseFunction implements VoidFunction<JavaPairRD
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
+    @Override
     public void call(JavaPairRDD<K, Tuple> rdd) throws Exception {
         incReceived(rdd.count());
         

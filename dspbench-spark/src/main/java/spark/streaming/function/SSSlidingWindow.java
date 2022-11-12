@@ -2,17 +2,11 @@ package spark.streaming.function;
 
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.streaming.constants.SmartGridConstants;
-import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.model.window.SlidingWindow;
-import spark.streaming.model.window.SlidingWindowCallback;
 import spark.streaming.model.window.SlidingWindowEntry;
 import spark.streaming.util.Configuration;
-
-import java.util.List;
 
 /**
  * @author luandopke
@@ -23,6 +17,11 @@ public class SSSlidingWindow extends BaseFunction implements MapFunction<Row, Ro
     public SSSlidingWindow(Configuration config) {
         super(config);
         window = new SlidingWindow(1 * 60 * 60);
+    }
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
     }
 
     private SlidingWindow window;

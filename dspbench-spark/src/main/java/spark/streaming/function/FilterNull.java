@@ -13,5 +13,9 @@ public class FilterNull<K, V> extends BaseFunction implements Function<Tuple2<K,
     public Boolean call(Tuple2<K, V> input) throws Exception {
         return input != null;
     }
-    
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
+    }
 }

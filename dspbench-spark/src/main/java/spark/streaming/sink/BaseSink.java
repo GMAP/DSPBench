@@ -7,6 +7,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 import spark.streaming.function.BaseFunction;
 import spark.streaming.util.Configuration;
 
@@ -49,35 +50,11 @@ public abstract class BaseSink implements Serializable {
         }
     }
 
-    public abstract DataStreamWriter<Row> sinkStream(Dataset<Row> dt);
 
-    public void calculateThroughput() {
-        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-            long unixTime = 0;
-            if (config.get(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
-                unixTime = Instant.now().getEpochSecond();
-            } else {
-                unixTime = Instant.now().toEpochMilli();
-            }
-
-            Long ops = throughput.get(unixTime + "");
-            if (ops == null) {
-                for (Map.Entry<String, Long> entry : this.throughput.entrySet()) {
-                    this.queue.add(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
-                }
-                throughput.clear();
-                if (queue.size() >= 10) {
-                    SaveMetrics();
-                }
-            }
-
-            ops = (ops == null) ? 1L : ++ops;
-
-            throughput.put(unixTime + "", ops);
-        }
-    }
+    public abstract DataStreamWriter<Row> sinkStream(Dataset<Row> dt, int sink);
 
     public void calculateLatency(long UnixTimeInit) {
+        // new Thread(() -> {
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
             try {
                 FileWriter fw = new FileWriter(Paths.get(config.get(Configuration.METRICS_OUTPUT), "latency", this.getClass().getSimpleName() + this.sinkName + ".csv").toFile(), true);
@@ -87,19 +64,47 @@ public abstract class BaseSink implements Serializable {
                 throw new RuntimeException(e);
             }
         }
+        //  }).start();
     }
 
-    public void SaveMetrics() {
+    public Tuple2<Map<String, Long>, BlockingQueue<String>> calculateThroughput(Map<String, Long> throughput, BlockingQueue<String> queue) {
+        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
+            long unixTime;
+            if (config.get(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
+                unixTime = Instant.now().getEpochSecond();
+            } else {
+                unixTime = Instant.now().toEpochMilli();
+            }
+
+            Long ops = throughput.get(unixTime + "");
+            if (ops == null) {
+                for (Map.Entry<String, Long> entry : throughput.entrySet()) {
+                    queue.add(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
+                }
+                throughput.clear();
+            }
+
+            ops = (ops == null) ? 1L : ++ops;
+
+            throughput.put(unixTime + "", ops);
+        }
+        return new Tuple2<>(throughput, queue);
+    }
+
+
+    public void SaveMetrics(String met) {
         new Thread(() -> {
             try {
                 try (Writer writer = new FileWriter(this.file, true)) {
-                    writer.append(this.queue.take());
+                    writer.append(met);
                 } catch (IOException ex) {
-                    LOG.error("Error while writing the file " + file, ex);
+                    LOG.error("Error while writing the file " + this.file, ex);
                 }
             } catch (Exception e) {
                 LOG.error("Error while creating the file " + e.getMessage());
             }
         }).start();
     }
+
+    public abstract void Calculate(int sink) throws InterruptedException, RuntimeException;
 }

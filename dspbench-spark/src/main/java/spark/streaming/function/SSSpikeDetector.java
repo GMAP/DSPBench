@@ -8,12 +8,30 @@ import org.slf4j.LoggerFactory;
 import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.util.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
 /**
  * @author luandopke
  */
 public class SSSpikeDetector extends BaseFunction implements MapFunction<Row, Row> {
     private static final Logger LOG = LoggerFactory.getLogger(SSSpikeDetector.class);
     private double spikeThreshold;
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);
+
+    @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
 
     public SSSpikeDetector(Configuration config) {
         super(config);
@@ -22,7 +40,7 @@ public class SSSpikeDetector extends BaseFunction implements MapFunction<Row, Ro
 
     @Override
     public Row call(Row value) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         int deviceID = value.getInt(0);
         double movingAverageInstant = value.getDouble(1);
         double nextDouble = value.getDouble(2);

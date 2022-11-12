@@ -27,6 +27,11 @@ public class Sink<K> extends BaseFunction implements Function<JavaRDD<Tuple2<K, 
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
+    @Override
     public Void call(JavaRDD<Tuple2<K, Tuple>> rdd) throws Exception {
         incReceived(rdd.count());
         

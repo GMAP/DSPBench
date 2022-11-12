@@ -1,12 +1,12 @@
 package spark.streaming.function;
 
 import com.google.common.base.Optional;
-import java.util.Date;
-import java.util.List;
 import org.apache.spark.api.java.function.Function2;
 import spark.streaming.model.gis.Road;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
+
+import java.util.List;
 
 /**
  *
@@ -16,6 +16,11 @@ public class SpeedCalculator extends BaseFunction implements Function2<List<Tupl
 
     public SpeedCalculator(Configuration config) {
         super(config);
+    }
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
     }
     
 

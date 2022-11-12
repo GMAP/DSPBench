@@ -5,16 +5,12 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.streaming.constants.MachineOutlierConstants;
-import spark.streaming.model.scorer.DataInstanceScorer;
-import spark.streaming.model.scorer.DataInstanceScorerFactory;
-import spark.streaming.model.scorer.ScorePackage;
 import spark.streaming.util.BFPRT;
 import spark.streaming.util.Configuration;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author luandopke
@@ -26,7 +22,9 @@ public class SSAlertTrigger extends BaseFunction implements FlatMapFunction<Row,
     private List<Row> streamList;
     private double minDataInstanceScore = Double.MAX_VALUE;
     private double maxDataInstanceScore = 0;
+    private static Map<String, Long> throughput = new HashMap<>();
 
+    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);;
     public SSAlertTrigger(Configuration config) {
         super(config);
         previousTimestamp = 0;
@@ -34,8 +32,18 @@ public class SSAlertTrigger extends BaseFunction implements FlatMapFunction<Row,
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
+
+    @Override
     public Iterator<Row> call(Row input) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         long timestamp = input.getLong(2);
         List<Row> tuples = new ArrayList<>();
         if (timestamp > previousTimestamp) {

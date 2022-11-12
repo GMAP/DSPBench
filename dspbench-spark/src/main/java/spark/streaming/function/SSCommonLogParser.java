@@ -1,16 +1,12 @@
 package spark.streaming.function;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
-import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.DateUtils;
 
@@ -21,6 +17,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author luandopke
@@ -37,14 +37,28 @@ public class SSCommonLogParser extends BaseFunction implements MapFunction<Strin
     public static final String RESPONSE  = "response";
     public static final String BYTE_SIZE = "byte_size";
     private static final int NUM_FIELDS = 8;
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
 
     public SSCommonLogParser(Configuration config) {
         super(config);
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
+
+
+    @Override
     public Row call(String value) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         Map<String, Object> entry = parseLine(value);
 
         if (entry == null) {

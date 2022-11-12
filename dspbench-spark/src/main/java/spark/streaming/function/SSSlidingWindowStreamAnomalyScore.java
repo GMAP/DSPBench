@@ -6,13 +6,16 @@ import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.MachineOutlierConstants;
-import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.util.Configuration;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author luandopke
@@ -23,6 +26,10 @@ public class SSSlidingWindowStreamAnomalyScore extends BaseFunction implements M
     private Map<String, Queue<Double>> slidingWindowMap;
     private int windowLength;
     private long previousTimestamp;
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
+
 
     public SSSlidingWindowStreamAnomalyScore(Configuration config) {
         super(config);
@@ -30,10 +37,19 @@ public class SSSlidingWindowStreamAnomalyScore extends BaseFunction implements M
         slidingWindowMap = new HashMap<>();
         previousTimestamp = 0;
     }
+    @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
 
     @Override
     public Row call(Row input) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         long timestamp = input.getLong(2); //TODO change to window spark method
         String id = input.getString(0);
         double dataInstanceAnomalyScore = input.getDouble(1);

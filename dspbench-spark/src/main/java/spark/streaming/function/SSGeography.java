@@ -7,12 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.BaseConstants;
 import spark.streaming.util.Configuration;
-import spark.streaming.util.geoip.IPLocation;
 import spark.streaming.util.geoip.IPLocationFactory;
 import spark.streaming.util.geoip.Location;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author luandopke
@@ -21,15 +21,27 @@ public class SSGeography extends BaseFunction implements MapFunction<Row, Row> {
     private static final Logger LOG = LoggerFactory.getLogger(SSGeography.class);
 
     private String ipResolver;
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
 
     public SSGeography(Configuration config) {
         super(config);
         ipResolver = config.get(BaseConstants.BaseConfig.GEOIP_INSTANCE);
     }
+    @Override
+    public void Calculate() throws InterruptedException {
+        var d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
 
     @Override
     public Row call(Row input) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         String ip = input.getString(0);
 
         Location location = IPLocationFactory.create(ipResolver, super.getConfiguration()).resolve(ip);

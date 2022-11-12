@@ -2,25 +2,18 @@ package spark.streaming.function;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.Tuple2;
+import spark.streaming.metrics.MetricsFactory;
+import spark.streaming.util.Configuration;
 
 import java.io.*;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.streaming.GroupState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import scala.Tuple2;
-import spark.streaming.model.gis.Road;
-import spark.streaming.util.Configuration;
-import spark.streaming.metrics.MetricsFactory;
 
 /**
  * @author mayconbordin
@@ -130,10 +123,7 @@ public abstract class BaseFunction implements Serializable {
         this.name = name;
     }
 
-    //public abstract void Calculate()throws InterruptedException;
-    public void calculateThroughput() {//delete after
-
-    }
+    public abstract void Calculate() throws InterruptedException;
 
     public Tuple2<Map<String, Long>, BlockingQueue<String>> calculateThroughput(Map<String, Long> throughput, BlockingQueue<String> queue) {
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {

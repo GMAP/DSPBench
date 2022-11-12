@@ -1,9 +1,5 @@
 package spark.streaming.function;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.spark.api.java.function.Function;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -12,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import spark.streaming.util.Configuration;
-import spark.streaming.util.DateUtils;
 import spark.streaming.util.Tuple;
 
 /**
@@ -33,6 +28,11 @@ public class BeijingTaxiTraceParser extends BaseFunction implements Function<Tup
 
     public BeijingTaxiTraceParser(Configuration config) {
         super(config);
+    }
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
     }
 
     @Override

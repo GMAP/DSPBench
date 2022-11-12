@@ -1,20 +1,11 @@
 package spark.streaming.function;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.util.Configuration;
-
-import java.time.Instant;
 
 /**
  * @author luandopke
@@ -32,6 +23,11 @@ public class SSSmartGridParser extends BaseFunction implements MapFunction<Strin
 
     public SSSmartGridParser(Configuration config) {
         super(config);
+    }
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
     }
 
     @Override
