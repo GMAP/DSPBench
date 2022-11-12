@@ -144,6 +144,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
             LOG.debug("local metric,  seq size " + recordSeq.size());
             
             if (recordSeq.size() == stateSeqWindowSize) {
+                
                 stateSeq = new String[stateSeqWindowSize]; 
                 for (int i = 0; i < stateSeqWindowSize; ++i) {
                     stateSeq[i] = recordSeq.get(i).split(",")[stateOrdinal];

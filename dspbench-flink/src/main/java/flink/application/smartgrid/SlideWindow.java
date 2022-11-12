@@ -37,7 +37,6 @@ public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<Strin
     public SlideWindow(Configuration config) {
         super.initialize(config);
         this.config = config;
-        createWindow();
     }
 
     private SlidingWindow createWindow(){

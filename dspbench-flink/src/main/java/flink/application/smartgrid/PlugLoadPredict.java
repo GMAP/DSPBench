@@ -32,8 +32,6 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
     public PlugLoadPredict(Configuration config) {
         super.initialize(config);
         this.config = config;
-        track();
-        archMap();
         sliceLength = 60l;
     }
 

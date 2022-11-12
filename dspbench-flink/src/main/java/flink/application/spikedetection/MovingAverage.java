@@ -33,9 +33,6 @@ public class MovingAverage extends Metrics implements FlatMapFunction<Tuple4<Str
     public MovingAverage(Configuration config) {
         super.initialize(config);
         this.config = config;
-        window(config);
-        IdMap();
-        IdSum();
     }
 
     private int window(Configuration config) {

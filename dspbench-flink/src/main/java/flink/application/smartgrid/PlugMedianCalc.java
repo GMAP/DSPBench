@@ -23,8 +23,6 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Lo
     public PlugMedianCalc(Configuration config) {
         super.initialize(config);
         this.config = config;
-        runMed();
-        tsMap();
     }
 
     private Map<String, RunningMedianCalculator> runMed(){

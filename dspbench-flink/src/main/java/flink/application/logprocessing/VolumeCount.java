@@ -28,8 +28,6 @@ public class VolumeCount extends Metrics implements FlatMapFunction<Tuple7<Objec
     public VolumeCount(Configuration config) {
         super.initialize(config);
         this.config = config;
-        getBuffer();
-        getCount();
     }
 
     private CircularFifoBuffer getBuffer() {

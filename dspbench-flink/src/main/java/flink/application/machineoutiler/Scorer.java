@@ -34,9 +34,6 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Lo
         super.initialize(config);
         previousTimestamp = 0;
         this.config = config;
-        createScorer(config);
-        getList();
-
     }
 
     private  List<Object> getList() {
@@ -74,7 +71,6 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Lo
 
             previousTimestamp = timestamp;
         }
-
         observationList.add(input.getField(2));
         super.calculateThroughput();
     }

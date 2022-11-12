@@ -62,8 +62,8 @@ public class ClickAnalytics extends AbstractApplication {
 
         // Sink
         // YEAHH, could reuse some sinks
-        //createSinkLPStatus(visitStats, "visit");
-        //createSinkLPGeo(geoStats, "location");
+        createSinkLPStatus(visitStats, "visit");
+        createSinkLPGeo(geoStats, "location");
 
         return env;
     }

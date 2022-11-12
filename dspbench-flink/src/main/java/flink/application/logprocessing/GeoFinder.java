@@ -24,7 +24,6 @@ public class GeoFinder extends Metrics implements FlatMapFunction<Tuple7<Object,
     public GeoFinder(Configuration config) {
         super.initialize(config);
         this.config=config;
-        createResolver(config);
     }
 
     private IPLocation createResolver(Configuration config) {

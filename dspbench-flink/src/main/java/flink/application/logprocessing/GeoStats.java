@@ -25,7 +25,6 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple3<String, 
     public GeoStats(Configuration config) {
         super.initialize(config);
         this.config = config;
-        getStats();
     }
 
     private Map<String, CountryStats>  getStats() {
