@@ -1,6 +1,7 @@
 package spark.streaming.application;
 
 import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
@@ -32,19 +33,19 @@ public class SpikeDetection extends AbstractApplication {
 
     @Override
     public DataStreamWriter buildApplication() {
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
+        Dataset<Row> records = rawRecords
                 .repartition(parserThreads)//TODO: change to coalesce
                 .as(Encoders.STRING())
                 .map(new SSSensorParser(config), Encoders.kryo(Row.class));
 
-        var averages = records.filter(new SSFilterNull<>())
+        Dataset<Row> averages = records.filter(new SSFilterNull<>())
                 .repartition(movingAverageThreads)
                 .groupByKey((MapFunction<Row, Integer>) row -> row.getInt(0), Encoders.INT())
                 .flatMapGroupsWithState(new SSFlatMovingAverage(config), OutputMode.Update(), Encoders.kryo(Moving.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
-        var spikes = averages
+        Dataset<Row> spikes = averages
                 .repartition(spikeDetectorThreads)
                 .map(new SSSpikeDetector(config), Encoders.kryo(Row.class))
                 .filter(new SSFilterNull<>());

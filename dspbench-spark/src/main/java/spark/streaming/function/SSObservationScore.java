@@ -1,13 +1,12 @@
 package spark.streaming.function;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 import spark.streaming.constants.MachineOutlierConstants;
-import spark.streaming.model.predictor.Prediction;
 import spark.streaming.model.scorer.DataInstanceScorer;
 import spark.streaming.model.scorer.DataInstanceScorerFactory;
 import spark.streaming.model.scorer.ScorePackage;
@@ -17,6 +16,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 /**
  * @author luandopke
  */
@@ -26,6 +29,9 @@ public class SSObservationScore extends BaseFunction implements FlatMapFunction<
     private String dataTypeName;
     private DataInstanceScorer dataInstanceScorer;
     private List<Object> observationList;
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
 
     public SSObservationScore(Configuration config) {
         super(config);
@@ -36,8 +42,18 @@ public class SSObservationScore extends BaseFunction implements FlatMapFunction<
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
+
+    @Override
     public Iterator<Row> call(Row input) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         List<Row> tuples = new ArrayList<>();
         long timestamp = input.getLong(1);
         //TODO: implements spark windowing method

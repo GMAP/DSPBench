@@ -4,12 +4,17 @@ import org.apache.spark.api.java.function.FlatMapGroupsWithStateFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.streaming.GroupState;
+import scala.Tuple2;
 import spark.streaming.model.VisitStats;
 import spark.streaming.util.Configuration;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author luandopke
@@ -20,13 +25,27 @@ public class SSVisitStats extends BaseFunction implements FlatMapGroupsWithState
         super(config);
     }
 
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);
+
+    @Override
+    public void Calculate() throws InterruptedException {
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
+
     @Override
     public Iterator<Row> call(Integer key, Iterator<Row> values, GroupState<VisitStats> state) throws Exception {
         VisitStats stats;
         Row tuple;
         List<Row> tuples = new ArrayList<>();
         while (values.hasNext()) {
-            super.calculateThroughput();
+            Calculate();
             tuple = values.next();
             if (!state.exists()) {
                 stats = new VisitStats();

@@ -48,7 +48,7 @@ public class KafkaSource extends BaseSource {
                 .option("startingOffsets", "earliest")
                 .option("maxOffsetsPerTrigger", batchSize)
                 .load()
-                .repartition(sourceThreads)
+                //.repartition(sourceThreads)
                 .selectExpr("CAST(value AS STRING)");
     }
     

@@ -1,8 +1,5 @@
 package spark.streaming.function;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
 import org.apache.spark.api.java.function.PairFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +9,9 @@ import spark.streaming.model.gis.GPSRecord;
 import spark.streaming.model.gis.RoadGridList;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  *
@@ -31,7 +31,12 @@ public class MapMatcher extends BaseFunction implements PairFunction<Tuple2<Inte
         
         loadShapefile(config);
     }
-    
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
     @Override
     public Tuple2<Integer, Tuple> call(Tuple2<Integer, Tuple> input) throws Exception {
         incBoth();

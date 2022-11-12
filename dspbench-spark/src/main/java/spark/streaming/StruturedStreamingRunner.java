@@ -4,6 +4,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Lists;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.streaming.DataStreamWriter;
 import org.apache.spark.sql.streaming.StreamingQueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +99,7 @@ public class StruturedStreamingRunner {
         config.setAppName(applicationName);
         config.setMaster(master);
 
-        var query = app.getContext(applicationName, config);
+        DataStreamWriter<Row> query = app.getContext(applicationName, config);
         try {
             if (query != null) {
                 if (timeoutInSeconds != null) {

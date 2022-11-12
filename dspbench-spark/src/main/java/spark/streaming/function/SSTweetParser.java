@@ -10,9 +10,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 import spark.streaming.util.Configuration;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author luandopke
@@ -25,6 +30,9 @@ public class SSTweetParser extends BaseFunction implements MapFunction<String, R
     private static final String DATA_FIELD = "data";
     private static final DateTimeFormatter datetimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     JSONParser parser;
+    private static Map<String, Long> throughput = new HashMap<>();
+
+    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);
 
     public SSTweetParser(Configuration config) {
         super(config);
@@ -32,8 +40,18 @@ public class SSTweetParser extends BaseFunction implements MapFunction<String, R
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+        throughput = d._1;
+        queue = d._2;
+        if (queue.size() >= 10) {
+            super.SaveMetrics(queue.take());
+        }
+    }
+
+    @Override
     public Row call(String value) throws Exception {
-        super.calculateThroughput();
+        Calculate();
         try {
             value = value.trim();
 

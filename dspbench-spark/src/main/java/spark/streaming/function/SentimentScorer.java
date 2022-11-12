@@ -16,6 +16,11 @@ public class SentimentScorer extends BaseFunction implements Function<Tuple2<Lon
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
+    @Override
     public Tuple2<Long, Tuple> call(Tuple2<Long, Tuple> t1) throws Exception {
         incBoth();
         Float pos = t1._2.getFloat("positiveScore");

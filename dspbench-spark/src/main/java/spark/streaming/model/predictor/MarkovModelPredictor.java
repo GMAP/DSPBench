@@ -126,17 +126,17 @@ public class MarkovModelPredictor extends ModelBasedPredictor implements Seriali
     }
 
     @Override
-    public Prediction execute(String entityID, String record) {
+    public Prediction execute(String entityID, List<String> recordSeq) {
         double score = 0;
 
-        List<String> recordSeq = records.get(entityID);
+
         if (null == recordSeq) {
             recordSeq = new ArrayList<>();
             records.put(entityID, recordSeq);
         }
 
         //add and maintain size
-        recordSeq.add(record);
+       // recordSeq.add(record);
         if (recordSeq.size() > stateSeqWindowSize) {
             recordSeq.remove(0);
         }

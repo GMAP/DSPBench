@@ -3,6 +3,7 @@ package spark.streaming.application;
 import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
+import org.apache.spark.sql.KeyValueGroupedDataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder;
 import org.apache.spark.sql.streaming.DataStreamWriter;
@@ -57,18 +58,18 @@ public class TrafficMonitoring extends AbstractApplication {
                 new StructField("inittime", DataTypes.LongType, false, Metadata.empty())
         });
 
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
+        Dataset<Row> records = rawRecords
                 .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new SSBeijingTaxiTraceParser(config), RowEncoder.apply(schema));
 
-        var roads = records.filter(new SSFilterNull<>())
+        KeyValueGroupedDataset<Integer, Row> roads = records.filter(new SSFilterNull<>())
                 .repartition(mapMatcherThreads)
                 .groupByKey(new SSMapMatcher(config), Encoders.INT());
 
-        var speed = roads
+        Dataset<Row> speed = roads
                 .mapGroupsWithState(new SSSpeedCalculator(config), Encoders.kryo(Road.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout())
                 .repartition(speedCalculatorThreads);
 

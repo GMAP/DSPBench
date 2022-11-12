@@ -1,13 +1,17 @@
 package spark.streaming.application;
 
+import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
+import org.apache.spark.sql.streaming.GroupStateTimeout;
+import org.apache.spark.sql.streaming.OutputMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.FraudDetectionConstants;
-import spark.streaming.constants.SentimentAnalysisConstants;
 import spark.streaming.function.*;
+import spark.streaming.model.FraudRecord;
 import spark.streaming.util.Configuration;
 
 public class FraudDetection extends AbstractApplication {
@@ -27,17 +31,17 @@ public class FraudDetection extends AbstractApplication {
 
     @Override
     public DataStreamWriter buildApplication() {
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
-                .repartition(parserThreads)
+        Dataset<Row> records = rawRecords
+               // .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new SSTransationParser(config), Encoders.kryo(Row.class));
 
-       var predictors = records
+        Dataset<Row> predictors = records
                 .repartition(predictorThreads)
-                .map(new SSFraudPredictor(config), Encoders.kryo(Row.class))
-                .filter(new SSFilterNull<>());
+                .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
+                .flatMapGroupsWithState(new SSFraudPred(config), OutputMode.Update(), Encoders.kryo(FraudRecord.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
         return createSink(predictors);
     }

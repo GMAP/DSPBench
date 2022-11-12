@@ -17,6 +17,11 @@ public class KafkaParser extends BaseFunction implements Function<ConsumerRecord
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
+    @Override
     public Tuple2<String, Tuple> call(ConsumerRecord<String, String> t1) throws Exception {
         incEmitted();
         return new Tuple2<>(t1.value(), new Tuple());
