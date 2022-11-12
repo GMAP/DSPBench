@@ -4,6 +4,7 @@ import org.apache.spark.api.java.function.MapFunction;
 import org.apache.spark.sql.Row;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 import spark.streaming.constants.TrafficMonitoringConstants.Config;
 import spark.streaming.model.gis.GPSRecord;
 import spark.streaming.model.gis.RoadGridList;
@@ -39,7 +40,7 @@ public class SSMapMatcher extends BaseFunction implements MapFunction<Row, Integ
     }
     @Override
     public void Calculate() throws InterruptedException {
-        var d = super.calculateThroughput(throughput, queue);
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {

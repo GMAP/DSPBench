@@ -5,6 +5,7 @@ import org.apache.spark.sql.ForeachWriter;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 import org.apache.spark.sql.streaming.Trigger;
+import scala.Tuple2;
 import spark.streaming.constants.BaseConstants;
 
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class ConsoleSink extends BaseSink {
     public void Calculate(int sink) throws InterruptedException, RuntimeException {
         switch (sink) {
             case 1: {
-                var d = super.calculateThroughput(throughput, queue);
+                Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
                 throughput = d._1;
                 queue = d._2;
                 if (queue.size() >= 10) {
@@ -35,7 +36,7 @@ public class ConsoleSink extends BaseSink {
                 break;
             }
             case 2: {
-                var d = super.calculateThroughput(throughput2, queue2);
+                Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput2, queue2);
                 throughput2 = d._1;
                 queue2 = d._2;
                 if (queue2.size() >= 10) {
@@ -44,7 +45,7 @@ public class ConsoleSink extends BaseSink {
                 break;
             }
             case 3: {
-                var d = super.calculateThroughput(throughput3, queue3);
+                Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput3, queue3);
                 throughput3 = d._1;
                 queue3 = d._2;
                 if (queue3.size() >= 10) {

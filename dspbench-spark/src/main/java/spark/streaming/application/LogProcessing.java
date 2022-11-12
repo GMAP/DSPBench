@@ -2,13 +2,11 @@ package spark.streaming.application;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder;
-import org.apache.spark.sql.streaming.DataStreamWriter;
-import org.apache.spark.sql.streaming.GroupStateTimeout;
-import org.apache.spark.sql.streaming.OutputMode;
-import org.apache.spark.sql.streaming.StreamingQueryException;
+import org.apache.spark.sql.streaming.*;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
@@ -63,40 +61,40 @@ public class LogProcessing extends AbstractApplication {
         });
 
 
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
+        Dataset<Row> records = rawRecords
                 .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new SSCommonLogParser(config), RowEncoder.apply(schema));
 
-        var volumeCount = records
+        Dataset<Row> volumeCount = records
                 .repartition(volumeCountThreads)
                 .withWatermark("timestamp", "1 hour")
                 .groupByKey((MapFunction<Row, Long>) row -> row.getLong(2), Encoders.LONG())
                 .mapGroupsWithState(new SSVolumeCount(config), Encoders.kryo(MutableLong.class), Encoders.kryo(Row.class), GroupStateTimeout.EventTimeTimeout());
 
 
-        var statusCount = records
+        Dataset<Row> statusCount = records
                 .repartition(statusCountThreads)
                 .groupByKey((MapFunction<Row, Integer>) row -> row.getInt(4), Encoders.INT())
                 .mapGroupsWithState(new SSStatusCount(config), Encoders.LONG(), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
 
-        var geos = records
+        Dataset<Row> geos = records
                 .repartition(geographyThreads)
                 .map(new SSGeography(config), Encoders.kryo(Row.class));
 
-        var geoStats = geos
+        Dataset<Row> geoStats = geos
                 .repartition(geoStatsThreads)
                 .filter(new SSFilterNull<>())
                 .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
                 .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Update(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
 
-        var counts = createMultiSink(volumeCount, volumeSink, "volumeSink", 1);
-        var status = createMultiSink(statusCount, statusSink, "statusSink", 2);
-        var geo = createMultiSink(geoStats, geoSink, "geoSink", 3);
+        StreamingQuery counts = createMultiSink(volumeCount, volumeSink, "volumeSink", 1);
+        StreamingQuery status = createMultiSink(statusCount, statusSink, "statusSink", 2);
+        StreamingQuery geo = createMultiSink(geoStats, geoSink, "geoSink", 3);
 
         counts.awaitTermination();
         status.awaitTermination();

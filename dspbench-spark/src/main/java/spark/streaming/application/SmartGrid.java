@@ -2,6 +2,7 @@ package spark.streaming.application;
 
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.catalyst.encoders.RowEncoder;
@@ -38,9 +39,9 @@ public class SmartGrid extends AbstractApplication {
     @Override
     public DataStreamWriter buildApplication() throws StreamingQueryException {
 
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
+        Dataset<Row> records = rawRecords
                 .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new SSSmartGridParser(config), Encoders.kryo(Row.class));

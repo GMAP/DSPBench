@@ -1,6 +1,7 @@
 package spark.streaming.application;
 
 import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
@@ -30,14 +31,14 @@ public class FraudDetection extends AbstractApplication {
 
     @Override
     public DataStreamWriter buildApplication() {
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
+        Dataset<Row> records = rawRecords
                // .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new SSTransationParser(config), Encoders.kryo(Row.class));
 
-        var predictors = records
+        Dataset<Row> predictors = records
                 .repartition(predictorThreads)
                 .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
                 .flatMapGroupsWithState(new SSFraudPred(config), OutputMode.Update(), Encoders.kryo(FraudRecord.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());

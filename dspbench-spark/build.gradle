@@ -4,8 +4,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.0.0'
 }
 
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
+sourceCompatibility = 8
+targetCompatibility = 8
 
 version '1.0'
 

@@ -10,6 +10,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 import spark.streaming.constants.SpikeDetectionConstants;
 import spark.streaming.util.Configuration;
 
@@ -62,7 +63,7 @@ public class SSSensorParser extends BaseFunction implements MapFunction<String, 
     }
     @Override
     public void Calculate() throws InterruptedException {
-        var d = super.calculateThroughput(throughput, queue);
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {

@@ -4,6 +4,7 @@ import org.apache.spark.api.java.function.MapGroupsWithStateFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.streaming.GroupState;
+import scala.Tuple2;
 import spark.streaming.model.gis.Road;
 import spark.streaming.util.Configuration;
 
@@ -26,7 +27,7 @@ public class SSSpeedCalculator extends BaseFunction implements MapGroupsWithStat
     private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
     @Override
     public void Calculate() throws InterruptedException {
-        var d = super.calculateThroughput(throughput, queue);
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {

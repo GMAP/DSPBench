@@ -5,6 +5,7 @@ import org.apache.spark.api.java.function.FlatMapGroupsWithStateFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.streaming.GroupState;
+import scala.Tuple2;
 import spark.streaming.model.FraudRecord;
 import spark.streaming.model.predictor.MarkovModelPredictor;
 import spark.streaming.model.predictor.Prediction;
@@ -59,7 +60,7 @@ public class SSFraudPred extends BaseFunction implements FlatMapGroupsWithStateF
     }
 
     public void Calculate() throws InterruptedException {
-        var d = super.calculateThroughput(throughput, queue);
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {

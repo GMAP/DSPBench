@@ -1,6 +1,7 @@
 package spark.streaming.application;
 
 import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamWriter;
@@ -36,22 +37,22 @@ public class MachineOutlier extends AbstractApplication {
 
     @Override
     public DataStreamWriter buildApplication() {
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
+        Dataset<Row> records = rawRecords
                 .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new SSAlibabaMachineUsageParser(config), Encoders.kryo(Row.class));
 
-        var score = records.filter(new SSFilterNull<>())
+        Dataset<Row> score = records.filter(new SSFilterNull<>())
                 .repartition(scorerThreads)
                 .flatMap(new SSObservationScore(config), Encoders.kryo(Row.class));
 
-        var anomaly = score.filter(new SSFilterNull<>())
+        Dataset<Row> anomaly = score.filter(new SSFilterNull<>())
                 .repartition(anomalyScorerThreads)
                 .map(new SSSlidingWindowStreamAnomalyScore(config), Encoders.kryo(Row.class));
 
-        var alert = anomaly.filter(new SSFilterNull<>())
+        Dataset<Row> alert = anomaly.filter(new SSFilterNull<>())
                 .repartition(alertTriggerThreads)
                 .flatMap(new SSAlertTrigger(config), Encoders.kryo(Row.class));
 

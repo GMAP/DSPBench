@@ -1,12 +1,10 @@
 package spark.streaming.application;
 
 import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.streaming.DataStreamWriter;
-import org.apache.spark.sql.streaming.GroupStateTimeout;
-import org.apache.spark.sql.streaming.OutputMode;
-import org.apache.spark.sql.streaming.StreamingQueryException;
+import org.apache.spark.sql.streaming.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.constants.ClickAnalyticsConstants;
@@ -47,35 +45,35 @@ public class ClickAnalytics extends AbstractApplication {
 
     @Override
     public DataStreamWriter buildApplication() throws StreamingQueryException {
-        var rawRecords = createSource();
+        Dataset<Row> rawRecords = createSource();
 
-        var records = rawRecords
+        Dataset<Row> records = rawRecords
                 .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new ClickStreamParser(config), Encoders.kryo(Row.class));
 
-        var repeats = records
+        Dataset<Row> repeats = records
                 .repartition(repeatsThreads)
                 .groupByKey((MapFunction<Row, String>) row -> row.get(1) + ":" + row.get(2), Encoders.STRING())
                 .flatMapGroupsWithState(new SSFlatRepeatVisit(config), OutputMode.Append(), Encoders.BOOLEAN(), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
-        var visitStats = repeats
+        Dataset<Row> visitStats = repeats
                 .repartition(totalStatsThreads)
                 .groupByKey((MapFunction<Row, Integer>) row -> 0, Encoders.INT())
                 .flatMapGroupsWithState(new SSVisitStats(config), OutputMode.Append(), Encoders.kryo(VisitStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
-        var geos = records
+        Dataset<Row> geos = records
                 .repartition(geographyThreads)
                 .map(new SSGeography(config), Encoders.kryo(Row.class));
 
-        var geoStats = geos
+        Dataset<Row> geoStats = geos
                 .repartition(geoStatsThreads)
                 .filter(new SSFilterNull<>())
                 .groupByKey((MapFunction<Row, String>) row -> row.getString(0), Encoders.STRING())
                 .flatMapGroupsWithState(new SSGeoStats(config), OutputMode.Append(), Encoders.kryo(CountryStats.class), Encoders.kryo(Row.class), GroupStateTimeout.NoTimeout());
 
-        var visitS = createMultiSink(visitStats, visitSink, "visitSink", 1);
-        var locationS = createMultiSink(geoStats, locationSink, "locationSink", 2);
+        StreamingQuery visitS = createMultiSink(visitStats, visitSink, "visitSink", 1);
+        StreamingQuery locationS = createMultiSink(geoStats, locationSink, "locationSink", 2);
 
         visitS.awaitTermination();
         locationS.awaitTermination();

@@ -5,6 +5,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 import spark.streaming.util.BFPRT;
 import spark.streaming.util.Configuration;
 
@@ -33,7 +34,7 @@ public class SSAlertTrigger extends BaseFunction implements FlatMapFunction<Row,
 
     @Override
     public void Calculate() throws InterruptedException {
-        var d = super.calculateThroughput(throughput, queue);
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {

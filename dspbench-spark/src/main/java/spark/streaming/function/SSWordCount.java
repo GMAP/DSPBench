@@ -4,6 +4,7 @@ import org.apache.spark.api.java.function.MapGroupsWithStateFunction;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.streaming.GroupState;
+import scala.Tuple2;
 import spark.streaming.util.Configuration;
 
 import java.util.Iterator;
@@ -27,7 +28,7 @@ public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunct
 
     @Override
     public void Calculate() throws InterruptedException {
-        var d = super.calculateThroughput(throughput, queue);
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {
@@ -39,7 +40,7 @@ public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunct
     public Row call(String key, Iterator<Row> values, GroupState<Long> state) throws Exception {
         long count = 0, inittime = 0;
         while (values.hasNext()) {
-            var tuple = values.next();
+            Row tuple = values.next();
             inittime = tuple.getLong(tuple.size() - 1);
 
             if (state.exists()) {

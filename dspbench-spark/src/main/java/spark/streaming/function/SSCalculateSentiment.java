@@ -6,6 +6,7 @@ import org.apache.spark.sql.RowFactory;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Tuple2;
 import spark.streaming.constants.SentimentAnalysisConstants;
 import spark.streaming.model.sentiment.SentimentClassifier;
 import spark.streaming.model.sentiment.SentimentClassifierFactory;
@@ -36,7 +37,7 @@ public class SSCalculateSentiment extends BaseFunction implements MapFunction<Ro
 
     @Override
     public void Calculate() throws InterruptedException {
-        var d = super.calculateThroughput(throughput, queue);
+        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {
