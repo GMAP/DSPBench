@@ -146,8 +146,8 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
             double prediction = predict(currentAvg, median);
             long predictedTimeStamp = currentSliceStart + 2 * sliceLength;
             collector.emit(getOutputTuple(predictedTimeStamp, key, prediction, inittime));
+            super.calculateThroughput();
         }
-        super.calculateThroughput();
     }
 
     @Override

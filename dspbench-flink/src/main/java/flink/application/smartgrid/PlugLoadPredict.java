@@ -95,8 +95,8 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
             for (Iterator<Tuple6<Long,String, String, String, Double, String>> it = emitOutputStream(inittime); it.hasNext();) {
                 Tuple6<Long,String, String, String, Double, String> in = it.next();
                 out.collect(new Tuple6<Long,String, String, String, Double, String>(in.f0, in.f1, in.f2, in.f3, in.f4, in.f5));
+                super.calculateThroughput();
             }
-            super.calculateThroughput();
             inittime = "";
         }
     }

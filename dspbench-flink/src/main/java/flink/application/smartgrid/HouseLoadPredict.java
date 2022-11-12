@@ -104,8 +104,8 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<S
             for (Iterator<Tuple4<Long, String, Double, String>> it = emitOutputStream(inittime); it.hasNext(); ) {
                 Tuple4<Long, String, Double, String> in = it.next();
                 out.collect(new Tuple4<Long,String, Double, String>(in.f0, in.f1, in.f2, in.f3));
+                super.calculateThroughput();
             }
-            super.calculateThroughput();
             inittime = "";
         }
     }
