@@ -24,20 +24,21 @@ public class SpikeDetectionBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        incReceived();
         String deviceID = input.getStringByField(Field.DEVICE_ID);
         double movingAverageInstant = input.getDoubleByField(Field.MOVING_AVG);
         double nextDouble = input.getDoubleByField(Field.VALUE);
         
         if (Math.abs(nextDouble - movingAverageInstant) > spikeThreshold * movingAverageInstant) {
-            collector.emit(input, new Values(deviceID, movingAverageInstant, nextDouble, "spike detected", input.getStringByField(Field.INITTIME)));
+            incEmitted();
+            collector.emit(input, new Values(deviceID, movingAverageInstant, nextDouble, "spike detected"));
         }
         
         collector.ack(input);
-        super.calculateThroughput();
     }
     
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.DEVICE_ID, Field.MOVING_AVG, Field.VALUE, Field.MESSAGE, Field.INITTIME);
+        return new Fields(Field.DEVICE_ID, Field.MOVING_AVG, Field.VALUE, Field.MESSAGE);
     }
 }

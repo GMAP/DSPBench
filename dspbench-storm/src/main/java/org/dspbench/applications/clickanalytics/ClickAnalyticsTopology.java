@@ -48,7 +48,7 @@ public class ClickAnalyticsTopology extends AbstractTopology {
 
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(new Fields(Field.IP, Field.URL, Field.CLIENT_KEY, Field.INITTIME));
+        spout.setFields(new Fields(Field.IP, Field.URL, Field.CLIENT_KEY));
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
 

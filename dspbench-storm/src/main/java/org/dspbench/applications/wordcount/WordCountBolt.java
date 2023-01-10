@@ -16,11 +16,12 @@ public class WordCountBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(WordCountConstants.Field.WORD, WordCountConstants.Field.COUNT, WordCountConstants.Field.INITTIME);
+        return new Fields(WordCountConstants.Field.WORD, WordCountConstants.Field.COUNT);
     }
 
     @Override
     public void execute(Tuple input) {
+        incBoth();
         String word = input.getStringByField(WordCountConstants.Field.WORD);
         MutableLong count = counts.get(word);
 
@@ -30,9 +31,9 @@ public class WordCountBolt extends AbstractBolt {
         }
         count.increment();
 
-        collector.emit(input, new Values(word, count.get(), input.getStringByField(WordCountConstants.Field.INITTIME)));
+        collector.emit(input, new Values(word, count.get()));
         collector.ack(input);
-        super.calculateThroughput();
+        super.calculateThroughput();//todo remove
     }
 
 }

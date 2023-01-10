@@ -1,14 +1,10 @@
 package org.dspbench.metrics;
 
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.CsvReporter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.ScheduledReporter;
-import com.codahale.metrics.Slf4jReporter;
 import java.io.File;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.*;
 import org.dspbench.util.config.Configuration;
 import org.slf4j.LoggerFactory;
 

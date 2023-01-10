@@ -27,7 +27,7 @@ public class WordCountTopology extends BasicTopology {
 
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(new Fields(WordCountConstants.Field.TEXT, WordCountConstants.Field.INITTIME));
+        spout.setFields(new Fields(WordCountConstants.Field.TEXT));
         
         builder.setSpout(WordCountConstants.Component.SPOUT, spout, spoutThreads);
         

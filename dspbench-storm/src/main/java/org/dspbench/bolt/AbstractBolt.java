@@ -1,5 +1,7 @@
 package org.dspbench.bolt;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
 import org.apache.storm.hooks.ITaskHook;
 import org.apache.storm.task.OutputCollector;
@@ -24,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.dspbench.constants.BaseConstants;
 import org.dspbench.hooks.BoltMeterHook;
-import org.dspbench.metrics.MetricsOutputCollector;
+import org.dspbench.metrics.MetricsFactory;
 import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,10 @@ public abstract class AbstractBolt extends BaseRichBolt {
     private File file;
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBolt.class);
     private final Map<String, Long> throughput = new HashMap<>();
+
+    private static MetricRegistry metrics;
+    private Counter tuplesReceived;
+    private Counter tuplesEmitted;
 
     public AbstractBolt() {
         fields = new HashMap<>();
@@ -81,15 +87,48 @@ public abstract class AbstractBolt extends BaseRichBolt {
         return null;
     }
 
-    public String getUnixTime() {
-        long unixTime = 0;
-        if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
-            unixTime = Instant.now().getEpochSecond();
-        } else {
-            unixTime = Instant.now().toEpochMilli();
+    protected MetricRegistry getMetrics() {
+        if (metrics == null) {
+            metrics = MetricsFactory.createRegistry(this.config);
         }
-        return unixTime + "";
+        return metrics;
     }
+
+    protected Counter getTuplesReceived() {
+        if (tuplesReceived == null) {
+            tuplesReceived = getMetrics().counter(this.getClass().getSimpleName() + "-received");
+        }
+        return tuplesReceived;
+    }
+
+    protected Counter getTuplesEmitted() {
+        if (tuplesEmitted == null) {
+            tuplesEmitted = getMetrics().counter(this.getClass().getSimpleName()+ "-emitted");
+        }
+        return tuplesEmitted;
+    }
+
+    protected void incReceived() {
+        getTuplesReceived().inc();
+    }
+
+    protected void incReceived(long n) {
+        getTuplesReceived().inc(n);
+    }
+
+    protected void incEmitted() {
+        getTuplesEmitted().inc();
+    }
+
+    protected void incEmitted(long n) {
+        getTuplesEmitted().inc(n);
+    }
+
+    protected void incBoth() {
+        getTuplesReceived().inc();
+        getTuplesEmitted().inc();
+    }
+
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -97,15 +136,9 @@ public abstract class AbstractBolt extends BaseRichBolt {
         this.context = context;
         this.collector = collector;
         if (config.getBoolean(METRICS_ENABLED, false)) {
-            File pathLa = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "latency").toFile();
-            File pathTrh = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile();
+            File pathTrh = Paths.get(config.getString(Configuration.METRICS_OUTPUT)).toFile();
 
-            pathLa.mkdirs();
             pathTrh.mkdirs();
-
-            queue = new ArrayBlockingQueue<>(50);
-
-            this.file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
         }
         initialize();
     }
@@ -115,29 +148,29 @@ public abstract class AbstractBolt extends BaseRichBolt {
     }
 
     public void calculateThroughput() {
-        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
-            long unixTime = 0;
-            if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
-                unixTime = Instant.now().getEpochSecond();
-            } else {
-                unixTime = Instant.now().toEpochMilli();
-            }
-
-            Long ops = throughput.get(unixTime + "");
-            if (ops == null) {
-                for (Map.Entry<String, Long> entry : this.throughput.entrySet()) {
-                    this.queue.add(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
-                }
-                throughput.clear();
-                if (queue.size() >= 10) {
-                    SaveMetrics();
-                }
-            }
-
-            ops = (ops == null) ? 1L : ++ops;
-
-            throughput.put(unixTime + "", ops);
-        }
+//        if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
+//            long unixTime = 0;
+//            if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
+//                unixTime = Instant.now().getEpochSecond();
+//            } else {
+//                unixTime = Instant.now().toEpochMilli();
+//            }
+//
+//            Long ops = throughput.get(unixTime + "");
+//            if (ops == null) {
+//                for (Map.Entry<String, Long> entry : this.throughput.entrySet()) {
+//                    this.queue.add(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
+//                }
+//                throughput.clear();
+//                if (queue.size() >= 10) {
+//                    SaveMetrics();
+//                }
+//            }
+//
+//            ops = (ops == null) ? 1L : ++ops;
+//
+//            throughput.put(unixTime + "", ops);
+//        }
     }
 
     public void calculateLatency(long UnixTimeInit) {

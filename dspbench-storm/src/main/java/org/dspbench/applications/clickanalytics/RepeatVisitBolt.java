@@ -25,22 +25,22 @@ public class RepeatVisitBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        incBoth();
         String clientKey = input.getStringByField(Field.CLIENT_KEY);
         String url = input.getStringByField(Field.URL);
         String key = url + ":" + clientKey;
 
         if (map.containsKey(key)) {
-            collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString(), input.getStringByField(WordCountConstants.Field.INITTIME)));
+            collector.emit(input, new Values(clientKey, url, Boolean.FALSE.toString()));
         } else {
             map.put(key, null);
-            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString(), input.getStringByField(WordCountConstants.Field.INITTIME)));
+            collector.emit(input, new Values(clientKey, url, Boolean.TRUE.toString()));
         }
         collector.ack(input);
-        super.calculateThroughput();
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.CLIENT_KEY, Field.URL, Field.UNIQUE, Field.INITTIME);
+        return new Fields(Field.CLIENT_KEY, Field.URL, Field.UNIQUE);
     }
 }

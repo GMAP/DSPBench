@@ -14,20 +14,20 @@ public class SplitSentenceBolt extends AbstractBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.WORD, WordCountConstants.Field.INITTIME);
+        return new Fields(Field.WORD);
     }
 
     @Override
     public void execute(Tuple input) {
+        incReceived();
         String[] words = input.getString(0).split(splitregex);
 
         for (String word : words) {
-            //try { Thread.sleep (50); } catch (InterruptedException ex) {}
-            if (!StringUtils.isBlank(word))
-                collector.emit(input, new Values(word, input.getStringByField(WordCountConstants.Field.INITTIME)));
+            if (!StringUtils.isBlank(word)){
+                incEmitted();
+                collector.emit(input, new Values(word));
+            }
         }
         collector.ack(input);
-        super.calculateThroughput();
     }
-
 }

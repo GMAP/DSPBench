@@ -24,6 +24,7 @@ public class GeoStatsBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        incBoth();
         String country = input.getStringByField(ClickAnalyticsConstants.Field.COUNTRY);
         String city    = input.getStringByField(ClickAnalyticsConstants.Field.CITY);
         
@@ -33,14 +34,13 @@ public class GeoStatsBolt extends AbstractBolt {
         
         stats.get(country).cityFound(city);
         
-        collector.emit(input, new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city), input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
+        collector.emit(input, new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city)));
         collector.ack(input);
-        super.calculateThroughput();
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(ClickAnalyticsConstants.Field.COUNTRY, ClickAnalyticsConstants.Field.COUNTRY_TOTAL, ClickAnalyticsConstants.Field.CITY, ClickAnalyticsConstants.Field.CITY_TOTAL, ClickAnalyticsConstants.Field.INITTIME);
+        return new Fields(ClickAnalyticsConstants.Field.COUNTRY, ClickAnalyticsConstants.Field.COUNTRY_TOTAL, ClickAnalyticsConstants.Field.CITY, ClickAnalyticsConstants.Field.CITY_TOTAL);
     }
     
     private class CountryStats {

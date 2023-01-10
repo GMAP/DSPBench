@@ -18,8 +18,9 @@ public class ConsoleSink extends BaseSink {
     public void execute(Tuple input) {
         System.out.println(formatter.format(input));
         collector.ack(input);
-        super.calculateLatency(Long.parseLong(input.getStringByField(WordCountConstants.Field.INITTIME)));
+        //super.calculateLatency(Long.parseLong(input.getStringByField(WordCountConstants.Field.INITTIME)));
         super.calculateThroughput();
+        super.incReceived();
     }
 
     @Override

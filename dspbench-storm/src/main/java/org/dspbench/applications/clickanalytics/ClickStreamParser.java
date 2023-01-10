@@ -27,7 +27,7 @@ public class ClickStreamParser extends Parser {
         
         try {
             ClickStream clickstream = gson.fromJson(input, ClickStream.class);
-            values = new StreamValues(clickstream.ip, clickstream.url, clickstream.clientKey, Instant.now().toEpochMilli() + "");
+            values = new StreamValues(clickstream.ip, clickstream.url, clickstream.clientKey);
         } catch (JsonSyntaxException ex) {
             LOG.error("Error parsing JSON encoded clickstream: " + input, ex);
         }

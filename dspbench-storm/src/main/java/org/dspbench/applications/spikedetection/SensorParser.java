@@ -84,7 +84,6 @@ public class SensorParser extends Parser {
             values.add(fields[MOTEID_FIELD]);
             values.add(date.toDate());
             values.add(Double.parseDouble(fields[valueFieldKey]));
-            values.add(Instant.now().toEpochMilli() + "");
             int msgId = String.format("%s:%s", fields[MOTEID_FIELD], date.toString()).hashCode();
             values.setMessageId(msgId);
             

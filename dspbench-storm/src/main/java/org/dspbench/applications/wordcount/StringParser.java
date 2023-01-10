@@ -23,6 +23,6 @@ public class StringParser extends Parser {
         if (StringUtils.isBlank(str))
             return null;
 
-        return ImmutableList.of(new StreamValues(str,  Instant.now().toEpochMilli() + ""));
+        return ImmutableList.of(new StreamValues(str));
     }
 }

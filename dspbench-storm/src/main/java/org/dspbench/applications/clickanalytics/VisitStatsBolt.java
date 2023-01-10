@@ -19,17 +19,17 @@ public class VisitStatsBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        incBoth();
         boolean unique = Boolean.parseBoolean(input.getStringByField(ClickAnalyticsConstants.Field.UNIQUE));
         total++;
         if(unique) uniqueCount++;
         
-        collector.emit(input, new Values(total, uniqueCount, input.getStringByField(ClickAnalyticsConstants.Field.INITTIME)));
+        collector.emit(input, new Values(total, uniqueCount));
         collector.ack(input);
-        super.calculateThroughput();
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(ClickAnalyticsConstants.Field.TOTAL_COUNT, ClickAnalyticsConstants.Field.TOTAL_UNIQUE, ClickAnalyticsConstants.Field.INITTIME);
+        return new Fields(ClickAnalyticsConstants.Field.TOTAL_COUNT, ClickAnalyticsConstants.Field.TOTAL_UNIQUE);
     }
 }

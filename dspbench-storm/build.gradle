@@ -28,8 +28,8 @@ dependencies {
     // todo: add jar to classpath of docker
 //    implementation 'org.apache.storm:storm-core:2.4.0'
 //    implementation 'org.apache.storm:storm-kafka-client:2.4.0'
-    implementation 'org.apache.storm:storm-core:2.2.0' //compileOnly
-    implementation 'org.apache.storm:storm-kafka-client:2.2.0'
+    implementation 'org.apache.storm:storm-core:2.4.0' //compileOnly
+    implementation 'org.apache.storm:storm-kafka-client:2.4.0'
     implementation 'org.apache.kafka:kafka-clients:2.6.0'
 
     implementation group: 'redis.clients', name: 'jedis', version: '3.5.1'
@@ -47,6 +47,8 @@ dependencies {
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.apache.hadoop:hadoop-core:1.2.1'
     implementation 'com.maxmind.geoip2:geoip2:2.15.0'
+   // implementation 'io.dropwizard.metrics:metrics-core:4.2.15'
+    implementation 'io.dropwizard.metrics:metrics-core:3.2.3'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
