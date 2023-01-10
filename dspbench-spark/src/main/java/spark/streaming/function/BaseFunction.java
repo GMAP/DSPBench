@@ -21,9 +21,9 @@ import java.util.concurrent.BlockingQueue;
 public abstract class BaseFunction implements Serializable {
     private String name;
     private Integer id;
-    private transient MetricRegistry metrics;
-    private transient Counter tuplesReceived;
-    private transient Counter tuplesEmitted;
+    private static MetricRegistry metrics;
+    private Counter tuplesReceived;
+    private Counter tuplesEmitted;
     private Configuration config;
     private String configStr;
     private File file;
@@ -37,7 +37,7 @@ public abstract class BaseFunction implements Serializable {
             File pathTrh = Paths.get(config.get(Configuration.METRICS_OUTPUT), "throughput").toFile();
             pathTrh.mkdirs();
 
-            this.file = Paths.get(config.get(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();
+           // this.file = Paths.get(config.get(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();
         }
     }
 
@@ -75,14 +75,14 @@ public abstract class BaseFunction implements Serializable {
 
     protected Counter getTuplesReceived() {
         if (tuplesReceived == null) {
-            tuplesReceived = getMetrics().counter(String.format("%s-%d.tuples-received", name, getId()));
+            tuplesReceived = getMetrics().counter(name + "-received");
         }
         return tuplesReceived;
     }
 
     protected Counter getTuplesEmitted() {
         if (tuplesEmitted == null) {
-            tuplesEmitted = getMetrics().counter(String.format("%s-%d.tuples-emitted", name, getId()));
+            tuplesEmitted = getMetrics().counter(name+ "-emitted");
         }
         return tuplesEmitted;
     }

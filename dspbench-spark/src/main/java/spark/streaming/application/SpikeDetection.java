@@ -36,7 +36,7 @@ public class SpikeDetection extends AbstractApplication {
         Dataset<Row> rawRecords = createSource();
 
         Dataset<Row> records = rawRecords
-                .repartition(parserThreads)//TODO: change to coalesce
+                .repartition(parserThreads)
                 .as(Encoders.STRING())
                 .map(new SSSensorParser(config), Encoders.kryo(Row.class));
 

@@ -14,18 +14,18 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class ConsoleSink extends BaseSink {
-    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);
+   /* private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);
     private static Map<String, Long> throughput = new HashMap<>();
 
     private static BlockingQueue<String> queue2 = new ArrayBlockingQueue<>(20);
     private static Map<String, Long> throughput2 = new HashMap<>();
 
     private static BlockingQueue<String> queue3 = new ArrayBlockingQueue<>(20);
-    private static Map<String, Long> throughput3 = new HashMap<>();
+    private static Map<String, Long> throughput3 = new HashMap<>();*/
 
     @Override
     public void Calculate(int sink) throws InterruptedException, RuntimeException {
-        switch (sink) {
+       /* switch (sink) {
             case 1: {
                 Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
                 throughput = d._1;
@@ -53,7 +53,7 @@ public class ConsoleSink extends BaseSink {
                 }
                 break;
             }
-        }
+        }*/
     }
 
     @Override
@@ -68,14 +68,9 @@ public class ConsoleSink extends BaseSink {
                     @Override
                     public void process(Row value) {
                         System.out.println(value);
-
-                        try {
-                            Calculate(sink);
-                            if (value != null)
-                                calculateLatency(value.getLong(value.size() - 1));
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        incReceived();
+                        /*if (value != null)
+                            calculateLatency(value.getLong(value.size() - 1));*/
                     } //TODO make formater as field=value,
 
                     @Override

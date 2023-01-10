@@ -1,5 +1,7 @@
 package spark.streaming.sink;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.ForeachWriter;
 import org.apache.spark.sql.Row;
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 import spark.streaming.function.BaseFunction;
+import spark.streaming.metrics.MetricsFactory;
 import spark.streaming.util.Configuration;
 
 import java.io.*;
@@ -16,44 +19,87 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public abstract class BaseSink implements Serializable {
-    protected Configuration config;
+    protected static Configuration config;
     protected transient SparkSession session;
-    private final Map<String, Long> throughput = new HashMap<>();
-
-    private BlockingQueue<String> queue;
-    private File file;
-    private static final Logger LOG = LoggerFactory.getLogger(BaseFunction.class);
-
-    private String sinkName;
+    private static String sinkName;
+    private static MetricRegistry metrics;
+    private  Counter tuplesReceived;
+    private Counter tuplesEmitted;
 
     public void initialize(Configuration config, SparkSession session) {
         initialize(config, session, "sink");
     }
-
     public void initialize(Configuration config, SparkSession session, String sinkName) {
         this.config = config;
         this.session = session;
         this.sinkName = sinkName;
         if (config.getBoolean(config.METRICS_ENABLED, false)) {
-            File pathLa = Paths.get(config.get(Configuration.METRICS_OUTPUT), "latency").toFile();
+          /*  File pathLa = Paths.get(config.get(Configuration.METRICS_OUTPUT), "latency").toFile();
             File pathTrh = Paths.get(config.get(Configuration.METRICS_OUTPUT), "throughput").toFile();
 
             pathLa.mkdirs();
             pathTrh.mkdirs();
             queue = new ArrayBlockingQueue<>(50);
 
-            this.file = Paths.get(config.get(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();
+            this.file = Paths.get(config.get(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + ".csv").toFile();*/
         }
     }
 
 
     public abstract DataStreamWriter<Row> sinkStream(Dataset<Row> dt, int sink);
 
-    public void calculateLatency(long UnixTimeInit) {
+    protected MetricRegistry getMetrics() {
+        if (metrics == null) {
+            metrics = MetricsFactory.createRegistry(config);
+        }
+        return metrics;
+    }
+
+    protected Counter getTuplesReceived() {
+        if (tuplesReceived == null) {
+            tuplesReceived = getMetrics().counter(sinkName + "-received");
+        }
+        return tuplesReceived;
+    }
+
+    protected Counter getTuplesEmitted() {
+        if (tuplesEmitted == null) {
+            tuplesEmitted = getMetrics().counter(sinkName+ "-emitted");
+        }
+        return tuplesEmitted;
+    }
+
+    protected void incReceived() {
+        getTuplesReceived().inc();
+    }
+
+    protected void incReceived(long n) {
+        getTuplesReceived().inc(n);
+    }
+
+    protected void incEmitted() {
+        getTuplesEmitted().inc();
+    }
+
+    protected void incEmitted(long n) {
+        getTuplesEmitted().inc(n);
+    }
+
+    protected void incBoth() {
+        getTuplesReceived().inc();
+        getTuplesEmitted().inc();
+    }
+    public String getName() {
+        return sinkName;
+    }
+
+
+   /* public void calculateLatency(long UnixTimeInit) {
         // new Thread(() -> {
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
             try {
@@ -104,7 +150,7 @@ public abstract class BaseSink implements Serializable {
                 LOG.error("Error while creating the file " + e.getMessage());
             }
         }).start();
-    }
+    }*/
 
     public abstract void Calculate(int sink) throws InterruptedException, RuntimeException;
 }

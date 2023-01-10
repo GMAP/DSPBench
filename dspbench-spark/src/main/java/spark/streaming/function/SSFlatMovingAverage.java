@@ -33,12 +33,12 @@ public class SSFlatMovingAverage extends BaseFunction implements FlatMapGroupsWi
 
     @Override
     public void Calculate() throws InterruptedException {
-        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+       /* Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {
             super.SaveMetrics(queue.take());
-        }
+        }*/
     }
 
 
@@ -50,6 +50,7 @@ public class SSFlatMovingAverage extends BaseFunction implements FlatMapGroupsWi
         Row tuple;
         while (values.hasNext()) {
             Calculate();
+            incBoth();
             tuple = values.next();
             value = tuple.getDouble(2);
             avg = value;
@@ -68,7 +69,7 @@ public class SSFlatMovingAverage extends BaseFunction implements FlatMapGroupsWi
             }
 
             state.update(mov);
-            tuples.add(RowFactory.create(key, avg, value, tuple.get(tuple.size() - 1)));
+            tuples.add(RowFactory.create(key, avg, value));
         }
         return tuples.iterator();
     }

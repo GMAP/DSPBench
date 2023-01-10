@@ -28,20 +28,19 @@ public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunct
 
     @Override
     public void Calculate() throws InterruptedException {
-        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+      /*  Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
-        if (queue.size() >= 10) {
+        if (queue.size() >= 1) {
             super.SaveMetrics(queue.take());
-        }
+        }*/
     }
 
     @Override
     public Row call(String key, Iterator<Row> values, GroupState<Long> state) throws Exception {
-        long count = 0, inittime = 0;
+        long count = 0;
         while (values.hasNext()) {
-            Row tuple = values.next();
-            inittime = tuple.getLong(tuple.size() - 1);
+            values.next();
 
             if (state.exists()) {
                 count = state.get();
@@ -50,7 +49,8 @@ public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunct
             state.update(count);
 
             Calculate();
+            incBoth();
         }
-        return RowFactory.create(key, count, inittime);
+        return RowFactory.create(key, count);
     }
 }

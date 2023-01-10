@@ -63,17 +63,18 @@ public class SSSensorParser extends BaseFunction implements MapFunction<String, 
     }
     @Override
     public void Calculate() throws InterruptedException {
-        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+      /*  Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {
             super.SaveMetrics(queue.take());
-        }
+        }*/
     }
 
     @Override
     public Row call(String value) throws Exception {
         Calculate();
+        incReceived();
         String[] fields = value.split("\\s+");
 
         if (fields.length != 8)
@@ -94,16 +95,14 @@ public class SSSensorParser extends BaseFunction implements MapFunction<String, 
         }
 
         try {
+            incEmitted();
             return RowFactory.create(Integer.parseInt(fields[MOTEID_FIELD]),
                     date.toDate(),
-                    Double.parseDouble(fields[valueFieldKey]),
-                    Instant.now().toEpochMilli()
-                    );
+                    Double.parseDouble(fields[valueFieldKey]));
 
         } catch (NumberFormatException ex) {
             LOG.warn("Error parsing record numeric field, input record: " + value, ex);
         }
-
         return RowFactory.create();
     }
 }

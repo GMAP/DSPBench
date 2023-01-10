@@ -42,12 +42,14 @@ public class SSSpikeDetector extends BaseFunction implements MapFunction<Row, Ro
     @Override
     public Row call(Row value) throws Exception {
         Calculate();
+        incReceived();
         int deviceID = value.getInt(0);
         double movingAverageInstant = value.getDouble(1);
         double nextDouble = value.getDouble(2);
 
         if (Math.abs(nextDouble - movingAverageInstant) > spikeThreshold * movingAverageInstant) {
-            return RowFactory.create(deviceID, movingAverageInstant, nextDouble, "spike detected", value.get(value.size() - 1));
+            incEmitted();
+            return RowFactory.create(deviceID, movingAverageInstant, nextDouble, "spike detected");
         }
         return null;
     }

@@ -19,21 +19,21 @@ import java.util.concurrent.BlockingQueue;
  * @author luandopke
  */
 public class SSFlatRepeatVisit extends BaseFunction implements FlatMapGroupsWithStateFunction<String, Row, Boolean, Row> {
-    private static Map<String, Long> throughput = new HashMap<>();
+ //   private static Map<String, Long> throughput = new HashMap<>();
 
-    private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
+   // private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
 
     public SSFlatRepeatVisit(Configuration config) {
         super(config);
     }
     @Override
     public void Calculate() throws InterruptedException {
-        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+        /*Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
         throughput = d._1;
         queue = d._2;
         if (queue.size() >= 10) {
             super.SaveMetrics(queue.take());
-        }
+        }*/
     }
 
     @Override
@@ -42,6 +42,7 @@ public class SSFlatRepeatVisit extends BaseFunction implements FlatMapGroupsWith
         Row tuple;
         while (values.hasNext()) {
             Calculate();
+            incBoth();
             tuple = values.next();
             if (!state.exists()) {
                 tuples.add(RowFactory.create(tuple.get(2), tuple.get(1), Boolean.TRUE, tuple.get(tuple.size() - 1)));
