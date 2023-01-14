@@ -1,11 +1,12 @@
 package flink.application.clickanalytics;
 
 import flink.application.AbstractApplication;
-import flink.constants.BaseConstants;
 import flink.constants.ClickAnalyticsConstants;
 import flink.parsers.ClickStreamParser;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -42,23 +43,23 @@ public class ClickAnalytics extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple4<String, String, String, String>> dataParse = data.map(new ClickStreamParser(config));
+        DataStream<Tuple3<String, String, String>> dataParse = data.map(new ClickStreamParser(config));
 
         // Process
-        DataStream<Tuple4<String, String, String, String>> repVisit = dataParse.keyBy(
-                new KeySelector<Tuple4<String, String, String, String>, Tuple2<String, String>>() {
+        DataStream<Tuple3<String, String, String>> repVisit = dataParse.keyBy(
+                new KeySelector<Tuple3<String, String, String>, Tuple2<String, String>>() {
                     @Override
-                    public Tuple2<String, String> getKey(Tuple4<String, String, String, String> value) throws Exception {
+                    public Tuple2<String, String> getKey(Tuple3<String, String, String> value) throws Exception {
                         return Tuple2.of(value.f1, value.f2);
                     }
                 }
         ).filter(value -> (value != null)).flatMap(new RepeatVisit(config)).setParallelism(repeatsThreads);
 
-        DataStream<Tuple3<String, String, String>> geo = dataParse.filter(value -> (value != null)).flatMap(new GeoFinder(config)).setParallelism(geographyThreads);
+        DataStream<Tuple2<String, String>> geo = dataParse.filter(value -> (value != null)).flatMap(new GeoFinder(config)).setParallelism(geographyThreads);
 
-        DataStream<Tuple3<Integer, Integer, String>> visitStats = repVisit.flatMap(new VisitStats(config)).setParallelism(totalStatsThreads);
+        DataStream<Tuple2<Integer, Integer>> visitStats = repVisit.flatMap(new VisitStats(config)).setParallelism(totalStatsThreads);
 
-        DataStream<Tuple5<String, Integer, String, Integer, String>> geoStats = geo.keyBy(value -> value.f0).flatMap(new GeoStats(config)).setParallelism(geoStatsThreads).keyBy(value -> value.f0);
+        DataStream<Tuple4<String, Integer, String, Integer>> geoStats = geo.keyBy(value -> value.f0).flatMap(new GeoStats(config)).setParallelism(geoStatsThreads).keyBy(value -> value.f0);
 
         // Sink
         // YEAHH, could reuse some sinks

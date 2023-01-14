@@ -2,7 +2,9 @@ package flink.application.smartgrid;
 
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.api.java.tuple.Tuple;
+import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -60,7 +62,7 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Lo
 
         Long lastUpdatedTs = lastUpdatedTsMap.get(key);
         if (lastUpdatedTs == null) {
-            lastUpdatedTs = 0l;
+            lastUpdatedTs = 0L;
         }
 
         if (operation == 1) {

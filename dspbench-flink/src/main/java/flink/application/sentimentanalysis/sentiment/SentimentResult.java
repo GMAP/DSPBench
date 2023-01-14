@@ -4,7 +4,7 @@ package flink.application.sentimentanalysis.sentiment;
  *
  */
 public class SentimentResult {
-    public static enum Sentiment {
+    public enum Sentiment {
         Positive, Negative, Neutral
     }
     

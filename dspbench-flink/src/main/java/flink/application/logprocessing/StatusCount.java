@@ -1,8 +1,6 @@
 package flink.application.logprocessing;
 
 import flink.util.Metrics;
-import org.apache.commons.collections.buffer.CircularFifoBuffer;
-import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple7;

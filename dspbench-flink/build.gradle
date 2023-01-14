@@ -41,6 +41,7 @@ dependencies {
     implementation 'com.maxmind.geoip2:geoip2:2.15.0'
     implementation 'net.postgis:postgis-jdbc:2.5.1'
     implementation 'com.beust:jcommander:1.82'
+    implementation 'io.dropwizard.metrics:metrics-core:3.2.3'
 }
 
 test {

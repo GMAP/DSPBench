@@ -67,7 +67,7 @@ public class LimitQueue<E> implements Queue<E> {
   
     @Override  
     public boolean isEmpty() {  
-        return queue.size() == 0 ? true : false;  
+        return queue.size() == 0;
     }  
   
     @Override  

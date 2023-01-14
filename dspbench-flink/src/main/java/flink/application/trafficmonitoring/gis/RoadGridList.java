@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RoadGridList implements Serializable {
-    private HashMap<String, RoadList> gridList = new HashMap<>();;
-    private String idKey;
-    private String widthKey;
+    private HashMap<String, RoadList> gridList = new HashMap<>();
+    private final String idKey;
+    private final String widthKey;
 
     public RoadGridList(Configuration config, String path) throws SQLException, IOException {
         gridList = read(path);
@@ -57,7 +57,7 @@ public class RoadGridList implements Serializable {
 
         //Feature Access
         String typeName = shpDataStore.getTypeNames()[0];  
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = (FeatureSource<SimpleFeatureType, SimpleFeature>) shpDataStore.getFeatureSource(typeName);  
+        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = shpDataStore.getFeatureSource(typeName);
         FeatureCollection<SimpleFeatureType, SimpleFeature> result = featureSource.getFeatures();  
         FeatureIterator<SimpleFeature> iterator = result.features();  
         
@@ -99,7 +99,7 @@ public class RoadGridList implements Serializable {
 
         Integer mapID_lon = (int)(p.getX()*10);
         Integer mapID_lan = (int)(p.getY()*10);
-        String mapID = mapID_lan.toString()+"_" +mapID_lon.toString();
+        String mapID = mapID_lan +"_" + mapID_lon;
         double minD = Double.MAX_VALUE;
         int width = 0;
 

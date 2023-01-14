@@ -1,19 +1,16 @@
 package flink.application.logprocessing;
 
 import flink.application.AbstractApplication;
-import flink.application.sentimentanalysis.SentimentCalculator;
 import flink.constants.LogProcessingConstants;
-import flink.constants.SentimentAnalysisConstants;
 import flink.parsers.CommonLogParser;
-import flink.parsers.JsonTweetParser;
-import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Date;
 
 public class LogProcessing extends AbstractApplication {
 
@@ -57,8 +54,8 @@ public class LogProcessing extends AbstractApplication {
 
         // Sink
         createSinkLPVol(volCount, "count");
-        createSinkLPStatus(statusCount, "status");
-        createSinkLPGeo(geoStats, "country");
+        //createSinkLPStatus(statusCount, "status");
+        //createSinkLPGeo(geoStats, "country");
 
         return env;
     }

@@ -1,17 +1,9 @@
 package flink.sink;
 
-import org.apache.flink.api.dag.Transformation;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple6;
-import org.apache.flink.api.java.typeutils.InputTypeConfigurable;
+import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.api.functions.sink.PrintSinkFunction;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -251,8 +243,8 @@ public class ConsoleSink extends BaseSink implements Serializable {
     }
 
     @Override
-    public void createSinkLPStatus(DataStream<Tuple3<Integer, Integer, String>> input, String sinkName) {
-        input.addSink(new RichSinkFunction<Tuple3<Integer, Integer, String>>() {
+    public void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> input, String sinkName) {
+        input.addSink(new RichSinkFunction<Tuple2<Integer, Integer>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -264,17 +256,17 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple3<Integer, Integer, String> value, Context context) throws Exception {
+            public void invoke(Tuple2<Integer, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
                 System.out.println(value);
-                calculate(value.f2, sinkName);
+                calculate("0", sinkName);
             }
         });
     }
 
     @Override
-    public void createSinkLPGeo(DataStream<Tuple5<String, Integer, String, Integer, String>> input, String sinkName) {
-        input.addSink(new RichSinkFunction<Tuple5<String, Integer, String, Integer, String>>() {
+    public void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> input, String sinkName) {
+        input.addSink(new RichSinkFunction<Tuple4<String, Integer, String, Integer>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -286,24 +278,25 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple5<String, Integer, String, Integer, String> value, Context context) throws Exception {
+            public void invoke(Tuple4<String, Integer, String, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
                 System.out.println(value);
-                calculate(value.f4, sinkName);
+                calculate("0", sinkName);
             }
         });
     }
 
     public void calculate(String initTime){
         super.initialize(config);
-        super.calculateLatency(Long.parseLong(initTime));
-        super.calculateThroughput();
+        super.incReceived();
+        //super.calculateLatency(Long.parseLong(initTime));
+        //super.calculateThroughput();
     }
 
     public void calculate(String initTime, String sinkName){
         super.initialize(config, sinkName);
-        super.calculateLatency(Long.parseLong(initTime));
-        super.calculateThroughput();
+        super.incReceived();
+        //super.calculateThroughput();
     }
 
     @Override

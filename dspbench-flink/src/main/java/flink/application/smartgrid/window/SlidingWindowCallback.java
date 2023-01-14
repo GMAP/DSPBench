@@ -7,5 +7,5 @@ import java.util.List;
  * Date: 11/22/14
  */
 public interface SlidingWindowCallback {
-    public void remove(List<SlidingWindowEntry> entries);
+    void remove(List<SlidingWindowEntry> entries);
 }

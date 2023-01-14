@@ -91,8 +91,8 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple3<String, 
 
         @Override
         public String toString() {
-            return "Total Count for " + countryName + " is " + Integer.toString(countryTotal) + "\n"
-                    + "Cities: " + cityStats.toString();
+            return "Total Count for " + countryName + " is " + countryTotal + "\n"
+                    + "Cities: " + cityStats;
         }
     }
 }

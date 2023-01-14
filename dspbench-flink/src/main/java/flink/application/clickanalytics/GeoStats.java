@@ -2,9 +2,8 @@ package flink.application.clickanalytics;
 
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -15,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GeoStats extends Metrics implements FlatMapFunction<Tuple3<String, String, String>, Tuple5<String, Integer, String, Integer, String>> {
+public class GeoStats extends Metrics implements FlatMapFunction<Tuple2<String, String>, Tuple4<String, Integer, String, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GeoStats.class);
 
@@ -37,8 +36,9 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple3<String, 
     }
 
     @Override
-    public void flatMap(Tuple3<String, String, String> input, Collector<Tuple5<String, Integer, String, Integer, String>> out) {
+    public void flatMap(Tuple2<String, String> input, Collector<Tuple4<String, Integer, String, Integer>> out) {
         super.initialize(config);
+        super.incBoth();
         getStats();
         String country = input.getField(0);
         String city    = input.getField(1);
@@ -48,8 +48,7 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple3<String, 
         }
 
         stats.get(country).cityFound(city);
-        out.collect( new Tuple5<String, Integer, String, Integer, String>(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city), input.f2));
-        super.calculateThroughput();
+        out.collect( new Tuple4<String, Integer, String, Integer>(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city)));
     }
 
     private class CountryStats {
@@ -91,8 +90,8 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple3<String, 
 
         @Override
         public String toString() {
-            return "Total Count for " + countryName + " is " + Integer.toString(countryTotal) + "\n"
-                    + "Cities: " + cityStats.toString();
+            return "Total Count for " + countryName + " is " + countryTotal + "\n"
+                    + "Cities: " + cityStats;
         }
     }
 }

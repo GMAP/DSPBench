@@ -3,14 +3,14 @@ package flink.application.machineoutiler;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
-import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String, Double, Long, Object, Double, String>, Tuple6<String, Double, Long, Boolean, Object, String>> {
 
@@ -49,7 +49,7 @@ public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String,
             // new batch of stream scores
             if (!streamList.isEmpty()) {
                 List<Tuple> abnormalStreams = this.identifyAbnormalStreams();
-                int medianIdx = (int) streamList.size() / 2;
+                int medianIdx = streamList.size() / 2;
                 double minScore = abnormalStreams.get(0).getField(1);
                 double medianScore = abnormalStreams.get(medianIdx).getField(1);
 
@@ -95,7 +95,7 @@ public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String,
 
     private List<Tuple> identifyAbnormalStreams() {
         List<Tuple> abnormalStreamList = new ArrayList<>();
-        int medianIdx = (int)(streamList.size() / 2);
+        int medianIdx = streamList.size() / 2;
         BFPRT.bfprt(streamList, medianIdx);
         abnormalStreamList.addAll(streamList);
         return abnormalStreamList;

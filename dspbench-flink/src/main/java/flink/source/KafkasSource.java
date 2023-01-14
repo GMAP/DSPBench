@@ -1,7 +1,6 @@
 package flink.source;
 
 import flink.constants.BaseConstants;
-import flink.constants.WordCountConstants;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.configuration.Configuration;
@@ -15,7 +14,7 @@ import java.util.UUID;
 public class KafkasSource extends BaseSource{
     private String brokers;
     private String topic;
-    private String groupId = UUID.randomUUID().toString();
+    private final String groupId = UUID.randomUUID().toString();
 
     @Override
     public void initialize(Configuration config, StreamExecutionEnvironment env, String prefix) {

@@ -1,9 +1,9 @@
 package flink.application.logprocessing;
 
+import flink.constants.BaseConstants;
 import flink.geoIp.IPLocation;
 import flink.geoIp.IPLocationFactory;
 import flink.geoIp.Location;
-import flink.constants.BaseConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;

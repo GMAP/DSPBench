@@ -12,8 +12,8 @@ import java.util.*;
  *
  */
 public class FixedSizeQueue<E> implements Queue<E> {
-    private Object[] elements;
-    private int capacity;
+    private final Object[] elements;
+    private final int capacity;
     private int head;
     private int tail;
     private int size;
@@ -78,7 +78,6 @@ public class FixedSizeQueue<E> implements Queue<E> {
         modCount++;
         if (size == 0)
             throw new NoSuchElementException();
-        ;
         E element = (E) elements[head];
         head = (head + 1) % capacity;
         size--;
@@ -233,7 +232,7 @@ public class FixedSizeQueue<E> implements Queue<E> {
             for (int i = 0, j = head; i < size; i++, j = (j + 1) % capacity) {
                 arr[i] = (T) elements[j];
             }
-            return (T[]) arr;
+            return arr;
         }
         for (int i = 0, j = head; i < size; i++, j = (j + 1) % capacity) {
             a[i] = (T) elements[j];

@@ -2,10 +2,8 @@ package flink.parsers;
 
 import com.google.common.collect.ImmutableMap;
 import flink.constants.SpikeDetectionConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.joda.time.DateTime;
@@ -22,8 +20,8 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple4<S
 
     private static final Logger LOG = LoggerFactory.getLogger(SensorParser.class);
 
-    private String valueField;
-    private int valueFieldKey;
+    private final String valueField;
+    private final int valueFieldKey;
 
     Configuration config;
 

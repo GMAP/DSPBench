@@ -1,15 +1,11 @@
 package flink.application.machineoutiler;
 
 import flink.application.AbstractApplication;
-import flink.application.logprocessing.GeoFinder;
-import flink.application.logprocessing.GeoStats;
-import flink.application.logprocessing.StatusCount;
-import flink.application.logprocessing.VolumeCount;
-import flink.constants.LogProcessingConstants;
 import flink.constants.MachineOutlierConstants;
 import flink.parsers.AlibabaMachineUsageParser;
-import flink.parsers.CommonLogParser;
-import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

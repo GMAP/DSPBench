@@ -1,7 +1,5 @@
 package flink.source;
 
-import flink.util.Configurations;
-import flink.util.Metrics;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

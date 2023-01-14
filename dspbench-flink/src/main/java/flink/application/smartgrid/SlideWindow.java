@@ -1,30 +1,19 @@
 package flink.application.smartgrid;
 
-import flink.application.sentimentanalysis.sentiment.SentimentClassifier;
-import flink.application.sentimentanalysis.sentiment.SentimentClassifierFactory;
-import flink.application.sentimentanalysis.sentiment.SentimentResult;
 import flink.application.smartgrid.window.SlidingWindow;
 import flink.application.smartgrid.window.SlidingWindowCallback;
 import flink.application.smartgrid.window.SlidingWindowEntry;
-import flink.constants.SentimentAnalysisConstants;
 import flink.constants.SmartGridConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple7<Long, String, String, String, Double, Integer, String>> {
 
@@ -41,7 +30,7 @@ public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<Strin
 
     private SlidingWindow createWindow(){
         if (window == null) {
-            window =new SlidingWindow(1 * 60 * 60);
+            window =new SlidingWindow(60 * 60);
         }
 
         return window;
@@ -78,11 +67,11 @@ public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<Strin
     }
 
     private class SlidingWindowEntryImpl implements SlidingWindowEntry {
-        private String houseId;
-        private String houseHoldId;
-        private String plugId;
-        private long ts;
-        private double value;
+        private final String houseId;
+        private final String houseHoldId;
+        private final String plugId;
+        private final long ts;
+        private final double value;
 
         private SlidingWindowEntryImpl(long ts, double value, String houseId, String houseHoldId, String plugId) {
             this.ts = ts;

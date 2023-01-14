@@ -1,10 +1,9 @@
 package flink.application.frauddetection;
 
-import flink.application.smartgrid.RunningMedianCalculator;
-import flink.constants.FraudDetectionConstants;
 import flink.application.frauddetection.predictor.MarkovModelPredictor;
 import flink.application.frauddetection.predictor.ModelBasedPredictor;
 import flink.application.frauddetection.predictor.Prediction;
+import flink.constants.FraudDetectionConstants;
 import flink.util.Metrics;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FlatMapFunction;

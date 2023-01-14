@@ -1,11 +1,9 @@
 package flink.application.smartgrid;
 
-import flink.application.clickanalytics.GeoStats;
 import flink.application.trafficmonitoring.collections.FixedMap;
 import flink.constants.BaseConstants;
 import flink.constants.SmartGridConstants;
 import flink.util.Configurations;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
@@ -183,7 +181,7 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple5<String, String, 
 class Metric implements Serializable {
     Configuration config;
     private final Map<String, Long> throughput = new HashMap<>();
-    private BlockingQueue<String> queue = new ArrayBlockingQueue<>(50);;
+    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(50);
     protected String configPrefix = BaseConstants.BASE_PREFIX;
     private File file;
 

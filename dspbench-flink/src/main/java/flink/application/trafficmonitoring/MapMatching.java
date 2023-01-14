@@ -1,30 +1,20 @@
 package flink.application.trafficmonitoring;
 
-import flink.application.sentimentanalysis.sentiment.SentimentClassifier;
-import flink.application.sentimentanalysis.sentiment.SentimentClassifierFactory;
-import flink.application.sentimentanalysis.sentiment.SentimentResult;
 import flink.application.trafficmonitoring.gis.GPSRecord;
 import flink.application.trafficmonitoring.gis.RoadGridList;
-import flink.constants.SentimentAnalysisConstants;
 import flink.constants.TrafficMonitoringConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.Locale;
 
 public class MapMatching extends Metrics implements FlatMapFunction<Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>, Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>>  {
 

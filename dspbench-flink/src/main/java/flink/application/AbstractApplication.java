@@ -1,21 +1,17 @@
 package flink.application;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import flink.constants.BaseConstants;
-import flink.parsers.Parser;
 import flink.sink.BaseSink;
 import flink.source.BaseSource;
 import flink.util.ClassLoaderUtils;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple6;
+import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -118,14 +114,14 @@ public abstract class AbstractApplication implements Serializable {
         source.createSinkLPVol(dt, sinkName);
     }
 
-    protected void createSinkLPStatus(DataStream<Tuple3<Integer, Integer, String>> dt, String sinkName) {
+    protected void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS),"flink.sink.ConsoleSink");
         BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         source.initialize(config);
         source.createSinkLPStatus(dt, sinkName);
     }
 
-    protected void createSinkLPGeo(DataStream<Tuple5<String, Integer, String, Integer, String>> dt, String sinkName) {
+    protected void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS),"flink.sink.ConsoleSink");
         BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         source.initialize(config);

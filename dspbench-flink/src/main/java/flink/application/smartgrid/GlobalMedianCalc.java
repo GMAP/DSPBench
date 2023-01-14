@@ -1,18 +1,13 @@
 package flink.application.smartgrid;
 
-import flink.application.smartgrid.window.SlidingWindow;
-import flink.application.smartgrid.window.SlidingWindowCallback;
-import flink.application.smartgrid.window.SlidingWindowEntry;
-import flink.constants.SmartGridConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class GlobalMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Long, String, String, String, Double, Integer, String>, Tuple5<String, String, Long, Double, String>> {
 

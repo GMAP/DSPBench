@@ -1,15 +1,10 @@
 package flink.application.wordcount;
 
-import flink.application.frauddetection.predictor.MarkovModelPredictor;
-import flink.application.frauddetection.predictor.ModelBasedPredictor;
-import flink.application.frauddetection.predictor.Prediction;
-import flink.constants.FraudDetectionConstants;
 import flink.util.Metrics;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;

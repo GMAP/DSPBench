@@ -3,7 +3,7 @@ package flink.application.trafficmonitoring.gis;
 import java.util.ArrayList;
 
 public class Sect extends Polygon {
-    private int id;
+    private final int id;
     private int roadWidth;
     private String mapID;
 

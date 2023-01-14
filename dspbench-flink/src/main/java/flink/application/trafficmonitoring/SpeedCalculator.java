@@ -1,13 +1,9 @@
 package flink.application.trafficmonitoring;
 
-import flink.application.trafficmonitoring.gis.GPSRecord;
 import flink.application.trafficmonitoring.gis.Road;
-import flink.application.trafficmonitoring.gis.RoadGridList;
-import flink.constants.TrafficMonitoringConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
@@ -15,8 +11,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +19,7 @@ public class SpeedCalculator extends Metrics implements FlatMapFunction<Tuple9<S
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeedCalculator.class);
 
-    private Map<Integer, Road> roads;
+    private final Map<Integer, Road> roads;
 
     Configuration config;
 

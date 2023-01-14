@@ -1,12 +1,11 @@
 package flink.application.trafficmonitoring;
 
 import flink.application.AbstractApplication;
-import flink.application.sentimentanalysis.SentimentCalculator;
-import flink.constants.SentimentAnalysisConstants;
 import flink.constants.TrafficMonitoringConstants;
 import flink.parsers.BeijingTaxiParser;
-import flink.parsers.JsonTweetParser;
-import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple8;
+import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

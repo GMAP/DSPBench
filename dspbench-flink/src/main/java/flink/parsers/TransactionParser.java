@@ -1,6 +1,5 @@
 package flink.parsers;
 
-import com.google.common.collect.ImmutableList;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;

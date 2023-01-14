@@ -1,9 +1,6 @@
 package flink.source;
 
 import flink.constants.BaseConstants;
-import flink.constants.WordCountConstants;
-import flink.util.Metrics;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

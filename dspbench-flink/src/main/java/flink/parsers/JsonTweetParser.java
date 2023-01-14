@@ -2,7 +2,6 @@ package flink.parsers;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.joda.time.DateTime;
@@ -11,6 +10,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.util.Date;
 
@@ -33,7 +33,7 @@ public class JsonTweetParser extends JsonParser  implements MapFunction<String, 
 
         Tuple1<JSONObject> parsed = super.parse(input);
 
-        JSONObject tweet = (JSONObject) parsed.getField(0);
+        JSONObject tweet = parsed.getField(0);
 
         if (tweet.containsKey("data")) {
             tweet = (JSONObject) tweet.get("data");

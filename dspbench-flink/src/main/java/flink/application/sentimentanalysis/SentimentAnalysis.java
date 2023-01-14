@@ -3,7 +3,6 @@ package flink.application.sentimentanalysis;
 import flink.application.AbstractApplication;
 import flink.constants.SentimentAnalysisConstants;
 import flink.parsers.JsonTweetParser;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;

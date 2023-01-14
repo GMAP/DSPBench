@@ -6,6 +6,6 @@ package flink.application.smartgrid.window;
  */
 public interface SlidingWindowEntry {
 
-    public long getTime();
+    long getTime();
 
 }

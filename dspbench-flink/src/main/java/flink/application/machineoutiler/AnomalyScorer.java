@@ -1,9 +1,7 @@
 package flink.application.machineoutiler;
 
-import flink.constants.MachineOutlierConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
@@ -11,7 +9,10 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 
 public class AnomalyScorer extends Metrics implements FlatMapFunction<Tuple5<String, Double, Long, Object,String>, Tuple6<String, Double, Long, Object, Double, String>> {
 

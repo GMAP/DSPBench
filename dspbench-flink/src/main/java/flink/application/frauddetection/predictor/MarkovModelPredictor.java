@@ -40,16 +40,16 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
         MissProbability, 
         MissRate, 
         EntropyReduction
-    };
-    
-    private MarkovModel markovModel;
-    private Map<String, List<String>> records = new HashMap<>(); 
-    private boolean localPredictor;
-    private int stateSeqWindowSize;
-    private int stateOrdinal;
-    private DetectionAlgorithm detectionAlgorithm;
+    }
+
+    private final MarkovModel markovModel;
+    private final Map<String, List<String>> records = new HashMap<>();
+    private final boolean localPredictor;
+    private final int stateSeqWindowSize;
+    private final int stateOrdinal;
+    private final DetectionAlgorithm detectionAlgorithm;
     private Map<String, Pair<Double, Double>> globalParams;
-    private double metricThreshold;
+    private final double metricThreshold;
     private int[] maxStateProbIndex;
     private double[] entropy;
 

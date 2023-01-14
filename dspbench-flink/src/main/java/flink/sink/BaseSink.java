@@ -1,21 +1,14 @@
 package flink.sink;
 
-import com.aliasi.util.Tuple;
 import flink.constants.BaseConstants;
 import flink.util.Metrics;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple6;
+import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public abstract class BaseSink extends Metrics {
@@ -44,6 +37,6 @@ public abstract class BaseSink extends Metrics {
     public void sinkStreamMO(DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> dt) {}
     public void sinkStreamFD(DataStream<Tuple4<String, Double, String,String>> dt) {}
     public void createSinkLPVol(DataStream<Tuple3<Long, Long, String>> dt, String sinkName) {}
-    public void createSinkLPStatus(DataStream<Tuple3<Integer, Integer, String>> dt, String sinkName) {}
-    public void createSinkLPGeo(DataStream<Tuple5<String, Integer, String, Integer, String>> dt, String sinkName) {}
+    public void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {}
+    public void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {}
 }

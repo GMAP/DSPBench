@@ -10,19 +10,16 @@ import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
-import java.util.Locale;
 
 public class SentimentCalculator extends Metrics implements FlatMapFunction<Tuple4<String, String, Date, String>, Tuple6<String, String, Date, String, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SentimentCalculator.class);
 
-    private SentimentClassifier classifier;
+    private final SentimentClassifier classifier;
 
     Configuration config;
 

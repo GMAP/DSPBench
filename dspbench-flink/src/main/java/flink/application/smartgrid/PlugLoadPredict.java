@@ -3,11 +3,9 @@ package flink.application.smartgrid;
 import flink.constants.SmartGridConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.java.tuple.Tuple;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -19,7 +17,7 @@ import java.util.*;
 public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple6<Long,String, String, String, Double, String>, String, TimeWindow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlugLoadPredict.class);
-    protected static long sliceLength = 60l;
+    protected static long sliceLength = 60L;
     protected static long currentSliceStart;
 
     protected String inittime = "";
@@ -32,7 +30,7 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
     public PlugLoadPredict(Configuration config) {
         super.initialize(config);
         this.config = config;
-        sliceLength = 60l;
+        sliceLength = 60L;
     }
 
     private Map<String, AverageTracker>  track() {
@@ -70,7 +68,7 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
             double value   = in.getField(2);
 
             // Initialize the very first slice
-            if (currentSliceStart == 0l) {
+            if (currentSliceStart == 0L) {
                 currentSliceStart = timestamp;
             }
             // Check the slice

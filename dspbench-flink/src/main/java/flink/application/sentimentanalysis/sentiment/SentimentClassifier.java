@@ -8,6 +8,6 @@ import java.io.Serializable;
  *
  */
 public interface SentimentClassifier extends Serializable {
-    public void initialize(Configuration config);
-    public SentimentResult classify(String str);
+    void initialize(Configuration config);
+    SentimentResult classify(String str);
 }

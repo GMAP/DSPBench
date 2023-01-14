@@ -1,19 +1,19 @@
 package flink.application.clickanalytics;
 
+import flink.constants.BaseConstants;
 import flink.geoIp.IPLocation;
 import flink.geoIp.IPLocationFactory;
 import flink.geoIp.Location;
-import flink.constants.BaseConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GeoFinder extends Metrics implements FlatMapFunction<Tuple4<String, String, String, String>, Tuple3<String, String, String>> {
+public class GeoFinder extends Metrics implements FlatMapFunction<Tuple3<String, String, String>, Tuple2<String, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GeoFinder.class);
 
@@ -35,8 +35,9 @@ public class GeoFinder extends Metrics implements FlatMapFunction<Tuple4<String,
     }
 
     @Override
-    public void flatMap(Tuple4<String, String, String, String> input, Collector<Tuple3<String, String, String>> out) {
+    public void flatMap(Tuple3<String, String, String> input, Collector<Tuple2<String, String>> out) {
         super.initialize(config);
+        super.incReceived();
         createResolver(config);
 
         String ip = input.getField(0);
@@ -45,9 +46,8 @@ public class GeoFinder extends Metrics implements FlatMapFunction<Tuple4<String,
         if (location != null) {
             String city = location.getCity();
             String country = location.getCountryName();
-
-            out.collect(new Tuple3<String, String, String>(country, city, input.f3));
+            super.incEmitted();
+            out.collect(new Tuple2<String, String>(country, city));
         }
-        super.calculateThroughput();
     }
 }

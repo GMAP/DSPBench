@@ -1,33 +1,23 @@
 package flink.application.smartgrid;
 
-import flink.application.smartgrid.window.SlidingWindow;
-import flink.application.smartgrid.window.SlidingWindowCallback;
-import flink.application.smartgrid.window.SlidingWindowEntry;
 import flink.constants.SmartGridConstants;
 import flink.util.Metrics;
-import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.functions.windowing.AllWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.*;
 
 public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple4<Long,String, Double, String>, String, TimeWindow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HouseLoadPredict.class);
-    protected static long sliceLength = 60l;
+    protected static long sliceLength = 60L;
     protected static long currentSliceStart;
 
     protected String inittime = "";
@@ -40,7 +30,7 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<S
     public HouseLoadPredict(Configuration config) {
         super.initialize(config);
         this.config = config;
-        sliceLength = 60l;
+        sliceLength = 60L;
     }
 
     private Map<String, AverageTracker>  track() {
@@ -79,7 +69,7 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<S
             double value   = in.getField(2);
 
             // Initialize the very first slice
-            if (currentSliceStart == 0l) {
+            if (currentSliceStart == 0L) {
                 currentSliceStart = timestamp;
             }
             // Check the slice

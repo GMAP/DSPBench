@@ -1,14 +1,10 @@
 package flink.application.spikedetection;
 
 import flink.application.AbstractApplication;
-import flink.application.sentimentanalysis.SentimentCalculator;
-import flink.constants.SentimentAnalysisConstants;
 import flink.constants.SpikeDetectionConstants;
-import flink.parsers.JsonTweetParser;
 import flink.parsers.SensorParser;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
