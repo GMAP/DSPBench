@@ -24,8 +24,8 @@ public class ConsoleSink extends BaseSink implements Serializable {
     }
 
     @Override
-    public void sinkStreamWC(DataStream<Tuple3<String, Integer, String>> input) {
-        input.addSink(new RichSinkFunction<Tuple3<String, Integer, String>>() {
+    public void sinkStreamWC(DataStream<Tuple2<String, Integer>> input) {
+        input.addSink(new RichSinkFunction<Tuple2<String, Integer>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -37,10 +37,10 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple3<String, Integer, String> value, Context context) throws Exception {
+            public void invoke(Tuple2<String, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
                 System.out.println(value);
-                calculate(value.f2);
+                calculate("0");
             }
         });
     }
@@ -68,8 +68,8 @@ public class ConsoleSink extends BaseSink implements Serializable {
     }
 
     @Override
-    public void sinkStreamSD(DataStream<Tuple5<String, Double, Double, String, String>> input) {
-        input.addSink(new RichSinkFunction<Tuple5<String, Double, Double, String, String>>() {
+    public void sinkStreamSD(DataStream<Tuple4<String, Double, Double, String>> input) {
+        input.addSink(new RichSinkFunction<Tuple4<String, Double, Double, String>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -81,10 +81,10 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple5<String, Double, Double, String, String>value, Context context) throws Exception {
+            public void invoke(Tuple4<String, Double, Double, String>value, Context context) throws Exception {
                 super.invoke(value, context);
                 System.out.println(value);
-                calculate(value.f4);
+                calculate("0");
             }
         });
     }

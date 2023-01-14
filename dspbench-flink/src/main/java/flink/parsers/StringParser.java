@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
-public class StringParser extends Parser implements MapFunction<String, Tuple2<String, String>> {
+public class StringParser extends Parser implements MapFunction<String, Tuple1<String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(StringParser.class);
 
@@ -22,13 +22,13 @@ public class StringParser extends Parser implements MapFunction<String, Tuple2<S
     }
 
     @Override
-    public Tuple2<String, String> map(String value) throws Exception {
+    public Tuple1<String> map(String value) throws Exception {
         super.initialize(config);
-        super.calculateThroughput();
+        super.incBoth();
         if (StringUtils.isBlank(value))
             return null;
 
-        return new Tuple2<String,String>(value,  Instant.now().toEpochMilli() + "");
+        return new Tuple1<String>(value);
     }
 
     @Override

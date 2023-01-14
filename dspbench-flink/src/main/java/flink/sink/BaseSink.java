@@ -27,9 +27,9 @@ public abstract class BaseSink extends Metrics {
 
     protected abstract Logger getLogger();
 
-    public void sinkStreamWC(DataStream<Tuple3<String, Integer, String>> dt) {}
+    public void sinkStreamWC(DataStream<Tuple2<String, Integer>> dt) {}
     public void sinkStreamTM(DataStream<Tuple5<Date, Integer, Integer, Integer, String>> dt) {}
-    public void sinkStreamSD(DataStream<Tuple5<String, Double, Double, String, String>> dt) {}
+    public void sinkStreamSD(DataStream<Tuple4<String, Double, Double, String>> dt) {}
     public void sinkStreamSGOutlier(DataStream<Tuple5<Long, Long, String, Double, String>> dt, String sinkName) {}
     public void sinkStreamSGHouse(DataStream<Tuple4<Long,String, Double, String>> dt, String sinkName) {}
     public void sinkStreamSGPlug(DataStream<Tuple6<Long,String, String, String, Double, String>> dt, String sinkName) {}

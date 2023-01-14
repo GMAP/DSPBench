@@ -3,6 +3,7 @@ package flink.application.spikedetection;
 import flink.application.AbstractApplication;
 import flink.constants.SpikeDetectionConstants;
 import flink.parsers.SensorParser;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
@@ -38,12 +39,12 @@ public class SpikeDetection extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple4<String, Date, Double, String>> dataParse = data.map(new SensorParser(config));
+        DataStream<Tuple3<String, Date, Double>> dataParse = data.map(new SensorParser(config));
 
         // Process
-        DataStream<Tuple4<String, Double, Double, String>> movingAvg = dataParse.filter(value -> (value != null)).keyBy(value -> value.f0).flatMap(new MovingAverage(config)).setParallelism(movingAverageThreads);
+        DataStream<Tuple3<String, Double, Double>> movingAvg = dataParse.filter(value -> (value != null)).keyBy(value -> value.f0).flatMap(new MovingAverage(config)).setParallelism(movingAverageThreads);
 
-        DataStream<Tuple5<String, Double, Double, String, String>> spikeDetect = movingAvg.flatMap(new SpikeDetect(config)).setParallelism(spikeDetectorThreads);
+        DataStream<Tuple4<String, Double, Double, String>> spikeDetect = movingAvg.flatMap(new SpikeDetect(config)).setParallelism(spikeDetectorThreads);
 
         // Sink
         createSinkSD(spikeDetect);

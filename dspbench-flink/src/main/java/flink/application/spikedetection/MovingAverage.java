@@ -3,6 +3,7 @@ package flink.application.spikedetection;
 import flink.constants.SpikeDetectionConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class MovingAverage extends Metrics implements FlatMapFunction<Tuple4<String, Date, Double, String>, Tuple4<String, Double, Double, String>> {
+public class MovingAverage extends Metrics implements FlatMapFunction<Tuple3<String, Date, Double>, Tuple3<String, Double, Double>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverage.class);
 
@@ -54,16 +55,16 @@ public class MovingAverage extends Metrics implements FlatMapFunction<Tuple4<Str
     }
 
     @Override
-    public void flatMap(Tuple4<String, Date, Double, String> input, Collector<Tuple4<String, Double, Double, String>> out) {
+    public void flatMap(Tuple3<String, Date, Double> input, Collector<Tuple3<String, Double, Double>> out) {
         super.initialize(config);
+        super.incBoth();
         window(config);
 
         String deviceID = input.getField(0);
         double nextDouble = input.getField(2);
         double movingAverageInstant = movingAverage(deviceID, nextDouble);
 
-        out.collect(new Tuple4<String, Double, Double, String>(deviceID, movingAverageInstant, nextDouble, input.f3));
-        super.calculateThroughput();
+        out.collect(new Tuple3<String, Double, Double>(deviceID, movingAverageInstant, nextDouble));
     }
 
     private double movingAverage(String deviceID, double nextDouble) {

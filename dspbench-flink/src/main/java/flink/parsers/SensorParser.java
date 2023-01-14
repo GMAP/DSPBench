@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import flink.constants.SpikeDetectionConstants;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.joda.time.DateTime;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.Date;
 
-public class SensorParser extends Parser implements MapFunction<String, Tuple4<String, Date, Double, String>> {
+public class SensorParser extends Parser implements MapFunction<String, Tuple3<String, Date, Double>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SensorParser.class);
 
@@ -40,9 +41,9 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple4<S
     }
 
     @Override
-    public Tuple4<String, Date, Double, String> map(String value) throws Exception {
+    public Tuple3<String, Date, Double> map(String value) throws Exception {
         super.initialize(config);
-        super.calculateThroughput();
+        super.incBoth();
         DateTimeFormatter formatterMillis = new DateTimeFormatterBuilder()
                 .appendYear(4, 4).appendLiteral("-").appendMonthOfYear(2).appendLiteral("-")
                 .appendDayOfMonth(2).appendLiteral(" ").appendHourOfDay(2).appendLiteral(":")
@@ -71,11 +72,10 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple4<S
         }
 
         try {
-            return new Tuple4<>(
+            return new Tuple3<>(
                     temp[3],
                     date.toDate(),
-                    Double.parseDouble(temp[valueFieldKey]),
-                    Instant.now().toEpochMilli() + ""
+                    Double.parseDouble(temp[valueFieldKey])
             );
         } catch (NumberFormatException ex) {
             System.out.println("Error parsing record numeric field, input record: " + value + ", " + ex);
