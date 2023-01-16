@@ -1,5 +1,7 @@
 package org.dspbench.spout;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
@@ -22,6 +24,7 @@ import org.dspbench.bolt.AbstractBolt;
 import org.dspbench.constants.BaseConstants;
 import org.dspbench.constants.BaseConstants.BaseStream;
 import org.dspbench.hooks.SpoutMeterHook;
+import org.dspbench.metrics.MetricsFactory;
 import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +48,10 @@ public abstract class AbstractSpout extends BaseRichSpout {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSpout.class);
     private final Map<String, Long> throughput = new HashMap<>();
 
+    private static MetricRegistry metrics;
+    private Counter tuplesReceived;
+    private Counter tuplesEmitted;
+
     public AbstractSpout() {
         fields = new HashMap<>();
     }
@@ -64,6 +71,48 @@ public abstract class AbstractSpout extends BaseRichSpout {
         }
     }
 
+    protected MetricRegistry getMetrics() {
+        if (metrics == null) {
+            metrics = MetricsFactory.createRegistry(this.config);
+        }
+        return metrics;
+    }
+
+    protected Counter getTuplesReceived() {
+        if (tuplesReceived == null) {
+            tuplesReceived = getMetrics().counter(this.getClass().getSimpleName() + "-received");
+        }
+        return tuplesReceived;
+    }
+
+    protected Counter getTuplesEmitted() {
+        if (tuplesEmitted == null) {
+            tuplesEmitted = getMetrics().counter(this.getClass().getSimpleName()+ "-emitted");
+        }
+        return tuplesEmitted;
+    }
+
+    protected void incReceived() {
+        getTuplesReceived().inc();
+    }
+
+    protected void incReceived(long n) {
+        getTuplesReceived().inc(n);
+    }
+
+    protected void incEmitted() {
+        getTuplesEmitted().inc();
+    }
+
+    protected void incEmitted(long n) {
+        getTuplesEmitted().inc(n);
+    }
+
+    protected void incBoth() {
+        getTuplesReceived().inc();
+        getTuplesEmitted().inc();
+    }
+
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         this.config = Configuration.fromMap(conf);
@@ -71,12 +120,9 @@ public abstract class AbstractSpout extends BaseRichSpout {
         this.context = context;
 
         if (config.getBoolean(METRICS_ENABLED, false)) {
-            File pathTrh = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput").toFile();
+            File pathTrh = Paths.get(config.getString(Configuration.METRICS_OUTPUT)).toFile();
+
             pathTrh.mkdirs();
-
-            queue = new ArrayBlockingQueue<>(50);
-
-            this.file = Paths.get(config.getString(Configuration.METRICS_OUTPUT), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
         }
         initialize();
     }
@@ -104,6 +150,7 @@ public abstract class AbstractSpout extends BaseRichSpout {
     protected abstract void initialize();
 
     public void calculateThroughput() {
+        /*
         if (config.getBoolean(Configuration.METRICS_ENABLED, false)) {
             long unixTime = 0;
             if (config.getString(Configuration.METRICS_INTERVAL_UNIT).equals("seconds")) {
@@ -127,6 +174,7 @@ public abstract class AbstractSpout extends BaseRichSpout {
 
             throughput.put(unixTime + "", ops);
         }
+        */
     }
 
 
