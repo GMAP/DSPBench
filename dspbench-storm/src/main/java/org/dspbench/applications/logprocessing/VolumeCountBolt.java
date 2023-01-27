@@ -31,6 +31,7 @@ public class VolumeCountBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        super.incBoth();
         long minute = input.getLongByField(Field.TIMESTAMP_MINUTES);
         
         MutableLong count = counts.get(minute);
@@ -50,7 +51,7 @@ public class VolumeCountBolt extends AbstractBolt {
         
         collector.emit(input, new Values(minute, count.longValue(), input.getStringByField(Field.INITTIME)));
         collector.ack(input);
-        super.calculateThroughput();
+
     }
 
     @Override

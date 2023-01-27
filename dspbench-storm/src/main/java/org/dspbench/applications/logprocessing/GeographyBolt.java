@@ -38,7 +38,6 @@ public class GeographyBolt extends AbstractBolt {
         }
         
         collector.ack(input);
-        super.calculateThroughput();
     }
 
     @Override

@@ -3,6 +3,7 @@ package flink.parsers;
 import flink.application.logprocessing.DateUtils;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
+import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
 import org.joda.time.format.DateTimeFormat;
@@ -16,7 +17,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CommonLogParser extends Parser implements MapFunction<String, Tuple7<Object, Object, Long, Object, Object, Object, String>> {
+public class CommonLogParser extends Parser implements MapFunction<String, Tuple6<Object, Object, Long, Object, Object, Object>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommonLogParser.class);
 
@@ -28,9 +29,9 @@ public class CommonLogParser extends Parser implements MapFunction<String, Tuple
     }
 
     @Override
-    public Tuple7<Object, Object, Long, Object, Object, Object, String> map(String value) throws Exception {
+    public Tuple6<Object, Object, Long, Object, Object, Object> map(String value) throws Exception {
         super.initialize(config);
-        super.calculateThroughput();
+        super.incBoth();
 
         Map<String, Object> entry = parseLine(value);
 
@@ -40,7 +41,7 @@ public class CommonLogParser extends Parser implements MapFunction<String, Tuple
         }
 
         long minute = DateUtils.getMinuteForTime((Date) entry.get("TIMESTAMP"));
-        return new Tuple7<Object, Object, Long, Object, Object, Object, String>( entry.get("IP"), entry.get("TIMESTAMP"), minute, entry.get("REQUEST"), entry.get("RESPONSE"), entry.get("BYTE_SIZE"), Instant.now().toEpochMilli() + "");
+        return new Tuple6<Object, Object, Long, Object, Object, Object>( entry.get("IP"), entry.get("TIMESTAMP"), minute, entry.get("REQUEST"), entry.get("RESPONSE"), entry.get("BYTE_SIZE"));
     }
 
     @Override

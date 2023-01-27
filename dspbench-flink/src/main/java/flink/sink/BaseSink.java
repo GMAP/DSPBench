@@ -36,7 +36,7 @@ public abstract class BaseSink extends Metrics {
     public void sinkStreamSA(DataStream<Tuple6<String, String, Date, String, Double, String>> dt) {}
     public void sinkStreamMO(DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> dt) {}
     public void sinkStreamFD(DataStream<Tuple4<String, Double, String,String>> dt) {}
-    public void createSinkLPVol(DataStream<Tuple3<Long, Long, String>> dt, String sinkName) {}
+    public void createSinkLPVol(DataStream<Tuple2<Long, Long>> dt, String sinkName) {}
     public void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {}
     public void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {}
 }

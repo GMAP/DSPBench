@@ -27,6 +27,7 @@ public class StatusCountBolt  extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        super.incBoth();
         int statusCode = input.getIntegerByField(Field.RESPONSE);
         int count = 0;
         
@@ -39,7 +40,7 @@ public class StatusCountBolt  extends AbstractBolt {
         
         collector.emit(input, new Values(statusCode, count, input.getStringByField(Field.INITTIME)));
         collector.ack(input);
-        super.calculateThroughput();
+
     }
 
     @Override

@@ -2,8 +2,8 @@ package flink.application.logprocessing;
 
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple7;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StatusCount extends Metrics implements FlatMapFunction<Tuple7<Object, Object, Long, Object, Object, Object, String>, Tuple3<Integer, Integer, String>> {
+public class StatusCount extends Metrics implements FlatMapFunction<Tuple6<Object, Object, Long, Object, Object, Object>, Tuple2<Integer, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusCount.class);
 
@@ -25,7 +25,7 @@ public class StatusCount extends Metrics implements FlatMapFunction<Tuple7<Objec
         this.config = config;
     }
 
-    private Map<Integer, Integer>   getCount() {
+    private Map<Integer, Integer>  getCount() {
         if (counts == null) {
             counts = new HashMap<>();
         }
@@ -33,8 +33,9 @@ public class StatusCount extends Metrics implements FlatMapFunction<Tuple7<Objec
     }
 
     @Override
-    public void flatMap(Tuple7<Object, Object, Long, Object, Object, Object, String> input, Collector<Tuple3<Integer, Integer, String>> out) {
+    public void flatMap(Tuple6<Object, Object, Long, Object, Object, Object> input, Collector<Tuple2<Integer, Integer>> out) {
         super.initialize(config);
+        super.incBoth();
         getCount();
         int statusCode = input.getField(4);
         int count = 0;
@@ -46,7 +47,7 @@ public class StatusCount extends Metrics implements FlatMapFunction<Tuple7<Objec
         count++;
         counts.put(statusCode, count);
 
-        out.collect(new Tuple3<Integer, Integer, String>(statusCode, count, input.f6));
-        super.calculateThroughput();
+        out.collect(new Tuple2<Integer, Integer>(statusCode, count));
+
     }
 }

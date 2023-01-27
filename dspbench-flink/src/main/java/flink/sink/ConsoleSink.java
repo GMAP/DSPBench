@@ -221,8 +221,8 @@ public class ConsoleSink extends BaseSink implements Serializable {
     }
 
     @Override
-    public void createSinkLPVol(DataStream<Tuple3<Long, Long, String>> input, String sinkName) {
-        input.addSink(new RichSinkFunction<Tuple3<Long, Long, String>>() {
+    public void createSinkLPVol(DataStream<Tuple2<Long, Long>> input, String sinkName) {
+        input.addSink(new RichSinkFunction<Tuple2<Long, Long>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -234,10 +234,10 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple3<Long, Long, String> value, Context context) throws Exception {
+            public void invoke(Tuple2<Long, Long> value, Context context) throws Exception {
                 super.invoke(value, context);
                 System.out.println(value);
-                calculate(value.f2, sinkName);
+                calculate("0", sinkName);
             }
         });
     }
