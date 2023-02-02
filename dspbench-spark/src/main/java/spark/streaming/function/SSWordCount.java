@@ -22,9 +22,9 @@ public class SSWordCount extends BaseFunction implements MapGroupsWithStateFunct
         super(config);
     }
 
-    private static Map<String, Long> throughput = new HashMap<>();
+    //private static Map<String, Long> throughput = new HashMap<>();
 
-    private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);
+    //private static BlockingQueue<String> queue = new ArrayBlockingQueue<>(20);
 
     @Override
     public void Calculate() throws InterruptedException {

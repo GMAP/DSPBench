@@ -26,12 +26,12 @@ public class SSVolumeCount extends BaseFunction implements MapGroupsWithStateFun
     private static BlockingQueue<String> queue= new ArrayBlockingQueue<>(20);
     @Override
     public void Calculate() throws InterruptedException {
-        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
-        throughput = d._1;
-        queue = d._2;
-        if (queue.size() >= 10) {
-            super.SaveMetrics(queue.take());
-        }
+//        Tuple2<Map<String, Long>, BlockingQueue<String>> d = super.calculateThroughput(throughput, queue);
+//        throughput = d._1;
+//        queue = d._2;
+//        if (queue.size() >= 10) {
+//            super.SaveMetrics(queue.take());
+//        }
     }
 
     @Override
@@ -43,7 +43,7 @@ public class SSVolumeCount extends BaseFunction implements MapGroupsWithStateFun
             state.remove();
 
         while (values.hasNext()) {
-            Calculate();
+            incBoth();
             tuple = values.next();
             inittime = tuple.getLong(tuple.size() - 1);
 
