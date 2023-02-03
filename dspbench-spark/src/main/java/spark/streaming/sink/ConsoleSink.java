@@ -7,6 +7,7 @@ import org.apache.spark.sql.streaming.DataStreamWriter;
 import org.apache.spark.sql.streaming.Trigger;
 import scala.Tuple2;
 import spark.streaming.constants.BaseConstants;
+import spark.streaming.util.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class ConsoleSink extends BaseSink {
     }
 
     @Override
-    public DataStreamWriter<Row> sinkStream(Dataset<Row> dt, int sink) {
+    public DataStreamWriter<Row> sinkStream(Dataset<Row> dt) { //, Configuration conf
         return dt.writeStream().foreach(new ForeachWriter<Row>() {
 
                     @Override

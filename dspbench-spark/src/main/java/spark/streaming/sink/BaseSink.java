@@ -24,9 +24,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public abstract class BaseSink implements Serializable {
-    protected static Configuration config;
+    protected Configuration config;
     protected transient SparkSession session;
-    private static String sinkName;
+    private String sinkName;
     private static MetricRegistry metrics;
     private  Counter tuplesReceived;
     private Counter tuplesEmitted;
@@ -50,12 +50,19 @@ public abstract class BaseSink implements Serializable {
         }
     }
 
+//    public Configuration getConfiguration() {
+//        if (config == null) {
+//            config = Configuration.fromStr(configStr);
+//        }
+//
+//        return config;
+//    }
 
-    public abstract DataStreamWriter<Row> sinkStream(Dataset<Row> dt, int sink);
+    public abstract DataStreamWriter<Row> sinkStream(Dataset<Row> dt); //Configuration conf
 
     protected MetricRegistry getMetrics() {
         if (metrics == null) {
-            metrics = MetricsFactory.createRegistry(config);
+            metrics = MetricsFactory.createRegistry(this.config);
         }
         return metrics;
     }
@@ -75,6 +82,11 @@ public abstract class BaseSink implements Serializable {
     }
 
     protected void incReceived() {
+        getTuplesReceived().inc();
+    }
+
+    protected void incReceived(Configuration config) {
+        this.config = config;
         getTuplesReceived().inc();
     }
 
