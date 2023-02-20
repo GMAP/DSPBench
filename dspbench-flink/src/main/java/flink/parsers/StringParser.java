@@ -8,8 +8,6 @@ import org.apache.flink.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-
 public class StringParser extends Parser implements MapFunction<String, Tuple1<String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(StringParser.class);
