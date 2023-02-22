@@ -2,10 +2,9 @@ package flink.application.wordcount;
 
 import flink.application.AbstractApplication;
 import flink.constants.WordCountConstants;
-import flink.parsers.StringParser;
+import flink.parsers.StringParserInf;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -38,7 +37,7 @@ public class WordCount extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple1<String>> dataParse = data.map(new StringParser(config));
+        DataStream<Tuple1<String>> dataParse = data.flatMap(new StringParserInf(config));
 
         // Process
         DataStream<Tuple2<String, Integer>> splitter = dataParse.filter(value -> (value != null)).flatMap(new Splitter(config)).setParallelism(splitSentenceThreads);
