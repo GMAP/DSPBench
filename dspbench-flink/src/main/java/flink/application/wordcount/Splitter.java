@@ -21,7 +21,7 @@ public class Splitter extends Metrics implements FlatMapFunction<Tuple1<String>,
     public Splitter(Configuration config){
         super.initialize(config);
         this.config = config;
-    }
+    } 
 
     @Override
     public void flatMap(Tuple1<String> value, Collector<Tuple2<String, Integer>> out) {
