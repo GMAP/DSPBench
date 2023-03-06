@@ -39,7 +39,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple2<String, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                System.out.println(value);
+                //System.out.println(value);
                 calculate("0");
             }
         });
