@@ -37,10 +37,10 @@ public class WordCount extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple1<String>> dataParse = data.flatMap(new StringParserInf(config));
+        DataStream<Tuple1<String>> dataParse = data.flatMap(new StringParser(config));
 
         // Process
-        DataStream<Tuple2<String, Integer>> splitter = dataParse.filter(value -> (value.f0 != null)).flatMap(new Splitter(config)).groupBy(0).sum(1).setParallelism(splitSentenceThreads);
+        DataStream<Tuple2<String, Integer>> splitter = (dataParse.filter(value -> (value.f0 != null)).flatMap(new Splitter(config)).setParallelism(splitSentenceThreads).keyBy(value -> value.f0).sum(1)).setParallelism(splitSentenceThreads);
 
         //DataStream<Tuple2<String, Integer>> count = splitter.keyBy(value -> value.f0).flatMap(new Counter(config)).setParallelism(wordCountThreads);
 
