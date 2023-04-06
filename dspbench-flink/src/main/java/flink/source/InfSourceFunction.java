@@ -34,7 +34,6 @@ public class InfSourceFunction extends RichSourceFunction<String> {
                 ctx.collect(line);
                  */
                 if (!StringUtils.isBlank(line))
-                    System.out.println(line);
                     ctx.collect(line);
             }
 
