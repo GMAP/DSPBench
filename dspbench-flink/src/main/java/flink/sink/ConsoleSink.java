@@ -237,7 +237,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple2<Long, Long> value, Context context) throws Exception {
                 super.invoke(value, context);
-                System.out.println(value);
+                //System.out.println(value);
                 calculate("0", sinkName);
             }
         });
@@ -259,7 +259,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple2<Integer, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                System.out.println(value);
+                //System.out.println(value);
                 calculate("0", sinkName);
             }
         });
@@ -281,7 +281,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple4<String, Integer, String, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                System.out.println(value);
+                //System.out.println(value);
                 calculate("0", sinkName);
             }
         });

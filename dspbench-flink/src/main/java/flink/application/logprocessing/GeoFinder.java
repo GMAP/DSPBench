@@ -48,7 +48,6 @@ public class GeoFinder extends Metrics implements FlatMapFunction<Tuple6<Object,
             super.incEmitted();
             String city = location.getCity();
             String country = location.getCountryName();
-
             out.collect(new Tuple2<String, String>(country, city));
         }
 
