@@ -20,11 +20,15 @@ public interface LogProcessingConstants extends BaseConstants {
     }
     
     interface Conf extends BaseConf {
+        String SOURCE_THREADS = "%s.sink.threads";
         String VOLUME_COUNTER_WINDOW  = "lp.volume_counter.window";
         String VOLUME_COUNTER_THREADS = "lp.volume_counter.threads";
+        String VOLUME_SINK_THREADS = "lp.count.sink.threads";
         String STATUS_COUNTER_THREADS = "lp.status_counter.threads";
+        String STATUS_SINK_THREADS = "lp.status.sink.threads";
         String GEO_FINDER_THREADS     = "lp.geo_finder.threads";
         String GEO_STATS_THREADS      = "lp.geo_stats.threads";
+        String GEO_SINK_THREADS = "lp.country.sink.threads";
     }
     
     interface Component extends BaseComponent {

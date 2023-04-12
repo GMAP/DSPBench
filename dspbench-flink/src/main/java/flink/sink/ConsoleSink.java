@@ -1,6 +1,6 @@
 package flink.sink;
 
-import flink.constants.WordCountConstants;
+import flink.constants.*;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -43,7 +43,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 //System.out.println(value);
                 calculate("0");
             }
-        }).setParallelism(config.getInteger(WordCountConstants.Conf.SPLITTER_THREADS, 2));
+        }).setParallelism(config.getInteger(WordCountConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
@@ -284,7 +284,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 //System.out.println(value);
                 calculate("0", sinkName);
             }
-        });
+        }).setParallelism(config.getInteger(LogProcessingConstants.Conf.GEO_SINK_THREADS, 1));
     }
 
     public void calculate(String initTime){

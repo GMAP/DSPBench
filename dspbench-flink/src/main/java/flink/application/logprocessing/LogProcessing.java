@@ -50,7 +50,7 @@ public class LogProcessing extends AbstractApplication {
 
         DataStream<Tuple2<Integer, Integer>> statusCount = dataParse.filter(value -> (value.f3 != null)).keyBy(value -> value.f3).flatMap(new StatusCount(config)).setParallelism(statusCountThreads);
 
-        DataStream<Tuple2<String, String>> geoFind = dataParse.filter(value -> (value != null)).flatMap(new GeoFinder(config)).setParallelism(geoFinderThreads);
+        DataStream<Tuple2<String, String>> geoFind = dataParse.filter(value -> (value.f0 != null)).flatMap(new GeoFinder(config)).setParallelism(geoFinderThreads);
 
         DataStream<Tuple4<String, Integer, String, Integer>> geoStats = geoFind.filter(value -> (value.f0 != null)).keyBy(value -> value.f0).flatMap(new GeoStats(config)).setParallelism(geoStatsThreads);
 
