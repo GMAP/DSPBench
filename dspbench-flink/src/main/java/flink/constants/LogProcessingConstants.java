@@ -20,7 +20,8 @@ public interface LogProcessingConstants extends BaseConstants {
     }
     
     interface Conf extends BaseConf {
-        String SOURCE_THREADS = "%s.sink.threads";
+        String SOURCE_THREADS = "%s.source.threads";
+        String PARSER_THREADS = "%s.parser.threads";
         String VOLUME_COUNTER_WINDOW  = "lp.volume_counter.window";
         String VOLUME_COUNTER_THREADS = "lp.volume_counter.threads";
         String VOLUME_SINK_THREADS = "lp.count.sink.threads";

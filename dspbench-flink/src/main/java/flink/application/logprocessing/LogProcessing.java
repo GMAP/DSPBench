@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 public class LogProcessing extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogProcessing.class);
+    private int parserThreads;
     private int volumeCountThreads;
     private int statusCountThreads;
     private int geoFinderThreads;
@@ -25,6 +26,7 @@ public class LogProcessing extends AbstractApplication {
 
     @Override
     public void initialize() {
+        parserThreads = config.getInteger(LogProcessingConstants.Conf.PARSER_THREADS, 1);
         volumeCountThreads = config.getInteger(LogProcessingConstants.Conf.VOLUME_COUNTER_THREADS, 1);
         statusCountThreads = config.getInteger(LogProcessingConstants.Conf.STATUS_COUNTER_THREADS, 1);
         geoFinderThreads   = config.getInteger(LogProcessingConstants.Conf.GEO_FINDER_THREADS, 1);
@@ -43,7 +45,7 @@ public class LogProcessing extends AbstractApplication {
         DataStream<String> data = env.addSource(source);
 
         // Parser
-        DataStream<Tuple6<Object, Object, Long, Object, Object, Object>> dataParse = data.map(new CommonLogParser(config));
+        DataStream<Tuple6<Object, Object, Long, Object, Object, Object>> dataParse = data.map(new CommonLogParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple2<Long, Long>> volCount = dataParse.filter(value -> (value.f2 != null)).keyBy(value -> value.f2).flatMap(new VolumeCount(config)).setParallelism(volumeCountThreads);
