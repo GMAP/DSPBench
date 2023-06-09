@@ -28,6 +28,8 @@ public class ClickAnalytics extends AbstractApplication {
 
     @Override
     public void initialize() {
+        sourceThreads        = config.getInteger(ClickAnalyticsConstants.Conf.SOURCE_THREADS, 1);
+        parserThreads        = config.getInteger(ClickAnalyticsConstants.Conf.PARSER_THREADS, 1);
         repeatsThreads       = config.getInteger(ClickAnalyticsConstants.Conf.REPEATS_THREADS, 1);
         geographyThreads     = config.getInteger(ClickAnalyticsConstants.Conf.GEOGRAPHY_THREADS, 1);
         totalStatsThreads    = config.getInteger(ClickAnalyticsConstants.Conf.TOTAL_STATS_THREADS, 1);
@@ -62,9 +64,8 @@ public class ClickAnalytics extends AbstractApplication {
         DataStream<Tuple4<String, Integer, String, Integer>> geoStats = geo.keyBy(value -> value.f0).flatMap(new GeoStats(config)).setParallelism(geoStatsThreads).keyBy(value -> value.f0);
 
         // Sink
-        // YEAHH, could reuse some sinks
-        createSinkLPStatus(visitStats, "visit");
-        createSinkLPGeo(geoStats, "location");
+        createSinkCAStatus(visitStats, "visit");
+        createSinkCAGeo(geoStats, "location");
 
         return env;
     }

@@ -128,6 +128,20 @@ public abstract class AbstractApplication implements Serializable {
         source.createSinkLPGeo(dt, sinkName);
     }
 
+    protected void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {
+        String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS),"flink.sink.ConsoleSink");
+        BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
+        source.initialize(config);
+        source.createSinkCAStatus(dt, sinkName);
+    }
+
+    protected void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
+        String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS),"flink.sink.ConsoleSink");
+        BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
+        source.initialize(config);
+        source.createSinkCAGeo(dt, sinkName);
+    }
+
     /**
      * Utility method to parse a configuration key with the application prefix and
      * component prefix.

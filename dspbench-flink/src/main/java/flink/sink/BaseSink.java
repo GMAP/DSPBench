@@ -39,4 +39,6 @@ public abstract class BaseSink extends Metrics {
     public void createSinkLPVol(DataStream<Tuple2<Long, Long>> dt, String sinkName) {}
     public void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {}
     public void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {}
+    public void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {}
+    public void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {}
 }

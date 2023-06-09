@@ -26,6 +26,7 @@ public class LogProcessing extends AbstractApplication {
 
     @Override
     public void initialize() {
+        sourceThreads = config.getInteger(LogProcessingConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(LogProcessingConstants.Conf.PARSER_THREADS, 1);
         volumeCountThreads = config.getInteger(LogProcessingConstants.Conf.VOLUME_COUNTER_THREADS, 1);
         statusCountThreads = config.getInteger(LogProcessingConstants.Conf.STATUS_COUNTER_THREADS, 1);

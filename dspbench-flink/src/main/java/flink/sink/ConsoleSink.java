@@ -262,7 +262,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 //System.out.println(value);
                 calculate("0", sinkName);
             }
-        });
+        }).setParallelism(config.getInteger(LogProcessingConstants.Conf.STATUS_SINK_THREADS, 1));
     }
 
     @Override
@@ -285,6 +285,50 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(LogProcessingConstants.Conf.GEO_SINK_THREADS, 1));
+    }
+
+    @Override
+    public void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> input, String sinkName) {
+        input.addSink(new RichSinkFunction<Tuple2<Integer, Integer>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple2<Integer, Integer> value, Context context) throws Exception {
+                super.invoke(value, context);
+                //System.out.println(value);
+                calculate("0", sinkName);
+            }
+        }).setParallelism(config.getInteger(ClickAnalyticsConstants.Conf.STATUS_SINK_THREADS, 1));
+    }
+
+    @Override
+    public void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> input, String sinkName) {
+        input.addSink(new RichSinkFunction<Tuple4<String, Integer, String, Integer>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple4<String, Integer, String, Integer> value, Context context) throws Exception {
+                super.invoke(value, context);
+                //System.out.println(value);
+                calculate("0", sinkName);
+            }
+        }).setParallelism(config.getInteger(ClickAnalyticsConstants.Conf.GEO_SINK_THREADS, 1));
     }
 
     public void calculate(String initTime){

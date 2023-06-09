@@ -4,10 +4,14 @@ public interface ClickAnalyticsConstants extends BaseConstants {
     String PREFIX = "ca";
     
     interface Conf extends BaseConf {
+        String SOURCE_THREADS        = "ca.source.threads";
+        String PARSER_THREADS        = "ca.parser.threads";
         String REPEATS_THREADS       = "ca.repeats.threads";
         String GEOGRAPHY_THREADS     = "ca.geography.threads";
         String TOTAL_STATS_THREADS   = "ca.total_stats.threads";
+        String TOTAL_SINK_THREADS      = "ca.visit.sink.threads";
         String GEO_STATS_THREADS     = "ca.geo_stats.threads";
+        String GEO_SINK_THREADS      = "ca.location.sink.threads";
     }
     
     interface Field {
