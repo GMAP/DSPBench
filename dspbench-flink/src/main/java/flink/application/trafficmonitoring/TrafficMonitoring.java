@@ -18,6 +18,8 @@ import java.util.Date;
 public class TrafficMonitoring extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrafficMonitoring.class);
+    private int sourceThreads;
+    private int parserThreads;
     private int mapMatcherThreads;
     private int speedCalcThreads;
 
@@ -27,8 +29,10 @@ public class TrafficMonitoring extends AbstractApplication {
 
     @Override
     public void initialize() {
+        sourceThreads = config.getInteger(TrafficMonitoringConstants.Conf.SOURCE_THREADS, 1);
+        parserThreads = config.getInteger(TrafficMonitoringConstants.Conf.PARSER_THREADS, 1);
         mapMatcherThreads = config.getInteger(TrafficMonitoringConstants.Conf.MAP_MATCHER_THREADS, 1);
-        speedCalcThreads  = config.getInteger(TrafficMonitoringConstants.Conf.SPEED_CALCULATOR_THREADS, 1);
+        speedCalcThreads = config.getInteger(TrafficMonitoringConstants.Conf.SPEED_CALCULATOR_THREADS, 1);
     }
 
     @Override
@@ -40,12 +44,15 @@ public class TrafficMonitoring extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>> dataParse = data.map(new BeijingTaxiParser(config));
+        DataStream<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, String>> dataParse = data
+                .map(new BeijingTaxiParser(config));
 
         // Process
-        DataStream<Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>> mapMatch = dataParse.filter(value -> (value != null)).flatMap(new MapMatching(config)).setParallelism(mapMatcherThreads);
+        DataStream<Tuple9<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer, String>> mapMatch = dataParse
+                .filter(value -> (value != null)).flatMap(new MapMatching(config)).setParallelism(mapMatcherThreads);
 
-        DataStream<Tuple5<Date, Integer, Integer, Integer, String>> speedCalc = mapMatch.keyBy(value -> value.f7).flatMap(new SpeedCalculator(config)).setParallelism(speedCalcThreads);
+        DataStream<Tuple5<Date, Integer, Integer, Integer, String>> speedCalc = mapMatch.keyBy(value -> value.f7)
+                .flatMap(new SpeedCalculator(config)).setParallelism(speedCalcThreads);
 
         // Sink
         createSinkTM(speedCalc);

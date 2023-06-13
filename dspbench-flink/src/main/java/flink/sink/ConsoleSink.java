@@ -66,7 +66,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate(value.f4);
             }
-        });
+        }).setParallelism(config.getInteger(TrafficMonitoringConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate("0");
             }
-        });
+        }).setParallelism(config.getInteger(SpikeDetectionConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate(value.f5);
             }
-        });
+        }).setParallelism(config.getInteger(SentimentAnalysisConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
@@ -134,7 +134,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate(value.f5);
             }
-        });
+        }).setParallelism(config.getInteger(MachineOutlierConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
@@ -156,7 +156,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate(value.f3);
             }
-        });
+        }).setParallelism(config.getInteger(FraudDetectionConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
@@ -178,7 +178,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate(value.f4, sinkName);
             }
-        });
+        }).setParallelism(config.getInteger(SmartGridConstants.Conf.OUTLIER_SINK_THREADS, 1));
     }
 
     @Override
@@ -200,7 +200,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate(value.f3, sinkName);
             }
-        });
+        }).setParallelism(config.getInteger(SmartGridConstants.Conf.PREDICTION_SINK_THREADS, 1));
     }
 
     @Override
@@ -224,7 +224,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 System.out.println(value);
                 calculate(value.f5, sinkName);
             }
-        });
+        }).setParallelism(config.getInteger(SmartGridConstants.Conf.PREDICTION_SINK_THREADS, 1));
     }
 
     @Override
@@ -246,7 +246,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 // System.out.println(value);
                 calculate("0", sinkName);
             }
-        });
+        }).setParallelism(config.getInteger(LogProcessingConstants.Conf.VOLUME_SINK_THREADS, 1));
     }
 
     @Override

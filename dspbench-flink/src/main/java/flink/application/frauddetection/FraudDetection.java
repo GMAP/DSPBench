@@ -15,6 +15,8 @@ public class FraudDetection extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(FraudDetection.class);
 
+    private int sourceThreads;
+    private int parserThreads;
     private int predictorThreads;
 
     public FraudDetection(String appName, Configuration config) {
@@ -23,7 +25,9 @@ public class FraudDetection extends AbstractApplication {
 
     @Override
     public void initialize() {
-        predictorThreads  = config.getInteger(FraudDetectionConstants.Conf.PREDICTOR_THREADS, 1);
+        sourceThreads = config.getInteger(FraudDetectionConstants.Conf.SOURCE_THREADS, 1);
+        parserThreads = config.getInteger(FraudDetectionConstants.Conf.PARSER_THREADS, 1);
+        predictorThreads = config.getInteger(FraudDetectionConstants.Conf.PREDICTOR_THREADS, 1);
     }
 
     @Override
@@ -38,7 +42,8 @@ public class FraudDetection extends AbstractApplication {
         DataStream<Tuple3<String, String, String>> dataParse = data.map(new TransactionParser(config));
 
         // Process
-        DataStream<Tuple4<String, Double, String,String>> fraudPredict = dataParse.keyBy(value -> value.f0).filter(value -> (value != null)).flatMap(new FraudPredictor(config)).setParallelism(predictorThreads);
+        DataStream<Tuple4<String, Double, String, String>> fraudPredict = dataParse.keyBy(value -> value.f0)
+                .filter(value -> (value != null)).flatMap(new FraudPredictor(config)).setParallelism(predictorThreads);
 
         // Sink
         createSinkFD(fraudPredict);

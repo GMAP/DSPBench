@@ -1,6 +1,7 @@
 package flink.application.machineoutiler;
 
 import flink.application.AbstractApplication;
+import flink.constants.LogProcessingConstants;
 import flink.constants.MachineOutlierConstants;
 import flink.parsers.AlibabaMachineUsageParser;
 import org.apache.flink.api.java.tuple.Tuple4;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 public class MachineOutlier extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(MachineOutlier.class);
+    private int sourceThreads;
+    private int parserThreads;
     private int scorerThreads;
     private int anomalyScorerThreads;
     private int alertTriggerThreads;
@@ -25,9 +28,11 @@ public class MachineOutlier extends AbstractApplication {
 
     @Override
     public void initialize() {
-        scorerThreads        = config.getInteger(MachineOutlierConstants.Conf.SCORER_THREADS, 1);
+        sourceThreads = config.getInteger(MachineOutlierConstants.Conf.SOURCE_THREADS, 1);
+        parserThreads = config.getInteger(MachineOutlierConstants.Conf.PARSER_THREADS, 1);
+        scorerThreads = config.getInteger(MachineOutlierConstants.Conf.SCORER_THREADS, 1);
         anomalyScorerThreads = config.getInteger(MachineOutlierConstants.Conf.ANOMALY_SCORER_THREADS, 1);
-        alertTriggerThreads  = config.getInteger(MachineOutlierConstants.Conf.ALERT_TRIGGER_THREADS, 1);
+        alertTriggerThreads = config.getInteger(MachineOutlierConstants.Conf.ALERT_TRIGGER_THREADS, 1);
     }
 
     @Override
@@ -39,14 +44,18 @@ public class MachineOutlier extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple4<String, Long, MachineMetadata, String>> dataParse = data.map(new AlibabaMachineUsageParser(config));
+        DataStream<Tuple4<String, Long, MachineMetadata, String>> dataParse = data
+                .map(new AlibabaMachineUsageParser(config));
 
         // Process
-        DataStream<Tuple5<String, Double, Long, Object, String>> scorer = dataParse.filter(value -> (value != null)).flatMap(new Scorer(config));
+        DataStream<Tuple5<String, Double, Long, Object, String>> scorer = dataParse.filter(value -> (value != null))
+                .flatMap(new Scorer(config));
 
-        DataStream<Tuple6<String, Double, Long, Object, Double, String>> anomaly = scorer.keyBy(value -> value.f0).flatMap(new AnomalyScorer(config));
+        DataStream<Tuple6<String, Double, Long, Object, Double, String>> anomaly = scorer.keyBy(value -> value.f0)
+                .flatMap(new AnomalyScorer(config));
 
-        DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> triggerer = anomaly.flatMap(new Triggerer(config));
+        DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> triggerer = anomaly
+                .flatMap(new Triggerer(config));
 
         // Sink
         createSinkMO(triggerer);
@@ -55,7 +64,9 @@ public class MachineOutlier extends AbstractApplication {
     }
 
     @Override
-    public String getConfigPrefix() { return MachineOutlierConstants.PREFIX; }
+    public String getConfigPrefix() {
+        return MachineOutlierConstants.PREFIX;
+    }
 
     @Override
     public Logger getLogger() {

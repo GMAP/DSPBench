@@ -5,7 +5,6 @@ import flink.constants.SpikeDetectionConstants;
 import flink.parsers.SensorParser;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -17,6 +16,8 @@ import java.util.Date;
 public class SpikeDetection extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpikeDetection.class);
+    private int sourceThreads;
+    private int parserThreads;
     private int movingAverageThreads;
     private int spikeDetectorThreads;
 
@@ -26,6 +27,8 @@ public class SpikeDetection extends AbstractApplication {
 
     @Override
     public void initialize() {
+        parserThreads = config.getInteger(SpikeDetectionConstants.Conf.SOURCE_THREADS, 1);
+        parserThreads = config.getInteger(SpikeDetectionConstants.Conf.PARSER_THREADS, 1);
         movingAverageThreads = config.getInteger(SpikeDetectionConstants.Conf.MOVING_AVERAGE_THREADS, 1);
         spikeDetectorThreads = config.getInteger(SpikeDetectionConstants.Conf.SPIKE_DETECTOR_THREADS, 1);
     }
@@ -42,9 +45,11 @@ public class SpikeDetection extends AbstractApplication {
         DataStream<Tuple3<String, Date, Double>> dataParse = data.map(new SensorParser(config));
 
         // Process
-        DataStream<Tuple3<String, Double, Double>> movingAvg = dataParse.filter(value -> (value != null)).keyBy(value -> value.f0).flatMap(new MovingAverage(config)).setParallelism(movingAverageThreads);
+        DataStream<Tuple3<String, Double, Double>> movingAvg = dataParse.filter(value -> (value != null))
+                .keyBy(value -> value.f0).flatMap(new MovingAverage(config)).setParallelism(movingAverageThreads);
 
-        DataStream<Tuple4<String, Double, Double, String>> spikeDetect = movingAvg.flatMap(new SpikeDetect(config)).setParallelism(spikeDetectorThreads);
+        DataStream<Tuple4<String, Double, Double, String>> spikeDetect = movingAvg.flatMap(new SpikeDetect(config))
+                .setParallelism(spikeDetectorThreads);
 
         // Sink
         createSinkSD(spikeDetect);

@@ -1,6 +1,7 @@
 package flink.application.sentimentanalysis;
 
 import flink.application.AbstractApplication;
+import flink.constants.MachineOutlierConstants;
 import flink.constants.SentimentAnalysisConstants;
 import flink.parsers.JsonTweetParser;
 import org.apache.flink.api.java.tuple.Tuple4;
@@ -16,13 +17,18 @@ import java.util.Date;
 public class SentimentAnalysis extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(SentimentAnalysis.class);
+    private int sourceThreads;
+    private int parserThreads;
     private int classifierThreads;
+
     public SentimentAnalysis(String appName, Configuration config) {
         super(appName, config);
     }
 
     @Override
     public void initialize() {
+        sourceThreads = config.getInteger(SentimentAnalysisConstants.Conf.SOURCE_THREADS, 1);
+        parserThreads = config.getInteger(SentimentAnalysisConstants.Conf.PARSER_THREADS, 1);
         classifierThreads = config.getInteger(SentimentAnalysisConstants.Conf.CLASSIFIER_THREADS, 1);
     }
 
@@ -38,7 +44,9 @@ public class SentimentAnalysis extends AbstractApplication {
         DataStream<Tuple4<String, String, Date, String>> dataParse = data.map(new JsonTweetParser(config));
 
         // Process
-        DataStream<Tuple6<String, String, Date, String, Double, String>> calculate = dataParse.filter(value -> (value != null)).flatMap(new SentimentCalculator(config)).setParallelism(classifierThreads);
+        DataStream<Tuple6<String, String, Date, String, Double, String>> calculate = dataParse
+                .filter(value -> (value != null)).flatMap(new SentimentCalculator(config))
+                .setParallelism(classifierThreads);
 
         // Sink
         createSinkSA(calculate);
