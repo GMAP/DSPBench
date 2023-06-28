@@ -219,3 +219,7 @@ buildNumber.properties
 /dspbench-spark/.gradle/
 /dspbench-spark/.gradle/buildOutputCleanup/
 .vscode/settings.json
+
+dspbench-flink/bin/main/config/*
+dspbench-flink/bin/main/frauddetection/*
+dspbench-flink/bin/main/sentimentanalysis/*
