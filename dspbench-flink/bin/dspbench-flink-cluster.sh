@@ -27,6 +27,6 @@ function readProperty() {
 
 echo "$APP_CONFIG_STR"
 
-cd ~/Documents/flink-1.15.1/bin/;./flink run -c flink.FlinkRunner $JAR_PATH --app $APP_NAME --config $APP_CONFIG_STR
+cd ~/Documents/flink-1.15.1/bin/;./flink run --detached  -c flink.FlinkRunner $JAR_PATH --app $APP_NAME --config $APP_CONFIG_STR
 
 # storm jar $JAR_PATH org.dspbench.StormRunner --app $APP_NAME --config-str $APP_CONFIG_STR --mode remote
