@@ -3,6 +3,8 @@ package flink.application.trafficmonitoring;
 import flink.application.AbstractApplication;
 import flink.constants.TrafficMonitoringConstants;
 import flink.parsers.BeijingTaxiParser;
+import flink.source.InfSourceFunction;
+
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.api.java.tuple.Tuple9;
@@ -41,11 +43,14 @@ public class TrafficMonitoring extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> data = createSource();
+        // DataStream<String> data = createSource();
+
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
         DataStream<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, String>> dataParse = data
-                .map(new BeijingTaxiParser(config));
+                .map(new BeijingTaxiParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple9<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer, String>> mapMatch = dataParse

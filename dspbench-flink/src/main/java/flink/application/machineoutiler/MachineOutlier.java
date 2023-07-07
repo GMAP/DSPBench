@@ -1,9 +1,10 @@
 package flink.application.machineoutiler;
 
 import flink.application.AbstractApplication;
-import flink.constants.LogProcessingConstants;
 import flink.constants.MachineOutlierConstants;
 import flink.parsers.AlibabaMachineUsageParser;
+import flink.source.InfSourceFunction;
+
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.tuple.Tuple6;
@@ -41,21 +42,24 @@ public class MachineOutlier extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> data = createSource();
+        // DataStream<String> data = createSource();
+
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
         DataStream<Tuple4<String, Long, MachineMetadata, String>> dataParse = data
-                .map(new AlibabaMachineUsageParser(config));
+                .map(new AlibabaMachineUsageParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple5<String, Double, Long, Object, String>> scorer = dataParse.filter(value -> (value != null))
-                .flatMap(new Scorer(config));
+                .flatMap(new Scorer(config)).setParallelism(scorerThreads);
 
         DataStream<Tuple6<String, Double, Long, Object, Double, String>> anomaly = scorer.keyBy(value -> value.f0)
-                .flatMap(new AnomalyScorer(config));
+                .flatMap(new AnomalyScorer(config)).setParallelism(anomalyScorerThreads);
 
         DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> triggerer = anomaly
-                .flatMap(new Triggerer(config));
+                .flatMap(new Triggerer(config)).setParallelism(alertTriggerThreads);
 
         // Sink
         createSinkMO(triggerer);

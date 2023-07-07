@@ -3,6 +3,8 @@ package flink.application.spikedetection;
 import flink.application.AbstractApplication;
 import flink.constants.SpikeDetectionConstants;
 import flink.parsers.SensorParser;
+import flink.source.InfSourceFunction;
+
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
@@ -39,10 +41,14 @@ public class SpikeDetection extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> data = createSource();
+        // DataStream<String> data = createSource();
+
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
-        DataStream<Tuple3<String, Date, Double>> dataParse = data.map(new SensorParser(config));
+        DataStream<Tuple3<String, Date, Double>> dataParse = data.map(new SensorParser(config))
+                .setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple3<String, Double, Double>> movingAvg = dataParse.filter(value -> (value != null))

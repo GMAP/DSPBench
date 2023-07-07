@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import flink.application.AbstractApplication;
 import flink.constants.ClickAnalyticsConstants;
 import flink.parsers.ClickStreamParser;
+import flink.source.InfSourceFunction;
 
 public class ClickAnalytics extends AbstractApplication {
 
@@ -45,10 +46,14 @@ public class ClickAnalytics extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> data = createSource();
+        // DataStream<String> data = createSource();
+
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
-        DataStream<Tuple3<String, String, String>> dataParse = data.map(new ClickStreamParser(config));
+        DataStream<Tuple3<String, String, String>> dataParse = data.map(new ClickStreamParser(config))
+                .setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple3<String, String, String>> repVisit = dataParse.keyBy(

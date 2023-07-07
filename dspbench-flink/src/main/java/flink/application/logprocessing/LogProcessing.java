@@ -44,7 +44,7 @@ public class LogProcessing extends AbstractApplication {
         // DataStream<String> data = createSource();
 
         InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
-        DataStream<String> data = env.addSource(source);
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
         DataStream<Tuple6<Object, Object, Long, Object, Object, Object>> dataParse = data

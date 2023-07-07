@@ -3,6 +3,8 @@ package flink.application.frauddetection;
 import flink.application.AbstractApplication;
 import flink.constants.FraudDetectionConstants;
 import flink.parsers.TransactionParser;
+import flink.source.InfSourceFunction;
+
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
@@ -36,10 +38,14 @@ public class FraudDetection extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> data = createSource();
+        // DataStream<String> data = createSource();
+
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
-        DataStream<Tuple3<String, String, String>> dataParse = data.map(new TransactionParser(config));
+        DataStream<Tuple3<String, String, String>> dataParse = data.map(new TransactionParser(config))
+                .setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple4<String, Double, String, String>> fraudPredict = dataParse.keyBy(value -> value.f0)

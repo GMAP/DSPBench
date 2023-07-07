@@ -2,7 +2,6 @@ package flink.application.wordcount;
 
 import flink.application.AbstractApplication;
 import flink.constants.WordCountConstants;
-import flink.parsers.StringParserInf;
 import flink.parsers.StringParser;
 import flink.source.InfSourceFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
@@ -43,25 +42,25 @@ public class WordCount extends AbstractApplication {
         // DataStream<String> data = createSource();
 
         InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
-        DataStream<String> data = env.addSource(source);
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // ParserInf
         // DataStream<Tuple1<String>> dataParse = data.flatMap(new
         // StringParserInf(config));
 
         // Parser
-        DataStream<Tuple1<String>> dataParse = data.map(new StringParser(config));
+        DataStream<Tuple1<String>> dataParse = data.map(new StringParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple2<String, Integer>> splitter = (dataParse.filter(value -> (value.f0 != null))
-                .flatMap(new Splitter(config)).setParallelism(splitSentenceThreads).keyBy(value -> value.f0).sum(1))
-                .setParallelism(splitSentenceThreads);
+                .flatMap(new Splitter(config)).setParallelism(splitSentenceThreads));// .keyBy(value ->
+                                                                                     // value.f0).sum(1)).setParallelism(splitSentenceThreads);
 
-        // DataStream<Tuple2<String, Integer>> count = splitter.keyBy(value ->
-        // value.f0).flatMap(new Counter(config)).setParallelism(wordCountThreads);
+        DataStream<Tuple2<String, Integer>> count = splitter.keyBy(value -> value.f0).flatMap(new Counter(config))
+                .setParallelism(wordCountThreads);
 
         // Sink
-        createSinkWC(splitter);
+        createSinkWC(count);
 
         return env;
     }

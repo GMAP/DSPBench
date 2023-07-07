@@ -3,6 +3,8 @@ package flink.application.smartgrid;
 import flink.application.AbstractApplication;
 import flink.constants.SmartGridConstants;
 import flink.parsers.SmartPlugParser;
+import flink.source.InfSourceFunction;
+
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
@@ -52,11 +54,14 @@ public class SmartGrid extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> data = createSource();
+        // DataStream<String> data = createSource();
+
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
         DataStream<Tuple8<String, Long, Double, Integer, String, String, String, String>> dataParse = data
-                .map(new SmartPlugParser(config));
+                .map(new SmartPlugParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple7<Long, String, String, String, Double, Integer, String>> slideWindow = dataParse
