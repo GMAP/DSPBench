@@ -40,7 +40,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple2<String, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                // System.out.println(value);
+                System.out.println(value);
                 calculate("0");
             }
         }).setParallelism(config.getInteger(WordCountConstants.Conf.SINK_THREADS, 1));
@@ -243,7 +243,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple2<Long, Long> value, Context context) throws Exception {
                 super.invoke(value, context);
-                // System.out.println(value);
+                System.out.println(value);
                 calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(LogProcessingConstants.Conf.VOLUME_SINK_THREADS, 1));
@@ -265,7 +265,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple2<Integer, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                // System.out.println(value);
+                System.out.println(value);
                 calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(LogProcessingConstants.Conf.STATUS_SINK_THREADS, 1));
@@ -287,7 +287,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple4<String, Integer, String, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                // System.out.println(value);
+                System.out.println(value);
                 calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(LogProcessingConstants.Conf.GEO_SINK_THREADS, 1));
@@ -309,7 +309,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple2<Integer, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                // System.out.println(value);
+                System.out.println(value);
                 calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(ClickAnalyticsConstants.Conf.TOTAL_SINK_THREADS, 1));
@@ -331,7 +331,7 @@ public class ConsoleSink extends BaseSink implements Serializable {
             @Override
             public void invoke(Tuple4<String, Integer, String, Integer> value, Context context) throws Exception {
                 super.invoke(value, context);
-                // System.out.println(value);
+                System.out.println(value);
                 calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(ClickAnalyticsConstants.Conf.GEO_SINK_THREADS, 1));
