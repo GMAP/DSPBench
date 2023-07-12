@@ -89,6 +89,9 @@ def restart_cluster():
     stop_cluster() #os.system('~/flink-1.17.1/bin/stop-cluster.sh')
     time.sleep(15)
     os.system('sync; echo 1 > /proc/sys/vm/drop_caches')
+    os.popen('ssh sup1 "sync; echo 1 > /proc/sys/vm/drop_caches"').read()
+    os.popen('ssh sup2 "sync; echo 1 > /proc/sys/vm/drop_caches"').read()
+    os.popen('ssh sup3 "sync; echo 1 > /proc/sys/vm/drop_caches"').read()
     time.sleep(5)
     start_cluster() #os.system('~/flink-1.17.1/bin/start-cluster.sh')
     time.sleep(15)
@@ -110,7 +113,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("clickanalytics")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("clickanalytics",init_time, end_time)
@@ -123,7 +126,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("frauddetection")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("frauddetection",init_time, end_time)
@@ -136,7 +139,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("logprocessing")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("logprocessing",init_time, end_time)
@@ -149,7 +152,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("machineoutlier")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("machineoutlier",init_time, end_time)
@@ -162,7 +165,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("sentimentanalysis")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("sentimentanalysis",init_time, end_time)
@@ -175,7 +178,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("smartgrid")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("smartgrid",init_time, end_time)
@@ -188,7 +191,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("spikedetection")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("spikedetection",init_time, end_time)
@@ -201,7 +204,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("trafficmonitoring")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("trafficmonitoring",init_time, end_time)
@@ -214,7 +217,7 @@ for i in range(1,6):
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("wordcount")
-    time.sleep(300)
+    time.sleep(600)
     cancel_job()
     end_time = datetime.datetime.now()
     time_txt("wordcount",init_time, end_time)
