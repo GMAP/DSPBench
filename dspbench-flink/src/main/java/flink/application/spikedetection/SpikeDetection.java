@@ -29,7 +29,7 @@ public class SpikeDetection extends AbstractApplication {
 
     @Override
     public void initialize() {
-        parserThreads = config.getInteger(SpikeDetectionConstants.Conf.SOURCE_THREADS, 1);
+        sourceThreads = config.getInteger(SpikeDetectionConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(SpikeDetectionConstants.Conf.PARSER_THREADS, 1);
         movingAverageThreads = config.getInteger(SpikeDetectionConstants.Conf.MOVING_AVERAGE_THREADS, 1);
         spikeDetectorThreads = config.getInteger(SpikeDetectionConstants.Conf.SPIKE_DETECTOR_THREADS, 1);
