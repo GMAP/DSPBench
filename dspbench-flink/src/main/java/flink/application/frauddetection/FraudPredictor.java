@@ -14,7 +14,8 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FraudPredictor extends Metrics implements FlatMapFunction<Tuple3<String, String, String>, Tuple4<String, Double, String,String>> {
+public class FraudPredictor extends Metrics
+        implements FlatMapFunction<Tuple3<String, String, String>, Tuple4<String, Double, String, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(FraudPredictor.class);
 
@@ -27,7 +28,7 @@ public class FraudPredictor extends Metrics implements FlatMapFunction<Tuple3<St
         this.config = config;
     }
 
-    private ModelBasedPredictor createPred(){
+    private ModelBasedPredictor createPred() {
         String strategy = config.getString(FraudDetectionConstants.Conf.PREDICTOR_MODEL, "mm");
         if (predictor == null && strategy.equals("mm")) {
             predictor = new MarkovModelPredictor(config);
@@ -37,9 +38,10 @@ public class FraudPredictor extends Metrics implements FlatMapFunction<Tuple3<St
     }
 
     @Override
-    public void flatMap(Tuple3<String, String, String> input, Collector<Tuple4<String, Double, String, String>> out){
+    public void flatMap(Tuple3<String, String, String> input, Collector<Tuple4<String, Double, String, String>> out) {
         super.initialize(config);
         createPred();
+        super.incReceived();
         String entityID = input.getField(0);
         String record = input.getField(1);
         String initTime = input.getField(2);
@@ -48,6 +50,7 @@ public class FraudPredictor extends Metrics implements FlatMapFunction<Tuple3<St
 
         // send outliers
         if (p.isOutlier()) {
+            super.incEmitted();
             out.collect(new Tuple4<>(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), initTime));
         }
         super.calculateThroughput();

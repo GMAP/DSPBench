@@ -33,7 +33,7 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple3<S
             .put("volt", 7)
             .build();
 
-    public SensorParser(Configuration config){
+    public SensorParser(Configuration config) {
         super.initialize(config);
         this.config = config;
         valueField = config.getString(SpikeDetectionConstants.Conf.PARSER_VALUE_FIELD, "temp");
@@ -55,7 +55,7 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple3<S
         String[] temp = value.split("\\s+");
 
         if (temp.length != 8)
-            return null;
+            return new Tuple3<>(null, null, 0.0);// return null;
 
         String dateStr = String.format("%s %s", temp[0], temp[1]);
         DateTime date = null;
@@ -67,7 +67,7 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple3<S
                 date = formatter.parseDateTime(dateStr);
             } catch (IllegalArgumentException ex2) {
                 System.out.println("Error parsing record date/time field, input record: " + value + ", " + ex2);
-                return null;
+                return new Tuple3<>(null, null, 0.0);// return null;
             }
         }
 
@@ -75,13 +75,12 @@ public class SensorParser extends Parser implements MapFunction<String, Tuple3<S
             return new Tuple3<>(
                     temp[3],
                     date.toDate(),
-                    Double.parseDouble(temp[valueFieldKey])
-            );
+                    Double.parseDouble(temp[valueFieldKey]));
         } catch (NumberFormatException ex) {
             System.out.println("Error parsing record numeric field, input record: " + value + ", " + ex);
         }
 
-        return null;
+        return new Tuple3<>(null, null, 0.0);// return null;
     }
 
     @Override

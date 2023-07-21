@@ -51,7 +51,7 @@ public class SpikeDetection extends AbstractApplication {
                 .setParallelism(parserThreads);
 
         // Process
-        DataStream<Tuple3<String, Double, Double>> movingAvg = dataParse.filter(value -> (value != null))
+        DataStream<Tuple3<String, Double, Double>> movingAvg = dataParse.filter(value -> (value.f0 != null))
                 .keyBy(value -> value.f0).flatMap(new MovingAverage(config)).setParallelism(movingAverageThreads);
 
         DataStream<Tuple4<String, Double, Double, String>> spikeDetect = movingAvg.flatMap(new SpikeDetect(config))
