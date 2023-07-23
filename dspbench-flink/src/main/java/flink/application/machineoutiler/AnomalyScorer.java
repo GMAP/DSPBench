@@ -14,7 +14,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-public class AnomalyScorer extends Metrics implements FlatMapFunction<Tuple5<String, Double, Long, Object,String>, Tuple6<String, Double, Long, Object, Double, String>> {
+public class AnomalyScorer extends Metrics implements
+        FlatMapFunction<Tuple5<String, Double, Long, Object, String>, Tuple6<String, Double, Long, Object, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnomalyScorer.class);
 
@@ -40,10 +41,12 @@ public class AnomalyScorer extends Metrics implements FlatMapFunction<Tuple5<Str
     }
 
     @Override
-    public void flatMap(Tuple5<String, Double, Long, Object,String> input, Collector<Tuple6<String, Double, Long, Object, Double, String>> out) {
+    public void flatMap(Tuple5<String, Double, Long, Object, String> input,
+            Collector<Tuple6<String, Double, Long, Object, Double, String>> out) {
         super.initialize(config);
+        super.incBoth();
         getWindow();
-        long timestamp =  input.getField(2);
+        long timestamp = input.getField(2);
         String id = input.getField(0);
         double dataInstanceAnomalyScore = input.getField(1);
 
@@ -64,7 +67,7 @@ public class AnomalyScorer extends Metrics implements FlatMapFunction<Tuple5<Str
             sumScore += score;
         }
 
-        out.collect(new Tuple6<String, Double, Long, Object, Double, String>(id, sumScore, timestamp, input.getField(3), dataInstanceAnomalyScore, input.f4));
-        super.calculateThroughput();
+        out.collect(new Tuple6<String, Double, Long, Object, Double, String>(id, sumScore, timestamp, input.getField(3),
+                dataInstanceAnomalyScore, input.f4));
     }
 }

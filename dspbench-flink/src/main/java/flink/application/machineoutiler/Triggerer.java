@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String, Double, Long, Object, Double, String>, Tuple6<String, Double, Long, Boolean, Object, String>> {
+public class Triggerer extends Metrics implements
+        FlatMapFunction<Tuple6<String, Double, Long, Object, Double, String>, Tuple6<String, Double, Long, Boolean, Object, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Triggerer.class);
 
@@ -39,8 +40,10 @@ public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String,
     }
 
     @Override
-    public void flatMap(Tuple6<String, Double, Long, Object, Double, String> input, Collector<Tuple6<String, Double, Long, Boolean, Object, String>> out) {
+    public void flatMap(Tuple6<String, Double, Long, Object, Double, String> input,
+            Collector<Tuple6<String, Double, Long, Boolean, Object, String>> out) {
         super.initialize(config);
+        super.incReceived();
         getList();
 
         long timestamp = input.getField(2);
@@ -68,7 +71,10 @@ public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String,
                     }
 
                     if (isAbnormal) {
-                        out.collect(new Tuple6<String, Double, Long, Boolean, Object,String>(streamProfile.getField(0), streamScore, streamProfile.getField(2), isAbnormal, streamProfile.getField(3), input.f5));
+                        super.incEmitted();
+                        out.collect(new Tuple6<String, Double, Long, Boolean, Object, String>(streamProfile.getField(0),
+                                streamScore, streamProfile.getField(2), isAbnormal, streamProfile.getField(3),
+                                input.f5));
                     }
                 }
 
@@ -90,7 +96,6 @@ public class Triggerer extends Metrics implements FlatMapFunction<Tuple6<String,
         }
 
         streamList.add(input);
-        super.calculateThroughput();
     }
 
     private List<Tuple> identifyAbnormalStreams() {

@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Long, MachineMetadata, String>, Tuple5<String, Double, Long, Object,String>> {
+public class Scorer extends Metrics implements
+        FlatMapFunction<Tuple4<String, Long, MachineMetadata, String>, Tuple5<String, Double, Long, Object, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Scorer.class);
 
@@ -29,7 +30,7 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Lo
         this.config = config;
     }
 
-    private  List<Object> getList() {
+    private List<Object> getList() {
         if (observationList == null) {
             observationList = new ArrayList<>();
         }
@@ -47,8 +48,10 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Lo
     }
 
     @Override
-    public void flatMap(Tuple4<String, Long, MachineMetadata, String> input, Collector<Tuple5<String, Double, Long, Object,String>> out) {
+    public void flatMap(Tuple4<String, Long, MachineMetadata, String> input,
+            Collector<Tuple5<String, Double, Long, Object, String>> out) {
         super.initialize(config);
+        super.incReceived();
         getList();
         createScorer(config);
         long timestamp = input.getField(1);
@@ -57,7 +60,9 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Lo
             if (!observationList.isEmpty()) {
                 List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                 for (ScorePackage scorePackage : scorePackageList) {
-                    out.collect(new Tuple5<String, Double, Long, Object, String>(scorePackage.getId(), scorePackage.getScore(), previousTimestamp, scorePackage.getObj(), input.f3));
+                    super.incEmitted();
+                    out.collect(new Tuple5<String, Double, Long, Object, String>(scorePackage.getId(),
+                            scorePackage.getScore(), previousTimestamp, scorePackage.getObj(), input.f3));
                 }
                 observationList.clear();
             }
@@ -65,6 +70,5 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple4<String, Lo
             previousTimestamp = timestamp;
         }
         observationList.add(input.getField(2));
-        super.calculateThroughput();
     }
 }
