@@ -10,13 +10,14 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 
-public class AlibabaMachineUsageParser extends Parser implements MapFunction<String, Tuple4<String, Long, MachineMetadata, String>> {
+public class AlibabaMachineUsageParser extends Parser
+        implements MapFunction<String, Tuple4<String, Long, MachineMetadata, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlibabaMachineUsageParser.class);
 
     Configuration config;
 
-    public AlibabaMachineUsageParser(Configuration config){
+    public AlibabaMachineUsageParser(Configuration config) {
         super.initialize(config);
         this.config = config;
     }
@@ -24,14 +25,14 @@ public class AlibabaMachineUsageParser extends Parser implements MapFunction<Str
     @Override
     public Tuple4<String, Long, MachineMetadata, String> map(String value) throws Exception {
         super.initialize(config);
-        super.calculateThroughput();
+        super.incBoth();
         String[] temp = value.split(",");
         return new Tuple4<>(
-            temp[0],
-            Long.parseLong(temp[1]) * 1000,
-            new MachineMetadata(Long.parseLong(temp[1]) * 1000, temp[0], Double.parseDouble(temp[2]), Double.parseDouble(temp[3])),
-            Instant.now().toEpochMilli() + ""
-        );
+                temp[0],
+                Long.parseLong(temp[1]) * 1000,
+                new MachineMetadata(Long.parseLong(temp[1]) * 1000, temp[0], Double.parseDouble(temp[2]),
+                        Double.parseDouble(temp[3])),
+                Instant.now().toEpochMilli() + "");
     }
 
     @Override
