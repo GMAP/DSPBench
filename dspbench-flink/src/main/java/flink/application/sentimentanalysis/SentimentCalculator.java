@@ -15,7 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-public class SentimentCalculator extends Metrics implements FlatMapFunction<Tuple4<String, String, Date, String>, Tuple6<String, String, Date, String, Double, String>> {
+public class SentimentCalculator extends Metrics implements
+        FlatMapFunction<Tuple4<String, String, Date, String>, Tuple6<String, String, Date, String, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SentimentCalculator.class);
 
@@ -26,13 +27,16 @@ public class SentimentCalculator extends Metrics implements FlatMapFunction<Tupl
     public SentimentCalculator(Configuration config) {
         super.initialize(config);
         this.config = config;
-        String classifierType = config.getString(SentimentAnalysisConstants.Conf.CLASSIFIER_TYPE, SentimentClassifierFactory.BASIC);
+        String classifierType = config.getString(SentimentAnalysisConstants.Conf.CLASSIFIER_TYPE,
+                SentimentClassifierFactory.BASIC);
         classifier = SentimentClassifierFactory.create(classifierType, config);
     }
 
     @Override
-    public void flatMap(Tuple4<String, String, Date, String> input, Collector<Tuple6<String, String, Date, String, Double, String>> out) {
+    public void flatMap(Tuple4<String, String, Date, String> input,
+            Collector<Tuple6<String, String, Date, String, Double, String>> out) {
         super.initialize(config);
+        super.incBoth();
         String tweetId = input.getField(0);
         String text = input.getField(1);
         Date timestamp = input.getField(2);
@@ -40,7 +44,7 @@ public class SentimentCalculator extends Metrics implements FlatMapFunction<Tupl
 
         SentimentResult result = classifier.classify(text);
 
-        out.collect(new Tuple6<String, String, Date, String, Double, String>(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore(), time));
-        super.calculateThroughput();
+        out.collect(new Tuple6<String, String, Date, String, Double, String>(tweetId, text, timestamp,
+                result.getSentiment().toString(), result.getScore(), time));
     }
 }

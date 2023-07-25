@@ -16,20 +16,21 @@ import java.util.Date;
 
 /**
  */
-public class JsonTweetParser extends JsonParser  implements MapFunction<String, Tuple4<String, String, Date, String>> {
+public class JsonTweetParser extends JsonParser implements MapFunction<String, Tuple4<String, String, Date, String>> {
     private static final Logger LOG = LoggerFactory.getLogger(JsonTweetParser.class);
-    private static final DateTimeFormatter datetimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private static final DateTimeFormatter datetimeFormatter = DateTimeFormat
+            .forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     Configuration config;
 
-    public JsonTweetParser(Configuration config){
+    public JsonTweetParser(Configuration config) {
         super.initialize(config);
         this.config = config;
     }
 
     public Tuple4<String, String, Date, String> map(String input) {
         super.initialize(config);
-        super.calculateThroughput();
+        super.incBoth();
 
         Tuple1<JSONObject> parsed = super.parse(input);
 
@@ -46,6 +47,7 @@ public class JsonTweetParser extends JsonParser  implements MapFunction<String, 
         String text = (String) tweet.get("text");
         DateTime timestamp = datetimeFormatter.parseDateTime((String) tweet.get("created_at"));
 
-        return new Tuple4<String, String, Date, String>(id, text, timestamp.toDate(), Instant.now().toEpochMilli() + "");
+        return new Tuple4<String, String, Date, String>(id, text, timestamp.toDate(),
+                Instant.now().toEpochMilli() + "");
     }
 }
