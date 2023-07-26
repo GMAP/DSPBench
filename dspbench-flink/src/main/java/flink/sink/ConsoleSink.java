@@ -92,8 +92,8 @@ public class ConsoleSink extends BaseSink implements Serializable {
     }
 
     @Override
-    public void sinkStreamSA(DataStream<Tuple6<String, String, Date, String, Double, String>> input) {
-        input.addSink(new RichSinkFunction<Tuple6<String, String, Date, String, Double, String>>() {
+    public void sinkStreamSA(DataStream<Tuple5<String, String, Date, String, Double>> input) {
+        input.addSink(new RichSinkFunction<Tuple5<String, String, Date, String, Double>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -105,11 +105,11 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple6<String, String, Date, String, Double, String> value, Context context)
+            public void invoke(Tuple5<String, String, Date, String, Double> value, Context context)
                     throws Exception {
                 super.invoke(value, context);
                 // System.out.println(value);
-                calculate(value.f5);
+                calculate("0");
             }
         }).setParallelism(config.getInteger(SentimentAnalysisConstants.Conf.SINK_THREADS, 1));
     }

@@ -6,8 +6,8 @@ import flink.constants.SentimentAnalysisConstants;
 import flink.parsers.JsonTweetParser;
 import flink.source.InfSourceFunction;
 
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple6;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -46,11 +46,11 @@ public class SentimentAnalysis extends AbstractApplication {
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
-        DataStream<Tuple4<String, String, Date, String>> dataParse = data.map(new JsonTweetParser(config))
+        DataStream<Tuple3<String, String, Date>> dataParse = data.map(new JsonTweetParser(config))
                 .setParallelism(parserThreads);
 
         // Process
-        DataStream<Tuple6<String, String, Date, String, Double, String>> calculate = dataParse
+        DataStream<Tuple5<String, String, Date, String, Double>> calculate = dataParse
                 .filter(value -> (value != null)).flatMap(new SentimentCalculator(config))
                 .setParallelism(classifierThreads);
 
