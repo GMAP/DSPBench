@@ -5,7 +5,9 @@ import flink.constants.TrafficMonitoringConstants;
 import flink.parsers.BeijingTaxiParser;
 import flink.source.InfSourceFunction;
 
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.configuration.Configuration;
@@ -49,14 +51,14 @@ public class TrafficMonitoring extends AbstractApplication {
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
-        DataStream<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, String>> dataParse = data
+        DataStream<Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double>> dataParse = data
                 .map(new BeijingTaxiParser(config)).setParallelism(parserThreads);
 
         // Process
-        DataStream<Tuple9<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer, String>> mapMatch = dataParse
+        DataStream<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>> mapMatch = dataParse
                 .filter(value -> (value != null)).flatMap(new MapMatching(config)).setParallelism(mapMatcherThreads);
 
-        DataStream<Tuple5<Date, Integer, Integer, Integer, String>> speedCalc = mapMatch.keyBy(value -> value.f7)
+        DataStream<Tuple4<Date, Integer, Integer, Integer>> speedCalc = mapMatch.keyBy(value -> value.f7)
                 .flatMap(new SpeedCalculator(config)).setParallelism(speedCalcThreads);
 
         // Sink

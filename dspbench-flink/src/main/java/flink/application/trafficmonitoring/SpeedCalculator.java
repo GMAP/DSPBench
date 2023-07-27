@@ -3,8 +3,8 @@ package flink.application.trafficmonitoring;
 import flink.application.trafficmonitoring.gis.Road;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple9;
+import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.joda.time.DateTime;
@@ -15,7 +15,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpeedCalculator extends Metrics implements FlatMapFunction<Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String>, Tuple5<Date, Integer, Integer, Integer, String>>  {
+public class SpeedCalculator extends Metrics implements
+        FlatMapFunction<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>, Tuple4<Date, Integer, Integer, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeedCalculator.class);
 
@@ -30,10 +31,12 @@ public class SpeedCalculator extends Metrics implements FlatMapFunction<Tuple9<S
     }
 
     @Override
-    public void flatMap(Tuple9<String, DateTime, Boolean,Integer, Integer, Double, Double, Integer, String> input, Collector<Tuple5<Date, Integer, Integer, Integer, String>> out){
+    public void flatMap(Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer> input,
+            Collector<Tuple4<Date, Integer, Integer, Integer>> out) {
         super.initialize(config);
+        super.incBoth();
         int roadID = input.getField(7);
-        int speed  = input.getField(3);
+        int speed = input.getField(3);
 
         int averageSpeed = 0;
         int count = 0;
@@ -60,7 +63,7 @@ public class SpeedCalculator extends Metrics implements FlatMapFunction<Tuple9<S
                     sum += it;
                 }
 
-                averageSpeed = (int)((double)sum/(double)road.getRoadSpeedSize());
+                averageSpeed = (int) ((double) sum / (double) road.getRoadSpeedSize());
                 road.setAverageSpeed(averageSpeed);
                 count = road.getRoadSpeedSize();
             } else {
@@ -69,10 +72,10 @@ public class SpeedCalculator extends Metrics implements FlatMapFunction<Tuple9<S
 
                 for (int it : road.getRoadSpeed()) {
                     sum += it;
-                    temp += Math.pow((it-avgLast), 2);
+                    temp += Math.pow((it - avgLast), 2);
                 }
 
-                int avgCurrent = (int) ((sum + speed)/((double)road.getRoadSpeedSize() + 1));
+                int avgCurrent = (int) ((sum + speed) / ((double) road.getRoadSpeedSize() + 1));
                 temp = (temp + Math.pow((speed - avgLast), 2)) / (road.getRoadSpeedSize());
                 double stdDev = Math.sqrt(temp);
 
@@ -87,7 +90,8 @@ public class SpeedCalculator extends Metrics implements FlatMapFunction<Tuple9<S
             }
         }
 
-        out.collect(new Tuple5<Date, Integer, Integer, Integer, String>(new Date(), roadID, averageSpeed, count, input.f8));
-        super.calculateThroughput();
+        out.collect(
+                new Tuple4<Date, Integer, Integer, Integer>(new Date(), roadID, averageSpeed, count));
+
     }
 }

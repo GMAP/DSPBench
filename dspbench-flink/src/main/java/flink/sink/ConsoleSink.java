@@ -47,8 +47,8 @@ public class ConsoleSink extends BaseSink implements Serializable {
     }
 
     @Override
-    public void sinkStreamTM(DataStream<Tuple5<Date, Integer, Integer, Integer, String>> input) {
-        input.addSink(new RichSinkFunction<Tuple5<Date, Integer, Integer, Integer, String>>() {
+    public void sinkStreamTM(DataStream<Tuple4<Date, Integer, Integer, Integer>> input) {
+        input.addSink(new RichSinkFunction<Tuple4<Date, Integer, Integer, Integer>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -60,11 +60,11 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple5<Date, Integer, Integer, Integer, String> value, Context context)
+            public void invoke(Tuple4<Date, Integer, Integer, Integer> value, Context context)
                     throws Exception {
                 super.invoke(value, context);
                 // System.out.println(value);
-                calculate(value.f4);
+                calculate("0");
             }
         }).setParallelism(config.getInteger(TrafficMonitoringConstants.Conf.SINK_THREADS, 1));
     }

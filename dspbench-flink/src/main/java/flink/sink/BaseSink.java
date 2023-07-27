@@ -29,7 +29,7 @@ public abstract class BaseSink extends Metrics {
     public void sinkStreamWC(DataStream<Tuple2<String, Integer>> dt) {
     }
 
-    public void sinkStreamTM(DataStream<Tuple5<Date, Integer, Integer, Integer, String>> dt) {
+    public void sinkStreamTM(DataStream<Tuple4<Date, Integer, Integer, Integer>> dt) {
     }
 
     public void sinkStreamSD(DataStream<Tuple4<String, Double, Double, String>> dt) {

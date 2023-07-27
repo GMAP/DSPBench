@@ -2,30 +2,30 @@ package flink.parsers;
 
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.tuple.Tuple8;
+import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.time.Instant;
-
 /**
  *
  */
-public class BeijingTaxiParser extends Metrics implements MapFunction<String, Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String>> {
+public class BeijingTaxiParser extends Metrics
+        implements MapFunction<String, Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double>> {
 
     Configuration config;
 
-    public BeijingTaxiParser(Configuration config){
+    public BeijingTaxiParser(Configuration config) {
         super.initialize(config);
         this.config = config;
     }
 
     @Override
-    public Tuple8<String, DateTime, Boolean,Integer, Integer, Double, Double, String> map(String value) throws Exception {
+    public Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double> map(String value)
+            throws Exception {
         super.initialize(config);
-        super.calculateThroughput();
+        super.incReceived();
 
         String[] temp = value.split(",");
         DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -34,15 +34,17 @@ public class BeijingTaxiParser extends Metrics implements MapFunction<String, Tu
             return null;
 
         try {
-            String carId  = temp[0];
+            String carId = temp[0];
             DateTime date = formatter.parseDateTime(temp[2]);
-            boolean occ   = true;
-            double lat    = Double.parseDouble(temp[3]);
-            double lon    = Double.parseDouble(temp[4]);
-            int speed     = ((Double)Double.parseDouble(temp[5])).intValue();
-            int bearing   = Integer.parseInt(temp[6]);
+            boolean occ = true;
+            double lat = Double.parseDouble(temp[3]);
+            double lon = Double.parseDouble(temp[4]);
+            int speed = ((Double) Double.parseDouble(temp[5])).intValue();
+            int bearing = Integer.parseInt(temp[6]);
 
-            return new Tuple8<>(carId, date, occ, speed, bearing, lat, lon, Instant.now().toEpochMilli() + "");
+            super.incEmitted();
+
+            return new Tuple7<>(carId, date, occ, speed, bearing, lat, lon);
 
         } catch (NumberFormatException ex) {
             System.out.println("Error parsing numeric value " + ex);
@@ -51,5 +53,5 @@ public class BeijingTaxiParser extends Metrics implements MapFunction<String, Tu
         }
         return null;
     }
-    
+
 }
