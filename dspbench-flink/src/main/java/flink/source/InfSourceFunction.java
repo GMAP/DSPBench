@@ -12,17 +12,21 @@ import java.util.Scanner;
 public class InfSourceFunction extends RichSourceFunction<String> {
     private volatile boolean isRunning = true;
     private String sourcePath;
+    private long runTimeSec;
 
-    public InfSourceFunction(Configuration config, String prefix) {
+    public InfSourceFunction(Configuration config, String prefix, long runTime) {
         this.sourcePath = config.getString(String.format(BaseConstants.BaseConf.SOURCE_PATH, prefix),"");
+        this.runTimeSec = runTime;
     }
 
     @Override
     public void run(SourceContext<String> ctx) throws Exception {
         try {
+
+            long epoch = System.nanoTime();
             Scanner scanner = new Scanner(new File(sourcePath));
 
-            while (isRunning && scanner.hasNextLine()) {
+            while (isRunning && (System.nanoTime() - epoch < runTimeSec * 1e9)) {
                 String line = scanner.nextLine();
                 if(!scanner.hasNextLine()){
                     scanner = new Scanner(new File(sourcePath));
@@ -38,6 +42,8 @@ public class InfSourceFunction extends RichSourceFunction<String> {
             }
 
             scanner.close();
+
+            isRunning = false;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

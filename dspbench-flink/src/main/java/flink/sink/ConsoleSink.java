@@ -1,9 +1,11 @@
 package flink.sink;
 
+import flink.application.YSB.Aggregate_Event;
 import flink.constants.*;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -335,6 +337,28 @@ public class ConsoleSink extends BaseSink implements Serializable {
                 calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(ClickAnalyticsConstants.Conf.GEO_SINK_THREADS, 1));
+    }
+
+    @Override
+    public void sinkStreamYSB(SingleOutputStreamOperator<Aggregate_Event> input) {
+        input.addSink(new RichSinkFunction<Aggregate_Event>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Aggregate_Event value, Context context) throws Exception {
+                super.invoke(value, context);
+                // System.out.println(value);
+                calculate("0");
+            }
+        }).setParallelism(config.getInteger(YSBConstants.Conf.SINK_THREADS, 1));
     }
 
     public void calculate(String initTime) {

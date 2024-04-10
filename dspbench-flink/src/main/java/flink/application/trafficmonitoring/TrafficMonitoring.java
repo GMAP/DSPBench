@@ -26,6 +26,7 @@ public class TrafficMonitoring extends AbstractApplication {
     private int parserThreads;
     private int mapMatcherThreads;
     private int speedCalcThreads;
+    private long runTimeSec;
 
     public TrafficMonitoring(String appName, Configuration config) {
         super(appName, config);
@@ -37,6 +38,8 @@ public class TrafficMonitoring extends AbstractApplication {
         parserThreads = config.getInteger(TrafficMonitoringConstants.Conf.PARSER_THREADS, 1);
         mapMatcherThreads = config.getInteger(TrafficMonitoringConstants.Conf.MAP_MATCHER_THREADS, 1);
         speedCalcThreads = config.getInteger(TrafficMonitoringConstants.Conf.SPEED_CALCULATOR_THREADS, 1);
+    
+        runTimeSec = config.getInteger(String.format(TrafficMonitoringConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -47,7 +50,7 @@ public class TrafficMonitoring extends AbstractApplication {
         // Spout
         // DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser

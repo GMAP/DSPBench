@@ -20,6 +20,7 @@ public class LogProcessing extends AbstractApplication {
     private int statusCountThreads;
     private int geoFinderThreads;
     private int geoStatsThreads;
+    private long runTimeSec;
 
     public LogProcessing(String appName, Configuration config) {
         super(appName, config);
@@ -33,6 +34,8 @@ public class LogProcessing extends AbstractApplication {
         statusCountThreads = config.getInteger(LogProcessingConstants.Conf.STATUS_COUNTER_THREADS, 1);
         geoFinderThreads = config.getInteger(LogProcessingConstants.Conf.GEO_FINDER_THREADS, 1);
         geoStatsThreads = config.getInteger(LogProcessingConstants.Conf.GEO_STATS_THREADS, 1);
+
+        runTimeSec = config.getInteger(String.format(LogProcessingConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -43,7 +46,7 @@ public class LogProcessing extends AbstractApplication {
         // Spout
         // DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser

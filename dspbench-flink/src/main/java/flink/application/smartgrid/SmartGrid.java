@@ -29,6 +29,7 @@ public class SmartGrid extends AbstractApplication {
     private int plugLoadThreads;
     private int houseLoadFrequency;
     private int plugLoadFrequency;
+    private long runTimeSec;
 
     public SmartGrid(String appName, Configuration config) {
         super(appName, config);
@@ -46,6 +47,8 @@ public class SmartGrid extends AbstractApplication {
         plugLoadThreads = config.getInteger(SmartGridConstants.Conf.PLUG_LOAD_THREADS, 1);
         houseLoadFrequency = config.getInteger(SmartGridConstants.Conf.HOUSE_LOAD_FREQUENCY, 15);
         plugLoadFrequency = config.getInteger(SmartGridConstants.Conf.PLUG_LOAD_FREQUENCY, 15);
+
+        runTimeSec = config.getInteger(String.format(SmartGridConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -56,7 +59,7 @@ public class SmartGrid extends AbstractApplication {
         // Spout
         // DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser

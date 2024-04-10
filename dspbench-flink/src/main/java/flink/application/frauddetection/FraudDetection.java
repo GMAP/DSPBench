@@ -20,6 +20,7 @@ public class FraudDetection extends AbstractApplication {
     private int sourceThreads;
     private int parserThreads;
     private int predictorThreads;
+    private long runTimeSec;
 
     public FraudDetection(String appName, Configuration config) {
         super(appName, config);
@@ -30,6 +31,8 @@ public class FraudDetection extends AbstractApplication {
         sourceThreads = config.getInteger(FraudDetectionConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(FraudDetectionConstants.Conf.PARSER_THREADS, 1);
         predictorThreads = config.getInteger(FraudDetectionConstants.Conf.PREDICTOR_THREADS, 1);
+
+        runTimeSec = config.getInteger(String.format(FraudDetectionConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -40,7 +43,7 @@ public class FraudDetection extends AbstractApplication {
         // Spout
         // DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser

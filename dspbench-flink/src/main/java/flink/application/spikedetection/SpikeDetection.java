@@ -22,6 +22,7 @@ public class SpikeDetection extends AbstractApplication {
     private int parserThreads;
     private int movingAverageThreads;
     private int spikeDetectorThreads;
+    private long runTimeSec;
 
     public SpikeDetection(String appName, Configuration config) {
         super(appName, config);
@@ -33,6 +34,8 @@ public class SpikeDetection extends AbstractApplication {
         parserThreads = config.getInteger(SpikeDetectionConstants.Conf.PARSER_THREADS, 1);
         movingAverageThreads = config.getInteger(SpikeDetectionConstants.Conf.MOVING_AVERAGE_THREADS, 1);
         spikeDetectorThreads = config.getInteger(SpikeDetectionConstants.Conf.SPIKE_DETECTOR_THREADS, 1);
+
+        runTimeSec = config.getInteger(String.format(SpikeDetectionConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -43,7 +46,8 @@ public class SpikeDetection extends AbstractApplication {
         // Spout
         // DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser

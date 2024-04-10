@@ -4,6 +4,8 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Lists;
+
+import flink.application.YSB.YSB;
 import flink.application.clickanalytics.ClickAnalytics;
 import flink.application.frauddetection.FraudDetection;
 import flink.application.logprocessing.LogProcessing;
@@ -65,6 +67,7 @@ public class FlinkRunner {
         driver.addApp("smartgrid", SmartGrid.class);
         driver.addApp("trafficmonitoring", TrafficMonitoring.class);
         driver.addApp("wordcount", WordCount.class);
+        driver.addApp("YSB", YSB.class);
     }
 
     public void run() throws InterruptedException {

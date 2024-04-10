@@ -1,10 +1,12 @@
 package flink.sink;
 
+import flink.application.YSB.Aggregate_Event;
 import flink.constants.BaseConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,5 +68,8 @@ public abstract class BaseSink extends Metrics {
     }
 
     public void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
+    }
+
+    public void sinkStreamYSB(SingleOutputStreamOperator<Aggregate_Event> dt) {
     }
 }

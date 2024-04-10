@@ -1,5 +1,6 @@
 package flink.application;
 
+import flink.application.YSB.Aggregate_Event;
 import flink.constants.BaseConstants;
 import flink.sink.BaseSink;
 import flink.source.BaseSource;
@@ -7,6 +8,7 @@ import flink.util.ClassLoaderUtils;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 
@@ -145,6 +147,13 @@ public abstract class AbstractApplication implements Serializable {
         BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         source.initialize(config);
         source.createSinkCAGeo(dt, sinkName);
+    }
+
+    protected void createSinkYSB(SingleOutputStreamOperator<Aggregate_Event> dt) {
+        String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
+        BaseSink source = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
+        source.initialize(config);
+        source.sinkStreamYSB(dt);
     }
 
     /**

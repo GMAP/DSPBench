@@ -7,6 +7,8 @@ public interface BaseConstants {
     
     interface BaseConf {
 
+        String RUNTIME            = "%s.runtime_sec";
+
         String SOURCE_PATH        = "%s.source.path";
 
         String SOURCE_THREADS     = "%s.source.threads";

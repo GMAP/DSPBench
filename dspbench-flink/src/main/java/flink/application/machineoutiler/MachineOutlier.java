@@ -22,6 +22,7 @@ public class MachineOutlier extends AbstractApplication {
     private int scorerThreads;
     private int anomalyScorerThreads;
     private int alertTriggerThreads;
+    private long runTimeSec;
 
     public MachineOutlier(String appName, Configuration config) {
         super(appName, config);
@@ -34,6 +35,8 @@ public class MachineOutlier extends AbstractApplication {
         scorerThreads = config.getInteger(MachineOutlierConstants.Conf.SCORER_THREADS, 1);
         anomalyScorerThreads = config.getInteger(MachineOutlierConstants.Conf.ANOMALY_SCORER_THREADS, 1);
         alertTriggerThreads = config.getInteger(MachineOutlierConstants.Conf.ALERT_TRIGGER_THREADS, 1);
+
+        runTimeSec = config.getInteger(String.format(MachineOutlierConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -44,7 +47,7 @@ public class MachineOutlier extends AbstractApplication {
         // Spout
         // DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix());
+        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
         DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
