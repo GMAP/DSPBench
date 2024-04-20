@@ -8,10 +8,14 @@ import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.UUID;
 
 public class KafkasSource extends BaseSource{
+
+    private static final Logger LOG = LoggerFactory.getLogger(KafkasSource.class);
+
     private String brokers;
     private String topic;
     private final String groupId = UUID.randomUUID().toString();
@@ -31,6 +35,7 @@ public class KafkasSource extends BaseSource{
                 .setTopics(topic)
                 .setGroupId(groupId)
                 .setStartingOffsets(OffsetsInitializer.earliest())
+                .setBounded(OffsetsInitializer.latest())
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 

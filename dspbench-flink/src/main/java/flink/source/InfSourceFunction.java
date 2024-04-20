@@ -2,14 +2,13 @@ package flink.source;
 
 import flink.constants.BaseConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
+import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class InfSourceFunction extends RichSourceFunction<String> {
+public class InfSourceFunction extends RichParallelSourceFunction<String> {
     private volatile boolean isRunning = true;
     private String sourcePath;
     private long runTimeSec;

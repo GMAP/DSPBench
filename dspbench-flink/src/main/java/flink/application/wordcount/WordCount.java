@@ -42,14 +42,13 @@ public class WordCount extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        // DataStream<String> data = createSource();
+        DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
-        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
+        //InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
+        //DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // ParserInf
-        // DataStream<Tuple1<String>> dataParse = data.flatMap(new
-        // StringParserInf(config));
+        // DataStream<Tuple1<String>> dataParse = data.flatMap(new StringParserInf(config));
 
         // Parser
         DataStream<Tuple1<String>> dataParse = data.map(new StringParser(config)).setParallelism(parserThreads);

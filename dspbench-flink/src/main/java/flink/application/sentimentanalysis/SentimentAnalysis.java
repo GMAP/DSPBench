@@ -43,10 +43,10 @@ public class SentimentAnalysis extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        // DataStream<String> data = createSource();
+        DataStream<String> data = createSource();
 
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
-        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
+        //InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
+        //DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
         DataStream<Tuple3<String, String, Date>> dataParse = data.map(new JsonTweetParser(config))

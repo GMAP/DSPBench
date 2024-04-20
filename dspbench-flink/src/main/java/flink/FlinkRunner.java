@@ -49,9 +49,6 @@ public class FlinkRunner {
     @Parameter(names = {"--config"}, required = false, description = "Path to the configuration file for the application")
     public String configStr;
 
-    @Parameter(names = {"-r", "--runtime"}, required = false, description = "Runtime in seconds for the application")
-    public Integer timeoutInSeconds;
-
     private final AppDriver driver;
     private Configuration config;
 
