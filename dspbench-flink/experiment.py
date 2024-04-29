@@ -2,7 +2,7 @@ import os
 import time
 import datetime;
 
-exec = "batch"
+exec = "stream"
 
 def change_prop(run, app, stage1, stage2, stage3, stage4, stage5, stage6):
     print("change prop")
@@ -114,6 +114,26 @@ def time_txt(app, conf, init_time, end_time):
 start_cluster()
 
 for i in range(1,6):
+
+    #Word Count
+    #Change Confs on .properties
+    change_prop(i, "wordcount", 1, 2, 2, 2, 0, 0)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("wordcount")
+    end_time = datetime.datetime.now()
+    time_txt("wordcount", 1222, init_time, end_time)
+
+    #Word Count
+    #Change Confs on .properties
+    change_prop(i, "wordcount", 1, 3, 6, 3, 0, 0)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("wordcount")
+    end_time = datetime.datetime.now()
+    time_txt("wordcount", 1363, init_time, end_time)
     
     #Word Count
     #Change Confs on .properties
@@ -154,6 +174,26 @@ for i in range(1,6):
     start_job("wordcount")
     end_time = datetime.datetime.now()
     time_txt("wordcount", 510126, init_time, end_time)
+
+    #Spike
+    #Change Confs on .properties
+    change_prop(i, "spikedetection", 1, 1, 2, 2, 0, 0)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spikedetection")
+    end_time = datetime.datetime.now()
+    time_txt("spikedetection", 1122, init_time, end_time)
+
+    #Spike
+    #Change Confs on .properties
+    change_prop(i, "spikedetection", 1, 1, 4, 2, 0, 0)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spikedetection")
+    end_time = datetime.datetime.now()
+    time_txt("spikedetection", 1142, init_time, end_time)
     
     #Spike
     #Change Confs on .properties
@@ -193,7 +233,7 @@ for i in range(1,6):
     init_time = datetime.datetime.now()
     start_job("spikedetection")
     end_time = datetime.datetime.now()
-    time_txt("spikedetection", 48888, init_time, end_time)
+    time_txt("spikedetection", 4888, init_time, end_time)
 
     #Spike
     #Change Confs on .properties
@@ -204,6 +244,26 @@ for i in range(1,6):
     start_job("spikedetection")
     end_time = datetime.datetime.now()
     time_txt("spikedetection", 612128, init_time, end_time)
+
+    #Log
+    #Change Confs on .properties
+    change_prop(i, "logprocessing", 1, 2, 2, 1, 2, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("logprocessing")
+    end_time = datetime.datetime.now()
+    time_txt("logprocessing", 122122, init_time, end_time)
+
+    #Log
+    #Change Confs on .properties
+    change_prop(i, "logprocessing", 1, 3, 3, 1, 3, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("logprocessing")
+    end_time = datetime.datetime.now()
+    time_txt("logprocessing", 133131, init_time, end_time)
 
     #Log
     #Change Confs on .properties
@@ -244,6 +304,26 @@ for i in range(1,6):
     start_job("logprocessing")
     end_time = datetime.datetime.now()
     time_txt("logprocessing", 612126124, init_time, end_time)
+
+    #Click
+    #Change Confs on .properties
+    change_prop(i, "clickanalytics", 1, 2, 2, 2, 2, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("clickanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("clickanalytics", 122221, init_time, end_time)
+
+    #Click
+    #Change Confs on .properties
+    change_prop(i, "clickanalytics", 1, 2, 4, 2, 4, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("clickanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("clickanalytics", 124242, init_time, end_time)
 
     #Click
     #Change Confs on .properties
@@ -294,6 +374,26 @@ for i in range(1,6):
     start_job("clickanalytics")
     end_time = datetime.datetime.now()
     time_txt("clickanalytics", 6121212128, init_time, end_time)
+
+    #sentiment
+    #Change Confs on .properties
+    change_prop(i, "sentimentanalysis", 1, 2, 2, 0, 0, 0)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("sentimentanalysis")
+    end_time = datetime.datetime.now()
+    time_txt("sentimentanalysis", 122, init_time, end_time)
+
+    #sentiment
+    #Change Confs on .properties
+    change_prop(i, "sentimentanalysis", 2, 4, 4, 0, 0, 0)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("sentimentanalysis")
+    end_time = datetime.datetime.now()
+    time_txt("sentimentanalysis", 244, init_time, end_time)
 
     #sentiment
     #Change Confs on .properties

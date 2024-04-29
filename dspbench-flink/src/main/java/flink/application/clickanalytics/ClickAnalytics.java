@@ -19,13 +19,11 @@ public class ClickAnalytics extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClickAnalytics.class);
 
-    private int sourceThreads;
     private int parserThreads;
     private int repeatsThreads;
     private int geographyThreads;
     private int totalStatsThreads;
     private int geoStatsThreads;
-    private long runTimeSec;
 
     public ClickAnalytics(String appName, Configuration config) {
         super(appName, config);
@@ -33,14 +31,11 @@ public class ClickAnalytics extends AbstractApplication {
 
     @Override
     public void initialize() {
-        sourceThreads = config.getInteger(ClickAnalyticsConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(ClickAnalyticsConstants.Conf.PARSER_THREADS, 1);
         repeatsThreads = config.getInteger(ClickAnalyticsConstants.Conf.REPEATS_THREADS, 1);
         geographyThreads = config.getInteger(ClickAnalyticsConstants.Conf.GEOGRAPHY_THREADS, 1);
         totalStatsThreads = config.getInteger(ClickAnalyticsConstants.Conf.TOTAL_STATS_THREADS, 1);
         geoStatsThreads = config.getInteger(ClickAnalyticsConstants.Conf.GEO_STATS_THREADS, 1);
-
-        runTimeSec = config.getInteger(String.format(ClickAnalyticsConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -50,10 +45,7 @@ public class ClickAnalytics extends AbstractApplication {
 
         // Spout
         DataStream<String> data = createSource();
-
-        //InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
-        //DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
-
+        
         // Parser
         DataStream<Tuple3<String, String, String>> dataParse = data.map(new ClickStreamParser(config))
                 .setParallelism(parserThreads);

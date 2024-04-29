@@ -27,5 +27,5 @@ function readProperty() {
 
 echo "$APP_CONFIG_STR"
 
-#cd /home/gmap/maven/flink-1.18.1/bin/;./flink run -c flink.FlinkRunner $JAR_PATH --app $APP_NAME --config $APP_CONFIG_STR
-cd /home/gmap/maven/flink-1.18.1/bin/;./flink run -Dexecution.runtime-mode=BATCH -c flink.FlinkRunner $JAR_PATH --app $APP_NAME --config $APP_CONFIG_STR
+cd /home/gmap/maven/flink-1.18.1/bin/;./flink run -c flink.FlinkRunner $JAR_PATH --app $APP_NAME --config $APP_CONFIG_STR
+#cd /home/gmap/maven/flink-1.18.1/bin/;./flink run -Dexecution.runtime-mode=BATCH -c flink.FlinkRunner $JAR_PATH --app $APP_NAME --config $APP_CONFIG_STR

@@ -17,12 +17,10 @@ import org.slf4j.LoggerFactory;
 public class MachineOutlier extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(MachineOutlier.class);
-    private int sourceThreads;
     private int parserThreads;
     private int scorerThreads;
     private int anomalyScorerThreads;
     private int alertTriggerThreads;
-    private long runTimeSec;
 
     public MachineOutlier(String appName, Configuration config) {
         super(appName, config);
@@ -30,13 +28,10 @@ public class MachineOutlier extends AbstractApplication {
 
     @Override
     public void initialize() {
-        sourceThreads = config.getInteger(MachineOutlierConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(MachineOutlierConstants.Conf.PARSER_THREADS, 1);
         scorerThreads = config.getInteger(MachineOutlierConstants.Conf.SCORER_THREADS, 1);
         anomalyScorerThreads = config.getInteger(MachineOutlierConstants.Conf.ANOMALY_SCORER_THREADS, 1);
         alertTriggerThreads = config.getInteger(MachineOutlierConstants.Conf.ALERT_TRIGGER_THREADS, 1);
-
-        runTimeSec = config.getInteger(String.format(MachineOutlierConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -45,10 +40,7 @@ public class MachineOutlier extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        // DataStream<String> data = createSource();
-
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
-        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
+        DataStream<String> data = createSource();
 
         // Parser
         DataStream<Tuple4<String, Long, MachineMetadata, String>> dataParse = data

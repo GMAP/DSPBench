@@ -14,13 +14,11 @@ import org.slf4j.LoggerFactory;
 public class LogProcessing extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(LogProcessing.class);
-    private int sourceThreads;
     private int parserThreads;
     private int volumeCountThreads;
     private int statusCountThreads;
     private int geoFinderThreads;
     private int geoStatsThreads;
-    private long runTimeSec;
 
     public LogProcessing(String appName, Configuration config) {
         super(appName, config);
@@ -28,14 +26,11 @@ public class LogProcessing extends AbstractApplication {
 
     @Override
     public void initialize() {
-        sourceThreads = config.getInteger(LogProcessingConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(LogProcessingConstants.Conf.PARSER_THREADS, 1);
         volumeCountThreads = config.getInteger(LogProcessingConstants.Conf.VOLUME_COUNTER_THREADS, 1);
         statusCountThreads = config.getInteger(LogProcessingConstants.Conf.STATUS_COUNTER_THREADS, 1);
         geoFinderThreads = config.getInteger(LogProcessingConstants.Conf.GEO_FINDER_THREADS, 1);
         geoStatsThreads = config.getInteger(LogProcessingConstants.Conf.GEO_STATS_THREADS, 1);
-
-        runTimeSec = config.getInteger(String.format(LogProcessingConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -45,9 +40,6 @@ public class LogProcessing extends AbstractApplication {
 
         // Spout
         DataStream<String> data = createSource();
-
-        //InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
-        //DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
 
         // Parser
         DataStream<Tuple6<Object, Object, Long, Object, Object, Object>> dataParse = data

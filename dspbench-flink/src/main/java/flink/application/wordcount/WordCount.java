@@ -16,11 +16,9 @@ public class WordCount extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(WordCount.class);
 
-    private int sourceThreads;
     private int parserThreads;
     private int splitSentenceThreads;
     private int wordCountThreads;
-    private long runTimeSec;
 
     public WordCount(String appName, Configuration config) {
         super(appName, config);
@@ -28,12 +26,9 @@ public class WordCount extends AbstractApplication {
 
     @Override
     public void initialize() {
-        sourceThreads = config.getInteger(WordCountConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(WordCountConstants.Conf.PARSER_THREADS, 1);
         splitSentenceThreads = config.getInteger(WordCountConstants.Conf.SPLITTER_THREADS, 1);
         wordCountThreads = config.getInteger(WordCountConstants.Conf.COUNTER_THREADS, 1);
-
-        runTimeSec = config.getInteger(String.format(WordCountConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -43,12 +38,6 @@ public class WordCount extends AbstractApplication {
 
         // Spout
         DataStream<String> data = createSource();
-
-        //InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
-        //DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
-
-        // ParserInf
-        // DataStream<Tuple1<String>> dataParse = data.flatMap(new StringParserInf(config));
 
         // Parser
         DataStream<Tuple1<String>> dataParse = data.map(new StringParser(config)).setParallelism(parserThreads);

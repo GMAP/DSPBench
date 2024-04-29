@@ -17,10 +17,8 @@ public class FraudDetection extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(FraudDetection.class);
 
-    private int sourceThreads;
     private int parserThreads;
     private int predictorThreads;
-    private long runTimeSec;
 
     public FraudDetection(String appName, Configuration config) {
         super(appName, config);
@@ -28,11 +26,8 @@ public class FraudDetection extends AbstractApplication {
 
     @Override
     public void initialize() {
-        sourceThreads = config.getInteger(FraudDetectionConstants.Conf.SOURCE_THREADS, 1);
         parserThreads = config.getInteger(FraudDetectionConstants.Conf.PARSER_THREADS, 1);
         predictorThreads = config.getInteger(FraudDetectionConstants.Conf.PREDICTOR_THREADS, 1);
-
-        runTimeSec = config.getInteger(String.format(FraudDetectionConstants.Conf.RUNTIME, getConfigPrefix()), 60);
     }
 
     @Override
@@ -41,10 +36,7 @@ public class FraudDetection extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        // DataStream<String> data = createSource();
-
-        InfSourceFunction source = new InfSourceFunction(config, getConfigPrefix(), runTimeSec);
-        DataStream<String> data = env.addSource(source).setParallelism(sourceThreads);
+        DataStream<String> data = createSource();
 
         // Parser
         DataStream<Tuple3<String, String, String>> dataParse = data.map(new TransactionParser(config))
