@@ -3,7 +3,6 @@ package flink.application.smartgrid;
 import flink.application.AbstractApplication;
 import flink.constants.SmartGridConstants;
 import flink.parsers.SmartPlugParser;
-import flink.source.InfSourceFunction;
 
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.*;
@@ -55,37 +54,37 @@ public class SmartGrid extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple8<String, Long, Double, Integer, String, String, String, String>> dataParse = data
+        DataStream<Tuple7<String, Long, Double, Integer, String, String, String>> dataParse = data
                 .map(new SmartPlugParser(config)).setParallelism(parserThreads);
 
         // Process
-        DataStream<Tuple7<Long, String, String, String, Double, Integer, String>> slideWindow = dataParse
+        DataStream<Tuple6<Long, String, String, String, Double, Integer>> slideWindow = dataParse
                 .filter(value -> (value != null)).flatMap(new SlideWindow(config)).setParallelism(slidingWindowThreads);
 
-        DataStream<Tuple5<String, String, Long, Double, String>> globalMedCalc = slideWindow
+        DataStream<Tuple4<String, String, Long, Double>> globalMedCalc = slideWindow
                 .flatMap(new GlobalMedianCalc(config)).setParallelism(globalMedianThreads);
 
-        DataStream<Tuple5<String, String, Long, Double, String>> plugMedCalc = slideWindow.keyBy(
-                new KeySelector<Tuple7<Long, String, String, String, Double, Integer, String>, Tuple3<String, String, String>>() {
+        DataStream<Tuple4<String, String, Long, Double>> plugMedCalc = slideWindow.keyBy(
+                new KeySelector<Tuple6<Long, String, String, String, Double, Integer>, Tuple3<String, String, String>>() {
                     @Override
                     public Tuple3<String, String, String> getKey(
-                            Tuple7<Long, String, String, String, Double, Integer, String> value) throws Exception {
+                            Tuple6<Long, String, String, String, Double, Integer> value) throws Exception {
                         return Tuple3.of(value.f1, value.f2, value.f3);
                     }
                 }).flatMap(new PlugMedianCalc(config)).setParallelism(plugMedianThreads);
 
-        DataStream<Tuple5<Long, Long, String, Double, String>> outlierDetect = globalMedCalc
+        DataStream<Tuple4<Long, Long, String, Double>> outlierDetect = globalMedCalc
                 .connect(plugMedCalc.keyBy(value -> value.f1)).flatMap(new OutlierDetect(config))
                 .setParallelism(outlierDetectorThreads);
         // DataStream<Tuple5<Long, Long, String, Double, String>> outlierDetectGlobal =
         // globalMedCalc.flatMap(new
         // OutlierDetect(config)).setParallelism(outlierDetectorThreads);
 
-        DataStream<Tuple4<Long, String, Double, String>> houseLoadPredictor = dataParse.keyBy(value -> value.f6)
+        DataStream<Tuple3<Long, String, Double>> houseLoadPredictor = dataParse.keyBy(value -> value.f6)
                 .window(TumblingProcessingTimeWindows.of(Time.seconds(houseLoadFrequency)))
                 .apply(new HouseLoadPredict(config)).setParallelism(houseLoadThreads);
 
-        DataStream<Tuple6<Long, String, String, String, Double, String>> plugLoadPredictor = dataParse
+        DataStream<Tuple5<Long, String, String, String, Double>> plugLoadPredictor = dataParse
                 .keyBy(value -> value.f6).window(TumblingProcessingTimeWindows.of(Time.seconds(plugLoadFrequency)))
                 .apply(new PlugLoadPredict(config)).setParallelism(plugLoadThreads);
 

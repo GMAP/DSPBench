@@ -2,15 +2,13 @@ package flink.parsers;
 
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
-
-import java.time.Instant;
 
 /**
  *
  */
-public class TransactionParser extends Metrics implements MapFunction<String, Tuple3<String, String, String>> {
+public class TransactionParser extends Metrics implements MapFunction<String, Tuple2<String, String>> {
 
     Configuration config;
 
@@ -20,14 +18,17 @@ public class TransactionParser extends Metrics implements MapFunction<String, Tu
     }
 
     @Override
-    public Tuple3<String, String, String> map(String value) throws Exception {
+    public Tuple2<String, String> map(String value) throws Exception {
         super.initialize(config);
         super.incBoth();
         String[] temp = value.split(",", 2);
-        return new Tuple3<>(
+        if(temp[0] == null || temp[1] == null ){
+            return null;
+        }else{
+            return new Tuple2<>(
                 temp[0],
-                temp[1],
-                Instant.now().toEpochMilli() + "");
+                temp[1]);
+        }
     }
 
 }

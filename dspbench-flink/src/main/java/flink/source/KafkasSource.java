@@ -1,7 +1,6 @@
 package flink.source;
 
 import flink.constants.BaseConstants;
-import flink.constants.WordCountConstants;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
@@ -28,7 +27,8 @@ public class KafkasSource extends BaseSource{
         super.initialize(config, env, prefix);
         brokers = config.getString(String.format(BaseConstants.BaseConf.KAFKA_HOST, prefix),"localhost:9092");
         topic = config.getString(String.format(BaseConstants.BaseConf.KAFKA_SOURCE_TOPIC, prefix),"books");
-        sourceThreads = config.getInteger(WordCountConstants.Conf.SOURCE_THREADS, 1);
+        sourceThreads = config.getInteger(String.format(BaseConstants.BaseConf.SOURCE_THREADS, prefix), 1);
+
     }
 
     @Override

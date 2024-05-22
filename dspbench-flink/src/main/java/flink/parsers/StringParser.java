@@ -24,7 +24,6 @@ public class StringParser extends Parser implements MapFunction<String, Tuple1<S
         super.incBoth();
         if (StringUtils.isBlank(value))
             return null;
-
         return new Tuple1<String>(value);
     }
 

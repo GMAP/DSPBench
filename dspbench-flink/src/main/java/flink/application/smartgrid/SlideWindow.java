@@ -6,8 +6,8 @@ import flink.application.smartgrid.window.SlidingWindowEntry;
 import flink.constants.SmartGridConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.tuple.Tuple7;
-import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple7<Long, String, String, String, Double, Integer, String>> {
+public class SlideWindow extends Metrics implements FlatMapFunction<Tuple7<String, Long, Double, Integer, String, String, String>, Tuple6<Long, String, String, String, Double, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SlideWindow.class);
 
@@ -37,10 +37,11 @@ public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<Strin
     }
 
     @Override
-    public void flatMap(Tuple8<String, Long, Double, Integer, String, String, String, String> input, Collector<Tuple7<Long, String, String, String, Double, Integer, String>> out) {
+    public void flatMap(Tuple7<String, Long, Double, Integer, String, String, String> input, Collector<Tuple6<Long, String, String, String, Double, Integer>> out) {
         super.initialize(config);
         createWindow();
         int type = input.getField(3);
+        super.incReceived();
 
         // we are interested only in load
         if (type == SmartGridConstants.Measurement.WORK) {
@@ -57,13 +58,13 @@ public class SlideWindow extends Metrics implements FlatMapFunction<Tuple8<Strin
             public void remove(List<SlidingWindowEntry> entries) {
                 for (SlidingWindowEntry e : entries) {
                     SlidingWindowEntryImpl entry = (SlidingWindowEntryImpl) e;
-                    out.collect(new Tuple7<Long, String, String, String, Double, Integer, String>(entry.ts, entry.houseId, entry.houseHoldId, entry.plugId, entry.value, -1, input.f7));
+                    super.incEmitted();
+                    out.collect(new Tuple6<Long, String, String, String, Double, Integer>(entry.ts, entry.houseId, entry.houseHoldId, entry.plugId, entry.value, -1));
                 }
             }
         });
-
-        out.collect(new Tuple7<Long, String, String, String, Double, Integer, String>(windowEntry.ts, windowEntry.houseId, windowEntry.houseHoldId, windowEntry.plugId, windowEntry.value, 1, input.f7));
-        super.calculateThroughput();
+        super.incEmitted();
+        out.collect(new Tuple6<Long, String, String, String, Double, Integer>(windowEntry.ts, windowEntry.houseId, windowEntry.houseHoldId, windowEntry.plugId, windowEntry.value, 1));
     }
 
     private class SlidingWindowEntryImpl implements SlidingWindowEntry {

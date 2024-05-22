@@ -90,8 +90,7 @@ public class SpeedCalculator extends Metrics implements
             }
         }
 
-        out.collect(
-                new Tuple4<Date, Integer, Integer, Integer>(new Date(), roadID, averageSpeed, count));
+        out.collect(new Tuple4<Date, Integer, Integer, Integer>(new Date(), roadID, averageSpeed, count));
 
     }
 }

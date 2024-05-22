@@ -1,12 +1,15 @@
 package flink.sink;
 
 import flink.application.YSB.Aggregate_Event;
+import flink.application.voipstream.CallDetailRecord;
 import flink.constants.BaseConstants;
+import flink.tools.Rankings;
 import flink.util.Metrics;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.types.BooleanValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,22 +40,22 @@ public abstract class BaseSink extends Metrics {
     public void sinkStreamSD(DataStream<Tuple4<String, Double, Double, String>> dt) {
     }
 
-    public void sinkStreamSGOutlier(DataStream<Tuple5<Long, Long, String, Double, String>> dt, String sinkName) {
+    public void sinkStreamSGOutlier(DataStream<Tuple4<Long, Long, String, Double>> dt, String sinkName) {
     }
 
-    public void sinkStreamSGHouse(DataStream<Tuple4<Long, String, Double, String>> dt, String sinkName) {
+    public void sinkStreamSGHouse(DataStream<Tuple3<Long, String, Double>> dt, String sinkName) {
     }
 
-    public void sinkStreamSGPlug(DataStream<Tuple6<Long, String, String, String, Double, String>> dt, String sinkName) {
+    public void sinkStreamSGPlug(DataStream<Tuple5<Long, String, String, String, Double>> dt, String sinkName) {
     }
 
     public void sinkStreamSA(DataStream<Tuple5<String, String, Date, String, Double>> dt) {
     }
 
-    public void sinkStreamMO(DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> dt) {
+    public void sinkStreamMO(DataStream<Tuple5<String, Double, Long, Boolean, Object>> dt) {
     }
 
-    public void sinkStreamFD(DataStream<Tuple4<String, Double, String, String>> dt) {
+    public void sinkStreamFD(DataStream<Tuple3<String, Double, String>> dt) {
     }
 
     public void createSinkLPVol(DataStream<Tuple2<Long, Long>> dt, String sinkName) {
@@ -68,6 +71,24 @@ public abstract class BaseSink extends Metrics {
     }
 
     public void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
+    }
+
+    public void createSinkAA(DataStream<Tuple6<String, String, Double, Long, Long, Integer>> dt) {
+    }
+
+    public void createSinkBI(DataStream<Tuple4<String, Double, Integer, Double>> dt) {
+    }
+
+    public void createSinkRL(DataStream<Tuple2<String, String[]>> dt) {
+    }
+
+    public void createSinkSF(DataStream<Tuple3<String,Float,Boolean>> dt) {
+    }
+
+    public void createSinkTT(DataStream<Tuple1<Rankings>> dt) {
+    }
+
+    public void createSinkVS(DataStream<Tuple4<String, Long, Double, CallDetailRecord>> dt) {
     }
 
     public void sinkStreamYSB(SingleOutputStreamOperator<Aggregate_Event> dt) {

@@ -7,15 +7,15 @@ import flink.constants.FraudDetectionConstants;
 import flink.util.Metrics;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FraudPredictor extends Metrics
-        implements FlatMapFunction<Tuple3<String, String, String>, Tuple4<String, Double, String, String>> {
+        implements FlatMapFunction<Tuple2<String, String>, Tuple3<String, Double, String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(FraudPredictor.class);
 
@@ -38,21 +38,19 @@ public class FraudPredictor extends Metrics
     }
 
     @Override
-    public void flatMap(Tuple3<String, String, String> input, Collector<Tuple4<String, Double, String, String>> out) {
+    public void flatMap(Tuple2<String, String> input, Collector<Tuple3<String, Double, String>> out) {
         super.initialize(config);
         createPred();
         super.incReceived();
         String entityID = input.getField(0);
         String record = input.getField(1);
-        String initTime = input.getField(2);
 
         Prediction p = predictor.execute(entityID, record);
 
         // send outliers
         if (p.isOutlier()) {
             super.incEmitted();
-            out.collect(new Tuple4<>(entityID, p.getScore(), StringUtils.join(p.getStates(), ","), initTime));
+            out.collect(new Tuple3<>(entityID, p.getScore(), StringUtils.join(p.getStates(), ",")));
         }
-        super.calculateThroughput();
     }
 }

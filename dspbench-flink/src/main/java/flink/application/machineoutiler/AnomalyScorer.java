@@ -1,9 +1,10 @@
 package flink.application.machineoutiler;
 
+import flink.constants.MachineOutlierConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -15,12 +16,12 @@ import java.util.Map;
 import java.util.Queue;
 
 public class AnomalyScorer extends Metrics implements
-        FlatMapFunction<Tuple5<String, Double, Long, Object, String>, Tuple6<String, Double, Long, Object, Double, String>> {
+        FlatMapFunction<Tuple4<String, Double, Long, Object>, Tuple5<String, Double, Long, Object, Double>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnomalyScorer.class);
 
     private static Map<String, Queue<Double>> slidingWindowMap;
-    private static int windowLength = 10;
+    private static int windowLength;
     private static long previousTimestamp;
 
     Configuration config;
@@ -28,7 +29,8 @@ public class AnomalyScorer extends Metrics implements
     public AnomalyScorer(Configuration config) {
         super.initialize(config);
         this.config = config;
-        windowLength = 10;
+        //config.getString(MachineOutlierConstants.Conf.SCORER_DATA_TYPE, "machineMetadata");
+        windowLength = config.getInteger(MachineOutlierConstants.Conf.ANOMALY_SCORER_WINDOW_LENGTH, 10);
         previousTimestamp = 0;
     }
 
@@ -41,8 +43,8 @@ public class AnomalyScorer extends Metrics implements
     }
 
     @Override
-    public void flatMap(Tuple5<String, Double, Long, Object, String> input,
-            Collector<Tuple6<String, Double, Long, Object, Double, String>> out) {
+    public void flatMap(Tuple4<String, Double, Long, Object> input,
+            Collector<Tuple5<String, Double, Long, Object, Double>> out) {
         super.initialize(config);
         super.incBoth();
         getWindow();
@@ -67,7 +69,7 @@ public class AnomalyScorer extends Metrics implements
             sumScore += score;
         }
 
-        out.collect(new Tuple6<String, Double, Long, Object, Double, String>(id, sumScore, timestamp, input.getField(3),
-                dataInstanceAnomalyScore, input.f4));
+        out.collect(new Tuple5<String, Double, Long, Object, Double>(id, sumScore, timestamp, input.getField(3),
+                dataInstanceAnomalyScore));
     }
 }

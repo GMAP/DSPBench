@@ -1,6 +1,7 @@
 package flink.source;
 
 import flink.constants.BaseConstants;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
@@ -13,9 +14,9 @@ public class InfSourceFunction extends RichParallelSourceFunction<String> {
     private String sourcePath;
     private long runTimeSec;
 
-    public InfSourceFunction(Configuration config, String prefix, long runTime) {
+    public InfSourceFunction(Configuration config, String prefix) {
         this.sourcePath = config.getString(String.format(BaseConstants.BaseConf.SOURCE_PATH, prefix),"");
-        this.runTimeSec = runTime;
+        this.runTimeSec = config.getInteger(String.format(BaseConstants.BaseConf.RUNTIME, prefix), 60);
     }
 
     @Override
@@ -30,12 +31,6 @@ public class InfSourceFunction extends RichParallelSourceFunction<String> {
                 if(!scanner.hasNextLine()){
                     scanner = new Scanner(new File(sourcePath));
                 }
-                /*
-                if (StringUtils.isBlank(line))
-                    ctx.collect(null);
-
-                ctx.collect(line);
-                 */
                 if (!StringUtils.isBlank(line))
                     ctx.collect(line);
             }

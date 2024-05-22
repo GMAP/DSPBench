@@ -3,8 +3,8 @@ package flink.application.smartgrid;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
-import org.apache.flink.api.java.tuple.Tuple5;
-import org.apache.flink.api.java.tuple.Tuple7;
+import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Long, String, String, String, Double, Integer, String>, Tuple5<String, String, Long, Double, String>> {
+public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple6<Long, String, String, String, Double, Integer>, Tuple4<String, String, Long, Double>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlugMedianCalc.class);
 
@@ -44,7 +44,7 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Lo
     }
 
     @Override
-    public void flatMap(Tuple7<Long, String, String, String, Double, Integer, String> input, Collector<Tuple5<String, String, Long, Double, String>> out) {
+    public void flatMap(Tuple6<Long, String, String, String, Double, Integer> input, Collector<Tuple4<String, String, Long, Double>> out) {
         super.initialize(config);
         runMed();
         tsMap();
@@ -53,6 +53,8 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Lo
         double value = input.getField(4);
         long timestamp = input.getField(0);
         String key = getKey(input);
+
+        super.incReceived();
 
         RunningMedianCalculator medianCalc = runningMedians.get(key);
         if (medianCalc == null) {
@@ -70,12 +72,12 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple7<Lo
             if (lastUpdatedTs < timestamp) {
                 // the sliding window has moved
                 lastUpdatedTsMap.put(key, timestamp);
-                out.collect(new Tuple5<>("plugMedianCalculator" ,key, timestamp, median, input.f6));
+                super.incEmitted();
+                out.collect(new Tuple4<>("plugMedianCalculator" ,key, timestamp, median));
             }
         } else {
             medianCalc.remove(value);
         }
-        super.calculateThroughput();
     }
 
     private String getKey(Tuple tuple) {

@@ -82,7 +82,7 @@ public class MapMatching extends Metrics implements
             int roadID = gridList.fetchRoadID(record);
 
             if (roadID != -1) {
-                super.incEmitted(bearing);
+                super.incEmitted();
                 out.collect(new Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>(
                         input.f0, input.f1, input.f2, input.f3, input.f4, input.f5, input.f6, roadID));
             }

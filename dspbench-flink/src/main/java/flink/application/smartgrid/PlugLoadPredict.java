@@ -3,8 +3,8 @@ package flink.application.smartgrid;
 import flink.constants.SmartGridConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.java.tuple.Tuple;
-import org.apache.flink.api.java.tuple.Tuple6;
-import org.apache.flink.api.java.tuple.Tuple8;
+import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
@@ -14,13 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple6<Long,String, String, String, Double, String>, String, TimeWindow> {
+public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple7<String, Long, Double, Integer, String, String, String>, Tuple5<Long,String, String, String, Double>, String, TimeWindow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlugLoadPredict.class);
     protected static long sliceLength = 60L;
     protected static long currentSliceStart;
 
-    protected String inittime = "";
     protected int tickCounter = 0;
     protected static Map<String, AverageTracker> trackers;
     protected static Map<String, SummaryArchive> archiveMap;
@@ -50,12 +49,11 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
     }
 
     @Override
-    public void apply(String s, TimeWindow window, Iterable<Tuple8<String, Long, Double, Integer, String, String, String, String>> input, Collector<Tuple6<Long,String, String, String, Double, String>> out) throws Exception {
+    public void apply(String s, TimeWindow window, Iterable<Tuple7<String, Long, Double, Integer, String, String, String>> input, Collector<Tuple5<Long,String, String, String, Double>> out) throws Exception {
         super.initialize(config);
-        for (Tuple8<String, Long, Double, Integer, String, String, String, String> in : input) {
-            if (inittime.equals("")) {
-                inittime = in.getField(7);
-            }
+        for (Tuple7<String, Long, Double, Integer, String, String, String> in : input) {
+
+            super.incReceived();
 
             int type = in.getField(3);
 
@@ -90,12 +88,11 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
         tickCounter = (tickCounter + 1) % 2;
         // time to emit
         if (tickCounter == 0) {
-            for (Iterator<Tuple6<Long,String, String, String, Double, String>> it = emitOutputStream(inittime); it.hasNext();) {
-                Tuple6<Long,String, String, String, Double, String> in = it.next();
-                out.collect(new Tuple6<Long,String, String, String, Double, String>(in.f0, in.f1, in.f2, in.f3, in.f4, in.f5));
-                super.calculateThroughput();
+            for (Iterator<Tuple5<Long,String, String, String, Double>> it = emitOutputStream(); it.hasNext();) {
+                Tuple5<Long,String, String, String, Double> in = it.next();
+                super.incEmitted();
+                out.collect(new Tuple5<Long,String, String, String, Double>(in.f0, in.f1, in.f2, in.f3, in.f4));
             }
-            inittime = "";
         }
     }
 
@@ -103,11 +100,11 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
         return currentAvg + median;
     }
 
-    protected Iterator<Tuple6<Long,String, String, String, Double, String>> emitOutputStream(String inittime) {
+    protected Iterator<Tuple5<Long,String, String, String, Double>> emitOutputStream() {
         track();
         archMap();
 
-        List<Tuple6<Long,String, String, String, Double, String>> tuples = new ArrayList<>();
+        List<Tuple5<Long,String, String, String, Double>> tuples = new ArrayList<>();
 
         for (String key : trackers.keySet()) {
             double currentAvg = trackers.get(key).retrieve();
@@ -121,7 +118,7 @@ public class PlugLoadPredict extends Metrics implements WindowFunction<Tuple8<St
             long predictedTimeStamp = currentSliceStart + 2 * sliceLength;
 
             String[] segments = key.split(":");
-            tuples.add(new Tuple6<Long,String, String, String, Double, String>(predictedTimeStamp, segments[0], segments[1], segments[2], prediction, inittime));
+            tuples.add(new Tuple5<Long,String, String, String, Double>(predictedTimeStamp, segments[0], segments[1], segments[2], prediction));
         }
 
         return tuples.iterator();

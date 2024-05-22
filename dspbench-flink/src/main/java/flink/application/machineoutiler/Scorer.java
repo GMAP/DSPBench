@@ -3,8 +3,8 @@ package flink.application.machineoutiler;
 import flink.constants.MachineOutlierConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Scorer extends Metrics implements
-        FlatMapFunction<Tuple4<String, Long, MachineMetadata, String>, Tuple5<String, Double, Long, Object, String>> {
+        FlatMapFunction<Tuple3<String, Long, MachineMetadata>, Tuple4<String, Double, Long, Object>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Scorer.class);
 
@@ -48,8 +48,8 @@ public class Scorer extends Metrics implements
     }
 
     @Override
-    public void flatMap(Tuple4<String, Long, MachineMetadata, String> input,
-            Collector<Tuple5<String, Double, Long, Object, String>> out) {
+    public void flatMap(Tuple3<String, Long, MachineMetadata> input,
+            Collector<Tuple4<String, Double, Long, Object>> out) {
         super.initialize(config);
         super.incReceived();
         getList();
@@ -61,8 +61,8 @@ public class Scorer extends Metrics implements
                 List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                 for (ScorePackage scorePackage : scorePackageList) {
                     super.incEmitted();
-                    out.collect(new Tuple5<String, Double, Long, Object, String>(scorePackage.getId(),
-                            scorePackage.getScore(), previousTimestamp, scorePackage.getObj(), input.f3));
+                    out.collect(new Tuple4<String, Double, Long, Object>(scorePackage.getId(),
+                            scorePackage.getScore(), previousTimestamp, scorePackage.getObj()));
                 }
                 observationList.clear();
             }

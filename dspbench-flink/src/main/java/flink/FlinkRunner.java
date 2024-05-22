@@ -6,14 +6,20 @@ import com.beust.jcommander.ParameterException;
 import com.google.common.collect.Lists;
 
 import flink.application.YSB.YSB;
+import flink.application.adanalytics.AdAnalytics;
+import flink.application.bargainindex.BargainIndex;
 import flink.application.clickanalytics.ClickAnalytics;
 import flink.application.frauddetection.FraudDetection;
 import flink.application.logprocessing.LogProcessing;
 import flink.application.machineoutiler.MachineOutlier;
+import flink.application.reinforcementlearner.ReinforcementLearner;
 import flink.application.sentimentanalysis.SentimentAnalysis;
 import flink.application.smartgrid.SmartGrid;
+import flink.application.spamfilter.SpamFilter;
 import flink.application.spikedetection.SpikeDetection;
 import flink.application.trafficmonitoring.TrafficMonitoring;
+import flink.application.trendingtopics.TrendingTopics;
+import flink.application.voipstream.VoIPStream;
 import flink.application.wordcount.WordCount;
 import flink.util.Configurations;
 import org.apache.flink.configuration.Configuration;
@@ -64,7 +70,13 @@ public class FlinkRunner {
         driver.addApp("smartgrid", SmartGrid.class);
         driver.addApp("trafficmonitoring", TrafficMonitoring.class);
         driver.addApp("wordcount", WordCount.class);
-        driver.addApp("YSB", YSB.class);
+        driver.addApp("adanalytics", AdAnalytics.class);
+        driver.addApp("bargainindex", BargainIndex.class);
+        driver.addApp("reinforcementlearner", ReinforcementLearner.class);
+        driver.addApp("spamfilter", SpamFilter.class);
+        driver.addApp("trendingtopics", TrendingTopics.class);
+        driver.addApp("voipstream", VoIPStream.class);
+        //driver.addApp("YSB", YSB.class);
     }
 
     public void run() throws InterruptedException {

@@ -1,12 +1,16 @@
 package flink.sink;
 
 import flink.application.YSB.Aggregate_Event;
+import flink.application.voipstream.CallDetailRecord;
 import flink.constants.*;
+import flink.tools.Rankings;
+
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.types.BooleanValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,8 +121,8 @@ public class ConsoleSink extends BaseSink implements Serializable {
     }
 
     @Override
-    public void sinkStreamMO(DataStream<Tuple6<String, Double, Long, Boolean, Object, String>> input) {
-        input.addSink(new RichSinkFunction<Tuple6<String, Double, Long, Boolean, Object, String>>() {
+    public void sinkStreamMO(DataStream<Tuple5<String, Double, Long, Boolean, Object>> input) {
+        input.addSink(new RichSinkFunction<Tuple5<String, Double, Long, Boolean, Object>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -130,18 +134,18 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple6<String, Double, Long, Boolean, Object, String> value, Context context)
+            public void invoke(Tuple5<String, Double, Long, Boolean, Object> value, Context context)
                     throws Exception {
                 super.invoke(value, context);
                 // System.out.println(value);
-                calculate(value.f5);
+                calculate("0");
             }
         }).setParallelism(config.getInteger(MachineOutlierConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
-    public void sinkStreamFD(DataStream<Tuple4<String, Double, String, String>> input) {
-        input.addSink(new RichSinkFunction<Tuple4<String, Double, String, String>>() {
+    public void sinkStreamFD(DataStream<Tuple3<String, Double, String>> input) {
+        input.addSink(new RichSinkFunction<Tuple3<String, Double, String>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -153,17 +157,17 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple4<String, Double, String, String> value, Context context) throws Exception {
+            public void invoke(Tuple3<String, Double, String> value, Context context) throws Exception {
                 super.invoke(value, context);
                 // System.out.println(value);
-                calculate(value.f3);
+                calculate("0");
             }
         }).setParallelism(config.getInteger(FraudDetectionConstants.Conf.SINK_THREADS, 1));
     }
 
     @Override
-    public void sinkStreamSGOutlier(DataStream<Tuple5<Long, Long, String, Double, String>> input, String sinkName) {
-        input.addSink(new RichSinkFunction<Tuple5<Long, Long, String, Double, String>>() {
+    public void sinkStreamSGOutlier(DataStream<Tuple4<Long, Long, String, Double>> input, String sinkName) {
+        input.addSink(new RichSinkFunction<Tuple4<Long, Long, String, Double>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -175,17 +179,17 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple5<Long, Long, String, Double, String> value, Context context) throws Exception {
+            public void invoke(Tuple4<Long, Long, String, Double> value, Context context) throws Exception {
                 super.invoke(value, context);
                 // System.out.println(value);
-                calculate(value.f4, sinkName);
+                calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(SmartGridConstants.Conf.OUTLIER_SINK_THREADS, 1));
     }
 
     @Override
-    public void sinkStreamSGHouse(DataStream<Tuple4<Long, String, Double, String>> input, String sinkName) {
-        input.addSink(new RichSinkFunction<Tuple4<Long, String, Double, String>>() {
+    public void sinkStreamSGHouse(DataStream<Tuple3<Long, String, Double>> input, String sinkName) {
+        input.addSink(new RichSinkFunction<Tuple3<Long, String, Double>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -197,18 +201,18 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple4<Long, String, Double, String> value, Context context) throws Exception {
+            public void invoke(Tuple3<Long, String, Double> value, Context context) throws Exception {
                 super.invoke(value, context);
                 // System.out.println(value);
-                calculate(value.f3, sinkName);
+                calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(SmartGridConstants.Conf.PREDICTION_SINK_THREADS, 1));
     }
 
     @Override
-    public void sinkStreamSGPlug(DataStream<Tuple6<Long, String, String, String, Double, String>> input,
+    public void sinkStreamSGPlug(DataStream<Tuple5<Long, String, String, String, Double>> input,
             String sinkName) {
-        input.addSink(new RichSinkFunction<Tuple6<Long, String, String, String, Double, String>>() {
+        input.addSink(new RichSinkFunction<Tuple5<Long, String, String, String, Double>>() {
             @Override
             public void open(Configuration parameters) throws Exception {
                 super.open(parameters);
@@ -220,11 +224,11 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
 
             @Override
-            public void invoke(Tuple6<Long, String, String, String, Double, String> value, Context context)
+            public void invoke(Tuple5<Long, String, String, String, Double> value, Context context)
                     throws Exception {
                 super.invoke(value, context);
                 // System.out.println(value);
-                calculate(value.f5, sinkName);
+                calculate("0", sinkName);
             }
         }).setParallelism(config.getInteger(SmartGridConstants.Conf.PREDICTION_SINK_THREADS, 1));
     }
@@ -338,6 +342,139 @@ public class ConsoleSink extends BaseSink implements Serializable {
             }
         }).setParallelism(config.getInteger(ClickAnalyticsConstants.Conf.GEO_SINK_THREADS, 1));
     }
+
+    @Override
+    public void createSinkAA(DataStream<Tuple6<String, String, Double, Long, Long, Integer>> input) {
+        input.addSink(new RichSinkFunction<Tuple6<String, String, Double, Long, Long, Integer>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple6<String, String, Double, Long, Long, Integer> value, Context context) throws Exception {
+                super.invoke(value, context);
+                // System.out.println(value);
+                calculate("0");
+            }
+        }).setParallelism(config.getInteger(AdAnalyticsConstants.Conf.SINK_THREADS, 1));
+    }
+
+    @Override
+    public void createSinkBI(DataStream<Tuple4<String, Double, Integer, Double>> input) {
+        input.addSink(new RichSinkFunction<Tuple4<String, Double, Integer, Double>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple4<String, Double, Integer, Double> value, Context context) throws Exception {
+                super.invoke(value, context);
+                // System.out.println(value);
+                calculate("0");
+            }
+        }).setParallelism(config.getInteger(BargainIndexConstants.Conf.SINK_THREADS, 1));
+    }
+
+    @Override
+    public void createSinkRL(DataStream<Tuple2<String, String[]>> input) {
+        input.addSink(new RichSinkFunction<Tuple2<String, String[]>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple2<String, String[]> value, Context context) throws Exception {
+                super.invoke(value, context);
+                // System.out.println(value);
+                calculate("0");
+            }
+        }).setParallelism(config.getInteger(ReinforcementLearnerConstants.Conf.SINK_THREADS, 1));
+    }
+
+    @Override
+    public void createSinkSF(DataStream<Tuple3<String,Float,Boolean>> input) {
+        input.addSink(new RichSinkFunction<Tuple3<String,Float,Boolean>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple3<String,Float,Boolean> value, Context context) throws Exception {
+                super.invoke(value, context);
+                // System.out.println(value);
+                calculate("0");
+            }
+        }).setParallelism(config.getInteger(SpamFilterConstants.Conf.SINK_THREADS, 1));
+    }
+
+    @Override
+    public void createSinkTT(DataStream<Tuple1<Rankings>> input) {
+        input.addSink(new RichSinkFunction<Tuple1<Rankings>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple1<Rankings> value, Context context) throws Exception {
+                super.invoke(value, context);
+                // System.out.println(value);
+                calculate("0");
+            }
+        }).setParallelism(config.getInteger(TrendingTopicsConstants.Conf.SINK_THREADS, 1));
+    }
+
+    @Override
+    public void createSinkVS(DataStream<Tuple4<String, Long, Double, CallDetailRecord>> input) {
+        input.addSink(new RichSinkFunction<Tuple4<String, Long, Double, CallDetailRecord>>() {
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                super.open(parameters);
+            }
+
+            @Override
+            public void close() throws Exception {
+                super.close();
+            }
+
+            @Override
+            public void invoke(Tuple4<String, Long, Double, CallDetailRecord> value, Context context) throws Exception {
+                super.invoke(value, context);
+                // System.out.println(value);
+                calculate("0");
+            }
+        }).setParallelism(config.getInteger(VoIPStreamConstants.Conf.SINK_THREADS, 1));
+    }
+
 
     @Override
     public void sinkStreamYSB(SingleOutputStreamOperator<Aggregate_Event> input) {

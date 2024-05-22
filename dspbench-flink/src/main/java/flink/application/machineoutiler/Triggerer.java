@@ -3,7 +3,7 @@ package flink.application.machineoutiler;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
-import org.apache.flink.api.java.tuple.Tuple6;
+import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Triggerer extends Metrics implements
-        FlatMapFunction<Tuple6<String, Double, Long, Object, Double, String>, Tuple6<String, Double, Long, Boolean, Object, String>> {
+        FlatMapFunction<Tuple5<String, Double, Long, Object, Double>, Tuple5<String, Double, Long, Boolean, Object>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Triggerer.class);
 
@@ -40,8 +40,8 @@ public class Triggerer extends Metrics implements
     }
 
     @Override
-    public void flatMap(Tuple6<String, Double, Long, Object, Double, String> input,
-            Collector<Tuple6<String, Double, Long, Boolean, Object, String>> out) {
+    public void flatMap(Tuple5<String, Double, Long, Object, Double> input,
+            Collector<Tuple5<String, Double, Long, Boolean, Object>> out) {
         super.initialize(config);
         super.incReceived();
         getList();
@@ -72,9 +72,8 @@ public class Triggerer extends Metrics implements
 
                     if (isAbnormal) {
                         super.incEmitted();
-                        out.collect(new Tuple6<String, Double, Long, Boolean, Object, String>(streamProfile.getField(0),
-                                streamScore, streamProfile.getField(2), isAbnormal, streamProfile.getField(3),
-                                input.f5));
+                        out.collect(new Tuple5<String, Double, Long, Boolean, Object>(streamProfile.getField(0),
+                                streamScore, streamProfile.getField(2), isAbnormal, streamProfile.getField(3)));
                     }
                 }
 

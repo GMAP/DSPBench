@@ -3,8 +3,8 @@ package flink.application.smartgrid;
 import flink.constants.SmartGridConstants;
 import flink.util.Metrics;
 import org.apache.flink.api.java.tuple.Tuple;
-import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple8;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
@@ -14,13 +14,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<String, Long, Double, Integer, String, String, String, String>, Tuple4<Long,String, Double, String>, String, TimeWindow> {
+public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple7<String, Long, Double, Integer, String, String, String>, Tuple3<Long,String, Double>, String, TimeWindow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HouseLoadPredict.class);
     protected static long sliceLength = 60L;
     protected static long currentSliceStart;
 
-    protected String inittime = "";
     protected int tickCounter = 0;
     protected static Map<String, AverageTracker> trackers;
     protected static Map<String, SummaryArchive> archiveMap;
@@ -50,13 +49,11 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<S
     }
 
     @Override
-    public void apply(String s, TimeWindow window, Iterable<Tuple8<String, Long, Double, Integer, String, String, String, String>> input, Collector<Tuple4<Long, String, Double, String>> out) throws Exception {
+    public void apply(String s, TimeWindow window, Iterable<Tuple7<String, Long, Double, Integer, String, String, String>> input, Collector<Tuple3<Long, String, Double>> out) throws Exception {
         super.initialize(config);
-        for (Tuple8<String, Long, Double, Integer, String, String, String, String> in : input) {
+        for (Tuple7<String, Long, Double, Integer, String, String, String> in : input) {
 
-            if (inittime.equals("")) {
-                inittime = in.getField(7);
-            }
+            super.incReceived();
 
             int type = in.getField(3);
 
@@ -91,12 +88,11 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<S
         tickCounter = (tickCounter + 1) % 2;
         // time to emit
         if (tickCounter == 0) {
-            for (Iterator<Tuple4<Long, String, Double, String>> it = emitOutputStream(inittime); it.hasNext(); ) {
-                Tuple4<Long, String, Double, String> in = it.next();
-                out.collect(new Tuple4<Long,String, Double, String>(in.f0, in.f1, in.f2, in.f3));
-                super.calculateThroughput();
+            for (Iterator<Tuple3<Long, String, Double>> it = emitOutputStream(); it.hasNext(); ) {
+                Tuple3<Long, String, Double> in = it.next();
+                super.incEmitted();
+                out.collect(new Tuple3<Long,String, Double>(in.f0, in.f1, in.f2));
             }
-            inittime = "";
         }
     }
 
@@ -104,12 +100,12 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<S
         return currentAvg + median;
     }
 
-    protected Iterator<Tuple4<Long,String, Double, String>> emitOutputStream(String inittime) {
+    protected Iterator<Tuple3<Long,String, Double>> emitOutputStream() {
 
         track();
         archMap();
 
-        List<Tuple4<Long,String, Double, String>> tuples = new ArrayList<>();
+        List<Tuple3<Long,String, Double>> tuples = new ArrayList<>();
 
         for (String key : trackers.keySet()) {
             double currentAvg = trackers.get(key).retrieve();
@@ -122,7 +118,7 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple8<S
             double prediction = predict(currentAvg, median);
             long predictedTimeStamp = currentSliceStart + 2 * sliceLength;
 
-            tuples.add(new Tuple4<Long,String, Double, String>(predictedTimeStamp, key, prediction, inittime));
+            tuples.add(new Tuple3<Long,String, Double>(predictedTimeStamp, key, prediction));
         }
 
         return tuples.iterator();
