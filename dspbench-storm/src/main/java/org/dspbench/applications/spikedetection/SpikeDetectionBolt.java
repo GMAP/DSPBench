@@ -5,6 +5,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.dspbench.applications.spikedetection.SpikeDetectionConstants.Conf;
 import org.dspbench.applications.spikedetection.SpikeDetectionConstants.Field;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
 
 /**
@@ -23,11 +24,13 @@ public class SpikeDetectionBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        incReceived();
         String deviceID = input.getStringByField(Field.DEVICE_ID);
         double movingAverageInstant = input.getDoubleByField(Field.MOVING_AVG);
         double nextDouble = input.getDoubleByField(Field.VALUE);
         
         if (Math.abs(nextDouble - movingAverageInstant) > spikeThreshold * movingAverageInstant) {
+            incEmitted();
             collector.emit(input, new Values(deviceID, movingAverageInstant, nextDouble, "spike detected"));
         }
         

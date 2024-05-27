@@ -1,12 +1,12 @@
 package spark.streaming.function;
 
 import com.google.common.base.Optional;
-import java.util.Date;
-import java.util.List;
 import org.apache.spark.api.java.function.Function2;
 import spark.streaming.model.gis.Road;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
+
+import java.util.List;
 
 /**
  *
@@ -17,9 +17,14 @@ public class SpeedCalculator extends BaseFunction implements Function2<List<Tupl
     public SpeedCalculator(Configuration config) {
         super(config);
     }
-    
+
     @Override
-    public Optional<Tuple> call(List<Tuple> values, Optional<Tuple> state) throws Exception {
+    public void Calculate() throws InterruptedException {
+
+    }
+    
+
+   /* public Optional<Tuple> call(List<Tuple> values, Optional<Tuple> state) throws Exception {
         incReceived(values.size());
         
         Tuple newState = state.or(new Tuple(values));
@@ -35,7 +40,7 @@ public class SpeedCalculator extends BaseFunction implements Function2<List<Tupl
         
         incEmitted();
         return Optional.of(newState);
-    }
+    }*/
     
     private void updateTuple(Tuple state, Tuple tuple) {
         int roadID = tuple.getInt("roadID");
@@ -95,5 +100,10 @@ public class SpeedCalculator extends BaseFunction implements Function2<List<Tupl
         
         state.set("averageSpeed", averageSpeed);
         state.set("count", count);
+    }
+
+    @Override
+    public Optional<Object> call(List<Tuple> v1, Optional<Object> v2) throws Exception {
+        return null;
     }
 }

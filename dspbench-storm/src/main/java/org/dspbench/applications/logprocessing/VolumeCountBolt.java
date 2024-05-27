@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.lang3.mutable.MutableLong;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +18,6 @@ import org.dspbench.applications.logprocessing.LogProcessingConstants.Field;
  * This bolt will count number of log events per minute
  */
 public class VolumeCountBolt extends AbstractBolt {
-    private static final Logger LOG = LoggerFactory.getLogger(VolumeCountBolt.class);
-    
     private CircularFifoBuffer buffer;
     private Map<Long, MutableLong> counts;
 
@@ -32,6 +31,7 @@ public class VolumeCountBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        super.incBoth();
         long minute = input.getLongByField(Field.TIMESTAMP_MINUTES);
         
         MutableLong count = counts.get(minute);
@@ -49,12 +49,13 @@ public class VolumeCountBolt extends AbstractBolt {
             count.increment();
         }
         
-        collector.emit(input, new Values(minute, count.longValue()));
+        collector.emit(input, new Values(minute, count.longValue(), input.getStringByField(Field.INITTIME)));
         collector.ack(input);
+
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.TIMESTAMP_MINUTES, Field.COUNT);
+        return new Fields(Field.TIMESTAMP_MINUTES, Field.COUNT, Field.INITTIME);
     }
 }

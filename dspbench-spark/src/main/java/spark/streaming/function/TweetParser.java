@@ -18,6 +18,11 @@ public class TweetParser extends BaseFunction implements Function<Tuple2<String,
         super(config);
     }
 
+    @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
     private JSONParser getParser() {
         if (parser == null) {
             parser = new JSONParser();

@@ -16,6 +16,11 @@ public class CountSingleWords extends BaseFunction implements PairFunction<Tuple
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
+    @Override
     public Tuple2<String, Tuple> call(Tuple2<String, Tuple> input) throws Exception {
         incBoth();
         

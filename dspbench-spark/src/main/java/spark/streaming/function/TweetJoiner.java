@@ -16,6 +16,11 @@ public class TweetJoiner extends BaseFunction implements Function<Tuple2<Long, T
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
+    @Override
     public Tuple2<Long, Tuple> call(Tuple2<Long, Tuple2<Tuple2<Tuple, Float>, Tuple2<Tuple, Float>>> t1) throws Exception {
         Tuple t = t1._2._1._1;
         t.set("positiveScore", t1._2._1._2);

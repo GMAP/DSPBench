@@ -3,7 +3,10 @@ package spark.streaming;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
+
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.streaming.DataStreamWriter;
+import org.apache.spark.sql.streaming.StreamingQueryException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.streaming.application.AbstractApplication;
@@ -36,7 +39,7 @@ public class AppDriver {
             this.cls = cls;
         }
         
-        public JavaStreamingContext getContext(String applicationName, Configuration config) {
+        public DataStreamWriter<Row> getContext(String applicationName, Configuration config) {
             try {
                 Constructor c = cls.getConstructor(String.class, Configuration.class);
                 LOG.info("Loaded application {}", cls.getCanonicalName());
@@ -46,6 +49,9 @@ public class AppDriver {
                 return application.buildApplication();
             } catch (ReflectiveOperationException ex) {
                 LOG.error("Unable to load application class", ex);
+                return null;
+            } catch (StreamingQueryException e) {
+                LOG.error("Unable to query application");
                 return null;
             }
         }

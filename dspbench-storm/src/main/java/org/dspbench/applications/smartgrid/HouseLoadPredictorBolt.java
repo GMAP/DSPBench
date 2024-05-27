@@ -20,7 +20,7 @@ public class HouseLoadPredictorBolt extends LoadPredictorBolt {
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(SmartGridConstants.Field.TIMESTAMP, SmartGridConstants.Field.HOUSE_ID, SmartGridConstants.Field.PREDICTED_LOAD);
+        return new Fields(SmartGridConstants.Field.TIMESTAMP, SmartGridConstants.Field.HOUSE_ID, SmartGridConstants.Field.PREDICTED_LOAD, SmartGridConstants.Field.INITTIME);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class HouseLoadPredictorBolt extends LoadPredictorBolt {
     }
 
     @Override
-    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue) {
-        return new Values(predictedTimeStamp, keyString, predictedValue);
+    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue, String inittime) {
+        return new Values(predictedTimeStamp, keyString, predictedValue, inittime);
     }
 }

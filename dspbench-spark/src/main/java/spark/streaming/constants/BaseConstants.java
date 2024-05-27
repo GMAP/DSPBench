@@ -10,13 +10,13 @@ public interface BaseConstants {
     String BASE_PREFIX = "spark";
     
     interface BaseConfig {
+        String OUTPUT_MODE         = "spark.output.mode";
         String BATCH_SIZE         = "%s.batch.size";
         String CHECKPOINT_PATH    = "%s.checkpoint.path";
         
         String SOURCE_THREADS     = "%s.source.threads";
         String SOURCE_CLASS       = "%s.source.class";
         String SOURCE_PATH        = "%s.source.path";
-        String SOURCE_PARSER      = "%s.source.parser";
         String SOURCE_GENERATOR   = "%s.source.generator";
         String SOURCE_SOCKET_PORT = "%s.source.socket.port";
         String SOURCE_SOCKET_HOST = "%s.source.socket.host";
@@ -27,6 +27,7 @@ public interface BaseConstants {
         String KAFKA_CONSUMER_ID    = "%s.kafka.consumer.id";
         
         String SINK_THREADS        = "%s.sink.threads";
+        String PARSER_THREADS     = "fd.parser.threads";
         String SINK_CLASS          = "%s.sink.class";
         String SINK_PATH           = "%s.sink.path";
         String SINK_FORMATTER      = "%s.sink.formatter";

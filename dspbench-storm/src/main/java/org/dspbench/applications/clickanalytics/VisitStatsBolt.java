@@ -19,6 +19,7 @@ public class VisitStatsBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        incBoth();
         boolean unique = Boolean.parseBoolean(input.getStringByField(ClickAnalyticsConstants.Field.UNIQUE));
         total++;
         if(unique) uniqueCount++;

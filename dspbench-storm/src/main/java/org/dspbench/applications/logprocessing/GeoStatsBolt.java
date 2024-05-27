@@ -24,6 +24,7 @@ public class GeoStatsBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        incBoth();
         String country = input.getStringByField(ClickAnalyticsConstants.Field.COUNTRY);
         String city    = input.getStringByField(ClickAnalyticsConstants.Field.CITY);
         

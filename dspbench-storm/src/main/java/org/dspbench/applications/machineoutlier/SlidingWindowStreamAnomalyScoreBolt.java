@@ -13,8 +13,8 @@ import org.dspbench.bolt.AbstractBolt;
 
 /**
  * Summing up all the data instance scores as the stream anomaly score.
- * @author yexijiang
  *
+ * @author yexijiang
  */
 public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
     // hold the recent scores for each stream
@@ -34,7 +34,7 @@ public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
         long timestamp = input.getLongByField(MachineOutlierConstants.Field.TIMESTAMP);
         String id = input.getStringByField(MachineOutlierConstants.Field.ID);
         double dataInstanceAnomalyScore = input.getDoubleByField(MachineOutlierConstants.Field.DATAINST_ANOMALY_SCORE);
-        
+
         Queue<Double> slidingWindow = slidingWindowMap.get(id);
         if (slidingWindow == null) {
             slidingWindow = new LinkedList<>();
@@ -43,7 +43,7 @@ public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
         // update sliding window
         slidingWindow.add(dataInstanceAnomalyScore);
         if (slidingWindow.size() > this.windowLength) {
-                slidingWindow.poll();
+            slidingWindow.poll();
         }
         slidingWindowMap.put(id, slidingWindow);
 
@@ -51,13 +51,14 @@ public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
         for (double score : slidingWindow) {
             sumScore += score;
         }
-        
-        collector.emit(new Values(id, sumScore, timestamp, input.getValue(3), dataInstanceAnomalyScore));
+
+        collector.emit(new Values(id, sumScore, timestamp, input.getValue(3), dataInstanceAnomalyScore, input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION, MachineOutlierConstants.Field.CUR_DATAINST_SCORE);
+        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION, MachineOutlierConstants.Field.CUR_DATAINST_SCORE, MachineOutlierConstants.Field.INITTIME);
     }
 }

@@ -26,7 +26,7 @@ public class SpeedCalculatorBolt extends AbstractBolt {
     public void execute(Tuple input) {
         int roadID = input.getIntegerByField(Field.ROAD_ID);
         int speed  = input.getIntegerByField(Field.SPEED);
-        
+
         int averageSpeed = 0;
         int count = 0;
         
@@ -79,12 +79,13 @@ public class SpeedCalculatorBolt extends AbstractBolt {
             }
         }
         
-        collector.emit(input, new Values(new Date(), roadID, averageSpeed, count));
+        collector.emit(input, new Values(new Date(), roadID, averageSpeed, count, input.getStringByField(TrafficMonitoringConstants.Field.INITTIME)));
         collector.ack(input);
+        super.calculateThroughput();
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.NOW_DATE, Field.ROAD_ID, Field.AVG_SPEED, Field.COUNT);
+        return new Fields(Field.NOW_DATE, Field.ROAD_ID, Field.AVG_SPEED, Field.COUNT, Field.INITTIME);
     }
 }

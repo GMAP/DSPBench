@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import org.dspbench.spout.parser.Parser;
 import org.dspbench.util.stream.StreamValues;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class AlibabaMachineUsageParser extends Parser {
         values.add(timestamp);
         values.add(new MachineMetadata(timestamp, id, cpu, memory));
         values.setMessageId(msgId);
-        
+        values.add(Instant.now().toEpochMilli() + "");
         return ImmutableList.of(values);
     }
 }

@@ -9,6 +9,7 @@ public interface WordCountConstants extends BaseConstants {
         String TEXT  = "text";
         String WORD  = "word";
         String COUNT = "count";
+        String INITTIME = "inittime";
     }
     
     interface Conf extends BaseConf {

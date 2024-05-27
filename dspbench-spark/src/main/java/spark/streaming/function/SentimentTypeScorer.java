@@ -1,17 +1,23 @@
 package spark.streaming.function;
 
-import java.util.Set;
 import org.apache.spark.api.java.function.PairFunction;
 import scala.Tuple2;
 import spark.streaming.model.NLPResource;
 import spark.streaming.util.Configuration;
 import spark.streaming.util.Tuple;
 
+import java.util.Set;
+
 /**
  *
  * @author mayconbordin
  */
 public class SentimentTypeScorer extends BaseFunction implements PairFunction<Tuple2<Long, Tuple>, Long, Tuple2<Tuple, Float>> {
+    @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
     public static enum Type {Positive, Negative}
     
     private final Type type;

@@ -1,6 +1,8 @@
 package org.dspbench.applications.trafficmonitoring;
 
 import com.google.common.collect.ImmutableList;
+
+import java.time.Instant;
 import java.util.List;
 
 import org.dspbench.spout.parser.Parser;
@@ -45,7 +47,7 @@ public class BeijingTaxiTraceParser extends Parser {
             
             int msgId = String.format("%s:%s", carId, date.toString()).hashCode();
             
-            StreamValues values = new StreamValues(carId, date, occ, speed, bearing, lat, lon);
+            StreamValues values = new StreamValues(carId, date, occ, speed, bearing, lat, lon, Instant.now().toEpochMilli() + "");
             values.setMessageId(msgId);
             
             return ImmutableList.of(values);

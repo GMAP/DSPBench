@@ -83,7 +83,7 @@ public class StormRunner {
         driver.addApp("spamfilter"          , SpamFilterTopology.class);
         driver.addApp("spikedetection"      , SpikeDetectionTopology.class);
         driver.addApp("trendingtopics"      , TrendingTopicsTopology.class);
-        driver.addApp("voipstream"           , VoIPSTREAMTopology.class);
+        driver.addApp("voipstream"          , VoIPSTREAMTopology.class);
         driver.addApp("wordcount"           , WordCountTopology.class);
         driver.addApp("trafficmonitoring"   , TrafficMonitoringTopology.class);
         driver.addApp("smartgrid"           , SmartGridTopology.class);

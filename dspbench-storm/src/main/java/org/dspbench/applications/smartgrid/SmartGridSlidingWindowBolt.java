@@ -49,13 +49,14 @@ public class SmartGridSlidingWindowBolt extends AbstractBolt {
         });
         
         collector.emit(new Values(windowEntry.ts, windowEntry.houseId, windowEntry.houseHoldId,
-                windowEntry.plugId, windowEntry.value, SlidingWindowAction.ADD));
+                windowEntry.plugId, windowEntry.value, SlidingWindowAction.ADD, tuple.getStringByField(Field.INITTIME)));
+        super.calculateThroughput();
     }
 
     @Override
     public Fields getDefaultFields() {
         return new Fields(Field.TIMESTAMP, Field.HOUSE_ID, Field.HOUSEHOLD_ID,
-                Field.PLUG_ID, Field.VALUE, Field.SLIDING_WINDOW_ACTION);
+                Field.PLUG_ID, Field.VALUE, Field.SLIDING_WINDOW_ACTION, Field.INITTIME);
     }
     
     private class SlidingWindowEntryImpl implements SlidingWindowEntry {

@@ -1,19 +1,26 @@
 package spark.streaming.constants;
 
+/**
+ *
+ * @author mayconbordin
+ */
 public interface LogProcessingConstants extends BaseConstants {
     String PREFIX = "lp";
     
     interface Config extends BaseConfig {
-        String PARSER_THREADS         = "lp.parser.threads";
-        
         String VOLUME_COUNTER_WINDOW  = "lp.volume_counter.window";
-        String SINGLE_VOL_COUNTER_THREADS = "lp.single_volume_counter.threads";
         String VOLUME_COUNTER_THREADS = "lp.volume_counter.threads";
         String STATUS_COUNTER_THREADS = "lp.status_counter.threads";
-        String SINGLE_STATUS_COUNTER_THREADS = "lp.single_status_counter.threads";
         String GEO_FINDER_THREADS     = "lp.geo_finder.threads";
-        String COUNTRY_COUNTER_THREADS     = "lp.country_counter.threads";
-        String CITY_COUNTER_THREADS     = "lp.city_counter.threads";
-        String CITY_SINGLE_COUNTER_THREADS     = "lp.single_city_counter.threads";
+        String GEO_STATS_THREADS      = "lp.geo_stats.threads";
+    }
+
+    interface Component {
+        String SINK_VISIT = "ca.visit.sink.class";
+        String SINK_LOCATION = "ca.location.sink.class";
+
+        String VOLUME_SINK = "lp.count.sink.class";
+        String STATUS_SINK = "lp.status.sink.class";
+        String GEO_SINK = "lp.country.sink.class";
     }
 }

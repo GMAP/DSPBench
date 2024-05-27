@@ -13,7 +13,6 @@ public class Road implements Serializable {
         this.roadID = roadID;
         this.roadSpeed = new FixedSizeQueue<>(30);
     }
-
     public int getRoadID() {
         return roadID;
     }

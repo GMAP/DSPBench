@@ -15,6 +15,11 @@ public class CountWordPairs extends BaseFunction implements Function2<Tuple, Tup
     }
 
     @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
+    @Override
     public Tuple call(Tuple tupleOne, Tuple tupleTwo) throws Exception {
         incReceived(2);
         

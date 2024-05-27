@@ -23,6 +23,11 @@ public class GeoFinder extends BaseFunction implements PairFunction<Tuple2<Long,
         this.dbPath = config.get(Configuration.GEOIP2_DB);
     }
 
+    @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
     public IPLocation getResolver() {
         if (resolver == null) {
             resolver = new GeoIP2Location(this.dbPath);

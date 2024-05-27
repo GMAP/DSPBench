@@ -26,5 +26,6 @@ public interface FraudDetectionConstants extends BaseConstants {
         String RECORD_DATA = "recordData";
         String SCORE = "score";
         String STATES = "states";
+        String INITTIME = "inittime";
     }
 }

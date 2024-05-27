@@ -14,7 +14,12 @@ public class CountPerMinute extends BaseFunction implements PairFunction<Tuple2<
     public CountPerMinute(Configuration config) {
         super(config);
     }
-    
+
+    @Override
+    public void Calculate() throws InterruptedException {
+
+    }
+
     @Override
     public Tuple2<Long, Tuple> call(Tuple2<Long, Tuple> input) throws Exception {
         incBoth();

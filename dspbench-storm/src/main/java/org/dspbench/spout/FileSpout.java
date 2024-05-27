@@ -2,13 +2,17 @@ package org.dspbench.spout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.storm.tuple.Fields;
+import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.constants.BaseConstants;
 import org.dspbench.util.config.ClassLoaderUtils;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +81,7 @@ public class FileSpout extends AbstractSpout {
         
         LOG.info("Number of files to read: {}", files.length);
     }
-    
+
     @Override
     public void nextTuple() {
         String value = readFile();
@@ -86,14 +90,17 @@ public class FileSpout extends AbstractSpout {
             return;
         
         List<StreamValues> tuples = parser.parse(value);
-        
+        long unixTime = 0;
         if (tuples != null) {
             for (StreamValues values : tuples) {
                 String msgId = String.format("%d%d", curFileIndex, curLineIndex);
                 collector.emit(values.getStreamId(), values, msgId);
             }
         }
+        incBoth();
     }
+
+
 
     protected String readFile() {
         if (finished) return null;
