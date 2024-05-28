@@ -32,6 +32,7 @@ public class BayesRule extends Metrics implements FlatMapFunction<Tuple3<String,
     @Override
     public void flatMap(Tuple3<String, Word, Integer> value, Collector<Tuple3<String, Float, Boolean>> out)
             throws Exception {
+        super.initialize(config);
         super.incReceived();
         String id    = value.getField(0);
         Word word    = (Word) value.getField(1);

@@ -30,5 +30,6 @@ public interface ReinforcementLearnerConstants extends BaseConstants {
         String SINK_THREADS = "rl.sink.threads";
 
         String DEBUG_ON = "debug.on";
+        String GENERATOR_MAX_ROUNDS           = "rl.generator.max_rounds";
     }
 }

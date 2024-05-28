@@ -20,7 +20,7 @@ public class CDRGenerator extends RichParallelSourceFunction<Tuple4<String, Stri
 
     public CDRGenerator(Configuration config) {
         this.population = config.getInteger(VoIPStreamConstants.Conf.GENERATOR_POPULATION, 50);
-        this.errorProb  = config.getDouble(VoIPStreamConstants.Conf.GENERATOR_POPULATION, 0.05);
+        this.errorProb  = config.getDouble(VoIPStreamConstants.Conf.GENERATOR_ERROR_PROB, 0.05);
         
         this.phoneNumbers = new String[population];
         

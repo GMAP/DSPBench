@@ -81,6 +81,7 @@ public class TotalRankings extends ProcessAllWindowFunction<Tuple1<Rankings>,Tup
         }
 
         //collector.emit(new Values(rankings.copy()));
+        metrics.incEmitted("TotalRankings");
         out.collect(new Tuple1<Rankings>(rankings.copy()));
         getLogger().debug("Rankings: " + rankings);
     }
