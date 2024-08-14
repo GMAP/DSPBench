@@ -224,3 +224,4 @@ dspbench-flink/bin/main/config/*
 dspbench-flink/bin/main/frauddetection/*
 dspbench-flink/bin/main/sentimentanalysis/*
 dspbench-commons/*
+dspbench-flink/txts

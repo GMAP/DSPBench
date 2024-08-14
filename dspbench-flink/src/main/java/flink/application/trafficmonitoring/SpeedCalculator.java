@@ -27,7 +27,7 @@ public class SpeedCalculator extends Metrics implements
     public SpeedCalculator(Configuration config) {
         this.config = config;
         super.initialize(config);
-        roads = new HashMap<>();
+        this.roads = new HashMap<>();
     }
 
     @Override

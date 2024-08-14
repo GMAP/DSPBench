@@ -37,9 +37,8 @@ public class RankableObjectWithFields implements Rankable, Serializable {
 
   private final Object obj;
   private final long count;
-  private final ImmutableList<Object> fields;
 
-  public RankableObjectWithFields(Object obj, long count, Object... otherFields) {
+  public RankableObjectWithFields(Object obj, long count) {
     if (obj == null) {
       throw new IllegalArgumentException("The object must not be null");
     }
@@ -48,7 +47,6 @@ public class RankableObjectWithFields implements Rankable, Serializable {
     }
     this.obj = obj;
     this.count = count;
-    fields = ImmutableList.copyOf(otherFields);
 
   }
 
@@ -70,7 +68,7 @@ public class RankableObjectWithFields implements Rankable, Serializable {
     }
     Object obj = otherFields.remove(0);
     Long count = (Long) otherFields.remove(0);
-    return new RankableObjectWithFields(obj, count, otherFields.toArray());
+    return new RankableObjectWithFields(obj, count);
   }
 
   public Object getObject() {
@@ -79,13 +77,6 @@ public class RankableObjectWithFields implements Rankable, Serializable {
 
   public long getCount() {
     return count;
-  }
-
-  /**
-   * @return an immutable list of any additional data fields of the object (may be empty but will never be null)
-   */
-  public List<Object> getFields() {
-    return fields;
   }
 
   @Override
@@ -129,10 +120,6 @@ public class RankableObjectWithFields implements Rankable, Serializable {
     buf.append(obj);
     buf.append(toStringSeparator);
     buf.append(count);
-    for (Object field : fields) {
-      buf.append(toStringSeparator);
-      buf.append(field);
-    }
     buf.append("]");
     return buf.toString();
   }
@@ -145,8 +132,7 @@ public class RankableObjectWithFields implements Rankable, Serializable {
    */
   @Override
   public Rankable copy() {
-    List<Object> shallowCopyOfFields = ImmutableList.copyOf(getFields());
-    return new RankableObjectWithFields(getObject(), getCount(), shallowCopyOfFields);
+    return new RankableObjectWithFields(getObject(), getCount());
   }
 
 }

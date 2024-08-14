@@ -20,18 +20,16 @@ public class AnomalyScorer extends Metrics implements
 
     private static final Logger LOG = LoggerFactory.getLogger(AnomalyScorer.class);
 
-    private static Map<String, Queue<Double>> slidingWindowMap;
-    private static int windowLength;
-    private static long previousTimestamp;
+    private static HashMap<String, Queue<Double>> slidingWindowMap;
+    private final int windowLength;
 
     Configuration config;
 
-    public AnomalyScorer(Configuration config) {
+    public AnomalyScorer(Configuration config, int windowLength) {
         super.initialize(config);
         this.config = config;
         //config.getString(MachineOutlierConstants.Conf.SCORER_DATA_TYPE, "machineMetadata");
-        windowLength = config.getInteger(MachineOutlierConstants.Conf.ANOMALY_SCORER_WINDOW_LENGTH, 10);
-        previousTimestamp = 0;
+        this.windowLength = windowLength;
     }
 
     private Map<String, Queue<Double>> getWindow() {
@@ -54,7 +52,7 @@ public class AnomalyScorer extends Metrics implements
 
         Queue<Double> slidingWindow = slidingWindowMap.get(id);
         if (slidingWindow == null) {
-            slidingWindow = new LinkedList<>();
+            slidingWindow = new LinkedList<Double>();
         }
 
         // update sliding window
@@ -62,8 +60,8 @@ public class AnomalyScorer extends Metrics implements
         if (slidingWindow.size() > windowLength) {
             slidingWindow.poll();
         }
-        slidingWindowMap.put(id, slidingWindow);
 
+        slidingWindowMap.put(id, slidingWindow);
         double sumScore = 0.0;
         for (double score : slidingWindow) {
             sumScore += score;

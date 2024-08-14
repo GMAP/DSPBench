@@ -30,7 +30,7 @@ public class JsonEmailParser extends Parser implements MapFunction<String, Tuple
             JSONObject email = new JSONObject(value);
 
             super.incEmitted();
-            return new Tuple3<String, String, Boolean>((String) email.get("id"), (String) email.get("message"), false);
+            return new Tuple3<String, String, Boolean>((String) email.get("id"), (String) email.get("message"), (Boolean) email.get("spam"));
         } catch (JsonSyntaxException ex) {
             LOG.error("Error parsing JSON encoded email", ex);
         }

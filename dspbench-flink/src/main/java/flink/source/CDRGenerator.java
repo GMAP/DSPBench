@@ -37,7 +37,6 @@ public class CDRGenerator extends RichParallelSourceFunction<Tuple4<String, Stri
     @Override
     public void run(SourceContext<Tuple4<String, String, DateTime, CallDetailRecord>> ctx) throws Exception {
         CallDetailRecord cdr = new CallDetailRecord();
-        long epoch = System.nanoTime();
         int count = 0;
         
         while (isRunning && count <= population) {

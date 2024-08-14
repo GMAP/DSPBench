@@ -51,7 +51,7 @@ public class Triggerer extends Metrics implements
         if (timestamp > previousTimestamp) {
             // new batch of stream scores
             if (!streamList.isEmpty()) {
-                List<Tuple> abnormalStreams = this.identifyAbnormalStreams();
+                List<Tuple> abnormalStreams = identifyAbnormalStreams();
                 int medianIdx = streamList.size() / 2;
                 double minScore = abnormalStreams.get(0).getField(1);
                 double medianScore = abnormalStreams.get(medianIdx).getField(1);
@@ -62,8 +62,15 @@ public class Triggerer extends Metrics implements
                     double curDataInstScore = streamProfile.getField(4);
                     boolean isAbnormal = false;
 
+                    /*LOG.info("streamProfile " + Integer.toString(i) + " : " + streamProfile.toString());
+                    LOG.info("curDataInstScore " + Integer.toString(i) + " : " + Double.toString(curDataInstScore));
+                    LOG.info("streamScore " + Integer.toString(i) + " : " + Double.toString(streamScore));
+                    LOG.info("medianScore " + Integer.toString(i) + " : " + Double.toString(medianScore));
+                    LOG.info("minScore " + Integer.toString(i) + " : " + Double.toString(minScore));*/
+
                     // current stream score deviates from the majority
                     if ((streamScore > 2 * medianScore - minScore) && (streamScore > minScore + 2 * dupper)) {
+                        
                         // check whether cur data instance score return to normal
                         if (curDataInstScore > 0.1 + minDataInstanceScore) {
                             isAbnormal = true;

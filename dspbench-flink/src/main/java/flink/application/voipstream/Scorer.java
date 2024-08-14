@@ -54,9 +54,12 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple5<String, Lo
         long timestamp = cdr.getAnswerTime().getMillis()/1000;
         double score   = value.getField(2);
         String key     = String.format("%s:%d", caller, timestamp);
+        LOG.info(src + " - " + key);
         
         if (map.containsKey(key)) {
             Entry e = map.get(key);
+
+            e.set(src, score);
             
             if (e.isFull()) {
                 double mainScore = sum(e.getValues(), weights);
@@ -65,8 +68,6 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple5<String, Lo
                 
                 super.incEmitted();
                 out.collect(new Tuple4<String,Long,Double,CallDetailRecord>(caller, timestamp, mainScore, cdr));
-            } else {
-                e.set(src, score);
             }
         } else {
             Entry e = new Entry(cdr);

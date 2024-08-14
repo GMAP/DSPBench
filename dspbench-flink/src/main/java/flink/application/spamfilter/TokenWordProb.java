@@ -84,7 +84,7 @@ public class TokenWordProb extends RichCoFlatMapFunction<Tuple3<String, String, 
     @Override
     public void flatMap1(Tuple3<String, String, Boolean> value, Collector<Tuple3<String, Word, Integer>> out)
             throws Exception {
-        //TRAINNING
+        //TRAINING
         metrics.incReceived("TokenWordProb");
         String content = value.getField(1);
         boolean isSpam = value.getField(2);

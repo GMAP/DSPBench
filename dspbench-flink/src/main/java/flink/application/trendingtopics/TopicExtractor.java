@@ -1,21 +1,20 @@
 package flink.application.trendingtopics;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import flink.constants.TrendingTopicsConstants;
 import flink.util.Metrics;
 
-public class TopicExtractor extends Metrics implements FlatMapFunction<Tuple1<JSONObject>, Tuple1<String>>{
+public class TopicExtractor extends Metrics implements FlatMapFunction<Tuple3<String, String, Date>, Tuple1<String>>{
     private static final Logger LOG = LoggerFactory.getLogger(TopicExtractor.class);
 
     Configuration config;
@@ -26,10 +25,9 @@ public class TopicExtractor extends Metrics implements FlatMapFunction<Tuple1<JS
     }
 
     @Override
-    public void flatMap(Tuple1<JSONObject> value, Collector<Tuple1<String>> out) throws Exception {
+    public void flatMap(Tuple3<String, String, Date>value, Collector<Tuple1<String>> out) throws Exception {
         super.initialize(config);
-        Map tweet = (Map) value.getField(0);
-        String text = (String) tweet.get("text");
+        String text = (String) value.getField(1);
         super.incReceived();
         
         if (text != null) {

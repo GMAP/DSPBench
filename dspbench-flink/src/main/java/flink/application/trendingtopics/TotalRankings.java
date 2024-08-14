@@ -1,22 +1,17 @@
 package flink.application.trendingtopics;
 
 import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
-import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
-import flink.tools.Rankable;
-import flink.tools.RankableObjectWithFields;
 import flink.tools.Rankings;
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -83,7 +78,7 @@ public class TotalRankings extends ProcessAllWindowFunction<Tuple1<Rankings>,Tup
         //collector.emit(new Values(rankings.copy()));
         metrics.incEmitted("TotalRankings");
         out.collect(new Tuple1<Rankings>(rankings.copy()));
-        getLogger().debug("Rankings: " + rankings);
+        LOG.info("Rankings: " + rankings);
     }
 }
 
