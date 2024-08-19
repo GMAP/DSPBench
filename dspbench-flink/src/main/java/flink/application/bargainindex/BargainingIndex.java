@@ -25,7 +25,7 @@ import flink.constants.BaseConstants;
 import flink.util.Configurations;
 import flink.util.MetricsFactory;
 
-public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double, DateTime, DateTime>, Tuple5<String, Double, Integer, Date, Integer>, Tuple4<String, Double, Integer, Double>> {
+public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double, DateTime, DateTime>, Tuple5<String, Double, Integer, DateTime, Integer>, Tuple4<String, Double, Integer, Double>> {
     private Map<String, TradeSummary> trades;
     private double threshold;
     Configuration config;
@@ -71,7 +71,7 @@ public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double
     }
 
     @Override
-    public void flatMap2(Tuple5<String, Double, Integer, Date, Integer> value,
+    public void flatMap2(Tuple5<String, Double, Integer, DateTime, Integer> value,
             Collector<Tuple4<String, Double, Integer, Double>> out) throws Exception {
         // QUOTES
         metrics.incReceived("BargainingIndex");

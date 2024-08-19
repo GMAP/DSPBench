@@ -77,6 +77,7 @@ public class RollingCount extends Metrics implements WindowFunction<Tuple1<Strin
             Object obj = entry.getKey();
             Long count = entry.getValue();
             //collector.emit(new Values(obj, count, actualWindowLengthInSeconds));
+            super.incEmitted();
             out.collect(new Tuple3<Object,Long,Integer>(obj, count, actualWindowLengthInSeconds));
         }
     }

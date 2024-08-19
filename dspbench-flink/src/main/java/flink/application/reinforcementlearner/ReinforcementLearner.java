@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import flink.application.AbstractApplication;
 import flink.constants.ReinforcementLearnerConstants;
 import flink.parsers.LearnerParser;
+import flink.source.CTRGenerator;
+import flink.source.RewardSource;
 
 public class ReinforcementLearner extends AbstractApplication {
 
@@ -35,12 +37,12 @@ public class ReinforcementLearner extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> event = createSource("event");
-        DataStream<String> reward = createSource("reward");
+        DataStream<String> event = createSource("event"); // CTRGenerator event = new CTRGenerator(config); 
+        DataStream<String> reward = createSource("reward"); // RewardSource reward = new RewardSource(config);  
 
         // Parser
-        DataStream<Tuple2<String, Integer>> eventParser = event.map(new LearnerParser(config)).setParallelism(eventParserThreads);
-        DataStream<Tuple2<String, Integer>> rewardParser = reward.map(new LearnerParser(config)).setParallelism(rewardParserThreads);
+        DataStream<Tuple2<String, Integer>> eventParser = event.map(new LearnerParser(config)).setParallelism(rewardParserThreads); // env.addSource(event);
+        DataStream<Tuple2<String, Integer>> rewardParser = reward.map(new LearnerParser(config)).setParallelism(rewardParserThreads); // env.addSource(reward); 
 
         // Process
         DataStream<Tuple2<String, String[]>> reinforcementLearner = eventParser.rebalance().connect(rewardParser.broadcast()).flatMap(new Learner(config)).setParallelism(learnerThreads);

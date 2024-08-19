@@ -4,6 +4,7 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -11,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-public class StockQuotesParser extends Parser implements MapFunction<String, Tuple5<String, Double, Integer, Date, Integer>>{
-    private static final DateTimeFormatter dtFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+public class StockQuotesParser extends Parser implements MapFunction<String, Tuple5<String, Double, Integer, DateTime, Integer>>{
+    
     private static final Logger LOG = LoggerFactory.getLogger(StockQuotesParser.class);
     Configuration config;
 
@@ -22,12 +23,13 @@ public class StockQuotesParser extends Parser implements MapFunction<String, Tup
     }
 
     @Override
-    public Tuple5<String, Double, Integer, Date, Integer> map(String value) throws Exception {
+    public Tuple5<String, Double, Integer, DateTime, Integer> map(String value) throws Exception {
+        DateTimeFormatter dtFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
         super.initialize(config);
         String[] record = value.split(",");
         super.incReceived();
 
-        if (record.length != 7)
+        if (record.length < 8)
             return null;
 
         // exclude header
@@ -36,7 +38,7 @@ public class StockQuotesParser extends Parser implements MapFunction<String, Tup
         }
 
         String stock      = record[0];
-        Date date         = dtFormatter.parseLocalDate(record[1]).toDate();
+        DateTime date     = dtFormatter.parseDateTime(record[1]).withTimeAtStartOfDay();
         double open       = Double.parseDouble(record[2]);
         double high       = Double.parseDouble(record[3]);
         double low        = Double.parseDouble(record[4]);
@@ -53,7 +55,7 @@ public class StockQuotesParser extends Parser implements MapFunction<String, Tup
         int interval = 24 * 60 * 60;
 
         super.incEmitted();
-        return new Tuple5<String,Double,Integer,Date,Integer>(stock, close, volume, date, interval);
+        return new Tuple5<String,Double,Integer,DateTime,Integer>(stock, close, volume, date, interval);
     }
 
     @Override

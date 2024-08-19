@@ -1,5 +1,7 @@
 package flink.application.trendingtopics;
 
+import java.util.Date;
+
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
@@ -10,10 +12,9 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTime
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.json.simple.JSONObject;
 import flink.application.AbstractApplication;
 import flink.constants.TrendingTopicsConstants;
-import flink.parsers.JsonParser;
+import flink.parsers.JsonTweetParser;
 import flink.tools.Rankings;
 
 public class TrendingTopics extends AbstractApplication{
@@ -58,7 +59,7 @@ public class TrendingTopics extends AbstractApplication{
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple1<JSONObject>> parser = data.map(new JsonParser(config)).setParallelism(parserThreads);
+        DataStream<Tuple3<String, String, Date>> parser = data.map(new JsonTweetParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple1<String>> topicExtractor = parser.filter(value -> value != null).flatMap(new TopicExtractor(config)).setParallelism(topicExtractorThreads);
@@ -70,12 +71,12 @@ public class TrendingTopics extends AbstractApplication{
 
         //Maybe Window is not the right one in this case!!!!
         DataStream<Tuple1<Rankings>> interRanker = counter.keyBy(value -> value.f0)
-            .window(TumblingProcessingTimeWindows.of(Time.seconds(interRankFreq)))
+            .window(TumblingProcessingTimeWindows.of(Time.seconds(counterWindowLength)))
             .apply(new IntermediateRanking(config, TOPK, interRankFreq))
             .setParallelism(interRankThreads);
-
+         
         DataStream<Tuple1<Rankings>> totalRanker = interRanker
-            .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(totalRankFreq)))
+            .windowAll(TumblingProcessingTimeWindows.of(Time.seconds(counterWindowLength)))
             .process(new TotalRankings(config, TOPK, totalRankFreq))
             .setParallelism(totalRankThreads);
 

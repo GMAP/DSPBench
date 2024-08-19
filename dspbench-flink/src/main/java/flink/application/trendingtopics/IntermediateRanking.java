@@ -65,9 +65,9 @@ public class IntermediateRanking extends Metrics implements WindowFunction<Tuple
 
         }
 
-        //collector.emit(new Values(rankings.copy()));
+        super.incEmitted();
         out.collect(new Tuple1<Rankings>(rankings.copy()));
-        getLogger().debug("Rankings: " + rankings);
+        LOG.info("Rankings: " + rankings);
     }
 
     Logger getLogger() {

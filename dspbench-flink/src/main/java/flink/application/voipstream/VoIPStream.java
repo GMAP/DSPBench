@@ -15,12 +15,15 @@ import org.slf4j.LoggerFactory;
 import flink.application.AbstractApplication;
 import flink.application.adanalytics.AdEvent;
 import flink.constants.VoIPStreamConstants;
+import flink.parsers.LearnerParser;
+import flink.parsers.VoIPParser;
 import flink.source.CDRGenerator;
 
 public class VoIPStream extends AbstractApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(VoIPStream.class);
 
+    private int parserThreads;
     private int varDetectThreads;
     private int ecrThreads;
     private int rcrThreads;
@@ -38,6 +41,7 @@ public class VoIPStream extends AbstractApplication {
 
     @Override
     public void initialize() {
+        parserThreads = config.getInteger(VoIPStreamConstants.Conf.PARSER_THREADS, 1);
         varDetectThreads = config.getInteger(VoIPStreamConstants.Conf.VAR_DETECT_THREADS, 1);
         ecrThreads       = config.getInteger(VoIPStreamConstants.Conf.ECR_THREADS, 1);
         rcrThreads       = config.getInteger(VoIPStreamConstants.Conf.RCR_THREADS, 1);
@@ -55,10 +59,13 @@ public class VoIPStream extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        CDRGenerator source = new CDRGenerator(config);
-        DataStream<Tuple4<String, String, DateTime, CallDetailRecord>> data = env.addSource(source);
-
-        // Process
+        DataStream<String> source = createSource(); // 
+        //CDRGenerator source = new CDRGenerator(config);
+        
+        // Parser
+        DataStream<Tuple4<String, String, DateTime, CallDetailRecord>> data =  source.map(new VoIPParser(config)).setParallelism(parserThreads); // env.addSource(source); 
+        
+        // Processs
         DataStream<Tuple5<String, String, DateTime, Boolean, CallDetailRecord>> variationDetector = data.keyBy(
             new KeySelector<Tuple4<String, String, DateTime, CallDetailRecord>,Tuple2<String, String>>() {
                 @Override
@@ -77,7 +84,7 @@ public class VoIPStream extends AbstractApplication {
                 }
             }
         ).flatMap(new VariationDetector(config)).setParallelism(varDetectThreads);*/
-
+        
         // Filters
         DataStream<Tuple4<String, Long, Double, CallDetailRecord>> ECR = variationDetector.keyBy(value -> value.f0)
             .flatMap(new ECR(config, "ecr")).setParallelism(ecrThreads);

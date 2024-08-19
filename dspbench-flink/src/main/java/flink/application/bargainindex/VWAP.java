@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import flink.constants.BargainIndexConstants;
 import flink.util.Metrics;
 
-public class VWAP extends Metrics implements FlatMapFunction<Tuple5<String, Double, Integer, Date, Integer>, Tuple4<String, Double, DateTime, DateTime>>{
+public class VWAP extends Metrics implements FlatMapFunction<Tuple5<String, Double, Integer, DateTime, Integer>, Tuple4<String, Double, DateTime, DateTime>>{
     private static final DateTimeComparator dateOnlyComparator = DateTimeComparator.getDateOnlyInstance();
     
     private Map<String, Vwap> stocks;
@@ -36,7 +36,7 @@ public class VWAP extends Metrics implements FlatMapFunction<Tuple5<String, Doub
     }
 
     @Override
-    public void flatMap(Tuple5<String, Double, Integer, Date, Integer> value, Collector<Tuple4<String, Double, DateTime, DateTime>> out) {
+    public void flatMap(Tuple5<String, Double, Integer, DateTime, Integer> value, Collector<Tuple4<String, Double, DateTime, DateTime>> out) {
         super.initialize(config);
         super.incReceived();
         
@@ -48,8 +48,8 @@ public class VWAP extends Metrics implements FlatMapFunction<Tuple5<String, Doub
 
         Vwap vwap = stocks.get(stock);
 
-        if (withinPeriod(vwap, date)) {
-            vwap.update(volume, price, date.plusSeconds(interval));
+        if (withinPeriod(vwap, date.withTimeAtStartOfDay())) {
+            vwap.update(volume, price, date.withTimeAtStartOfDay().plusSeconds(interval));
             super.incEmitted();
             //collector.emit(input, new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
             out.collect(new Tuple4<String,Double,DateTime,DateTime>(stock,  vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
@@ -60,7 +60,7 @@ public class VWAP extends Metrics implements FlatMapFunction<Tuple5<String, Doub
                 out.collect(new Tuple4<String,Double,DateTime,DateTime>(stock,  vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
             }
             
-            vwap = new Vwap(volume, price, date, date.plusSeconds(interval));
+            vwap = new Vwap(volume, price, date.withTimeAtStartOfDay(), date.withTimeAtStartOfDay().plusSeconds(interval));
             stocks.put(stock, vwap);
             
             super.incEmitted();

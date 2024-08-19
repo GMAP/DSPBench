@@ -45,8 +45,8 @@ public class BargainIndex extends AbstractApplication{
         DataStream<String> trades = createSource("trades");
 
         // Parser
-        DataStream<Tuple5<String, Double, Integer, Date, Integer>> quotesParser = quotes.map(new StockQuotesParser(config)).filter(value -> (value != null)).setParallelism(quotesParserThreads);
-        DataStream<Tuple5<String, Double, Integer, Date, Integer>> tradesParser = trades.map(new StockQuotesParser(config)).filter(value -> (value != null)).setParallelism(tradesParserThreads);
+        DataStream<Tuple5<String, Double, Integer, DateTime, Integer>> quotesParser = quotes.map(new StockQuotesParser(config)).filter(value -> (value != null)).setParallelism(quotesParserThreads);
+        DataStream<Tuple5<String, Double, Integer, DateTime, Integer>> tradesParser = trades.map(new StockQuotesParser(config)).filter(value -> (value != null)).setParallelism(tradesParserThreads);
 
         // Process
         DataStream<Tuple4<String, Double, DateTime, DateTime>> VWAP = tradesParser.keyBy(value -> value.f0).flatMap(new VWAP(config)).setParallelism(VWAPThreads);

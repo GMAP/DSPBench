@@ -54,6 +54,7 @@ public class Scorer extends Metrics implements
         super.incReceived();
         getList();
         createScorer(config);
+
         long timestamp = input.getField(1);
         if (timestamp > previousTimestamp) {
             // a new batch of observation, calculate the scores of old batch and then emit

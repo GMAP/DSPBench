@@ -4,7 +4,7 @@ import datetime;
 
 exec = "stream"
 
-def change_prop(run, app, stage1, stage2, stage3, stage4, stage5, stage6):
+def change_prop(run, app, stage1=1, stage2=1, stage3=1, stage4=1, stage5=1, stage6=1, stage7=1, stage8=1, stage9=1, stage10=1, stage11=1, stage12=1, stage13=1):
     print("change prop")
     if app == "wordcount":
         #Remove last line
@@ -87,6 +87,182 @@ def change_prop(run, app, stage1, stage2, stage3, stage4, stage5, stage6):
         os.system('echo "sa.classifier.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/sentimentanalysis.properties')
         os.system('echo "sa.sink.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/sentimentanalysis.properties')
         os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/SA'+str(stage1)+str(stage2)+str(stage3)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/sentimentanalysis.properties')
+    
+    elif app == "frauddetection":
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties")
+        #Add lines
+        os.system('echo "fd.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties')
+        os.system('echo "fd.predictor.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties')
+        os.system('echo "fd.sink.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/FD'+str(stage1)+str(stage2)+str(stage3)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/frauddetection.properties')
+    
+    elif app == "machineoutlier":
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties")
+        #Add lines
+        os.system('echo "mo.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties')
+        os.system('echo "mo.scorer.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties')
+        os.system('echo "mo.anomaly_scorer.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties')
+        os.system('echo "mo.alert_trigger.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties')
+        os.system('echo "mo.sink.threads='+str(stage5)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/MO'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+str(stage5)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/machineoutlier.properties')
+    
+    elif app == "smartgrid":
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties")
+        #Add lines
+        os.system('echo "sg.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.sliding_window.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.global_median.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.plug_median.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.outlier_detector.threads='+str(stage5)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.house_load.threads='+str(stage6)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.plug_load.threads='+str(stage7)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.outlier.sink.threads='+str(stage8)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "sg.prediction.sink.threads='+str(stage9)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/SG'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+str(stage5)+str(stage6)+str(stage7)+str(stage8)+str(stage9)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/smartgrid.properties')
+    
+    elif app == "trafficmonitoring":  
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties")
+        #Add lines
+        os.system('echo "tm.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties')
+        os.system('echo "tm.map_matcher.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties')
+        os.system('echo "tm.speed_calculator.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties')
+        os.system('echo "tm.sink.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/TM'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trafficmonitoring.properties')
+    
+    elif app == "adanalytics": 
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties")
+        #Add lines
+        os.system('echo "aa.click.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties')
+        os.system('echo "aa.impressions.parser.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties')
+        os.system('echo "aa.ctr.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties')
+        os.system('echo "aa.sink.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/AA'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/adanalytics.properties')
+    
+    elif app == "bargainindex": 
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties")
+        #Add lines
+        os.system('echo "bi.quotes.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties')
+        os.system('echo "bi.trades.parser.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties')
+        os.system('echo "bi.vwap.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties')
+        os.system('echo "bi.bargainindex.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties')
+        os.system('echo "bi.sink.threads='+str(stage5)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/BI'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+str(stage5)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/bargainindex.properties')
+    
+    elif app == "reinforcementlearner": 
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties")
+        #Add lines
+        os.system('echo "rl.event.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties')
+        os.system('echo "rl.reward.parser.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties')
+        os.system('echo "rl.learner.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties')
+        os.system('echo "rl.sink.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/RL'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/reinforcementlearner.properties')
+    
+    elif app == "spamfilter": 
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties")
+        #Add lines
+        os.system('echo "sf.training.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties')
+        os.system('echo "sf.analysis.parser.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties')
+        os.system('echo "sf.tokenizer.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties')
+        os.system('echo "sf.bayesrule.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties')
+        os.system('echo "sf.sink.threads='+str(stage5)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/SF'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+str(stage5)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/spamfilter.properties')
+    
+    elif app == "trendingtopics": 
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties")
+        #Add lines
+        os.system('echo "tt.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties')
+        os.system('echo "tt.topic_extractor.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties')
+        os.system('echo "tt.counter.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties')
+        os.system('echo "tt.iranker.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties')
+        os.system('echo "tt.tranker.threads='+str(stage5)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties')
+        os.system('echo "tt.sink.threads='+str(stage6)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/TT'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+str(stage5)+str(stage6)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/trendingtopics.properties')
+    
+    elif app == "voipstream": 
+        #Remove last line
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        os.system("sed -i '$ d' /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties")
+        #Add lines
+        os.system('echo "vs.parser.threads='+str(stage1)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.vardetect.threads='+str(stage2)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.encr.threads='+str(stage3)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.ecr.threads='+str(stage4)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.rcr.threads='+str(stage5)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.ecr24.threads='+str(stage6)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.ct24.threads='+str(stage7)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.globalacd.threads='+str(stage8)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.fofir.threads='+str(stage9)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.url.threads='+str(stage10)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.acd.threads='+str(stage11)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.scorer.threads='+str(stage12)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "vs.sink.threads='+str(stage13)+'" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
+        os.system('echo "metrics.output=/home/gmap/metrics/'+exec+'/VS'+str(stage1)+str(stage2)+str(stage3)+str(stage4)+str(stage5)+str(stage6)+str(stage7)+str(stage8)+str(stage9)+str(stage10)+str(stage11)+str(stage12)+str(stage13)+'/'+str(run)+'/" >> /home/gmap/DSPBench/dspbench-flink/src/main/resources/config/voipstream.properties')
 
 def start_job(app):
     print("start job")
@@ -102,9 +278,9 @@ def start_cluster():
 def restart_cluster():
     print("restart cluster")
     stop_cluster() #os.system('~/flink-1.17.1/bin/stop-cluster.sh')
-    time.sleep(15)
+    time.sleep(25)
     start_cluster() #os.system('~/flink-1.17.1/bin/start-cluster.sh')
-    time.sleep(15)
+    time.sleep(25)
 
 def time_txt(app, conf, init_time, end_time):
     print("time.txt")
@@ -114,137 +290,533 @@ def time_txt(app, conf, init_time, end_time):
 start_cluster()
 
 for i in range(1,6):
+    '''
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 2, 4, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 242, init_time, end_time)
 
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 3, 6, 6)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 366, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 4, 8, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 484, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 8, 8, 8)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 888, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 3, 6, 12)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 3612, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 6, 6, 12)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 6612, init_time, end_time)
+    '''
+    
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 1, 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 111111, init_time, end_time)
+    
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 2, 2, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 221111, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 2, 2, 1, 1, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 221112, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 2, 2, 2, 2, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 222212, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 4, 2, 2, 2, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 422212, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 4, 4, 2, 2, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 442212, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 4, 4, 4, 4, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 444412, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 8, 4, 4, 4, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 844412, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 8, 6, 4, 4, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 864412, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 8, 6, 4, 4, 1, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 864414, init_time, end_time)
+
+    '''
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 111, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 1, 2, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 122, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 1, 3, 3)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 133, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 2, 4, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 242, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 2, 4, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 244, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 3, 6, 6)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 366, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 4, 8, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 484, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 8, 8, 8)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 888, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 3, 6, 12)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 3612, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 6, 6, 12)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 6612, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 8, 12, 8)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 8128, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 6, 12, 12)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 61212, init_time, end_time)
+
+    #fraud
+    #Change Confs on .properties
+    change_prop(i, "frauddetection", 8, 12, 12)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("frauddetection")
+    end_time = datetime.datetime.now()
+    time_txt("frauddetection", 81212, init_time, end_time)
+    ##############################################################################
+    #machine
+    #Change Confs on .properties
+    change_prop(i, "machineoutlier", 1, 1, 1, 1, 1) #ALWAY KEEP STAGE2 4 AS 1 on stream/batch. KEEP STAGE3 AS 1 on batch
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("machineoutlier")
+    end_time = datetime.datetime.now()
+    time_txt("machineoutlier", 11111, init_time, end_time)
+
+    #machine
+    #Change Confs on .properties
+    change_prop(i, "machineoutlier", 1, 1, 1, 1, 2) #ALWAY KEEP STAGE2 4 AS 1 on stream/batch. KEEP STAGE3 AS 1 on batch
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("machineoutlier")
+    end_time = datetime.datetime.now()
+    time_txt("machineoutlier", 11112, init_time, end_time)
+
+    #machine
+    #Change Confs on .properties
+    change_prop(i, "machineoutlier", 1, 1, 1, 1, 3) #ALWAY KEEP STAGE2 4 AS 1 on stream/batch. KEEP STAGE3 AS 1 on batch
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("machineoutlier")
+    end_time = datetime.datetime.now()
+    time_txt("machineoutlier", 11113, init_time, end_time)
+    '''
+    '''
+    ##############################################################################
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 1111, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 1, 2, 2, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 1221, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 1, 2, 4, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 1242, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 2, 4, 4, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 2444, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 2, 4, 8, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 2484, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 4, 4, 8, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 4484, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 4, 4, 8, 8)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 4488, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 8, 8, 8, 8)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 8888, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 8, 8, 12, 8)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 88128, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 8, 8, 12, 12)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 881212, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 1, 3, 3, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 1331, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 1, 3, 6, 3)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 1363, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 3, 6, 6, 3)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 3663, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 3, 6, 12, 6)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 36126, init_time, end_time)
+
+    #traffic
+    #Change Confs on .properties
+    change_prop(i, "trafficmonitoring", 6, 6, 12, 6)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trafficmonitoring")
+    end_time = datetime.datetime.now()
+    time_txt("trafficmonitoring", 66126, init_time, end_time)
+    
+    ##############################################################################
+    #smartgrid
+    #Change Confs on .properties
+    change_prop(i, "smartgrid", 1, 1, 1, 1, 1, 1, 1, 1, 1) #Only Sinks
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("smartgrid")
+    end_time = datetime.datetime.now()
+    time_txt("smartgrid", 111111111, init_time, end_time)
+
+    #smartgrid
+    #Change Confs on .properties
+    change_prop(i, "smartgrid", 1, 1, 1, 1, 1, 1, 1, 2, 2) #Only Sinks
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("smartgrid")
+    end_time = datetime.datetime.now()
+    time_txt("smartgrid", 111111122, init_time, end_time)
+
+    #smartgrid
+    #Change Confs on .properties
+    change_prop(i, "smartgrid", 1, 1, 1, 1, 1, 1, 1, 3, 3) #Only Sinks
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("smartgrid")
+    end_time = datetime.datetime.now()
+    time_txt("smartgrid", 111111133, init_time, end_time)
+    '''
+    '''
     #Word Count
     #Change Confs on .properties
-    change_prop(i, "wordcount", 1, 2, 2, 2, 0, 0)
+    change_prop(i, "wordcount", 1, 2, 2, 2)
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("wordcount")
     end_time = datetime.datetime.now()
     time_txt("wordcount", 1222, init_time, end_time)
-
-    #Word Count
-    #Change Confs on .properties
-    change_prop(i, "wordcount", 1, 3, 6, 3, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("wordcount")
-    end_time = datetime.datetime.now()
-    time_txt("wordcount", 1363, init_time, end_time)
-    
-    #Word Count
-    #Change Confs on .properties
-    change_prop(i, "wordcount", 2, 4, 4, 4, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("wordcount")
-    end_time = datetime.datetime.now()
-    time_txt("wordcount", 2444, init_time, end_time)
-
-    #Word Count
-    #Change Confs on .properties
-    change_prop(i, "wordcount", 2, 5, 6, 3, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("wordcount")
-    end_time = datetime.datetime.now()
-    time_txt("wordcount", 2563, init_time, end_time)
-
-    #Word Count
-    #Change Confs on .properties
-    change_prop(i, "wordcount", 3, 6, 12, 3, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("wordcount")
-    end_time = datetime.datetime.now()
-    time_txt("wordcount", 36123, init_time, end_time)
-
-    #Word Count
-    #Change Confs on .properties
-    change_prop(i, "wordcount", 5, 10, 12, 6, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("wordcount")
-    end_time = datetime.datetime.now()
-    time_txt("wordcount", 510126, init_time, end_time)
-
+    ##############################################################################
     #Spike
     #Change Confs on .properties
-    change_prop(i, "spikedetection", 1, 1, 2, 2, 0, 0)
+    change_prop(i, "spikedetection", 1, 1, 2, 2)
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("spikedetection")
     end_time = datetime.datetime.now()
     time_txt("spikedetection", 1122, init_time, end_time)
-
-    #Spike
-    #Change Confs on .properties
-    change_prop(i, "spikedetection", 1, 1, 4, 2, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("spikedetection")
-    end_time = datetime.datetime.now()
-    time_txt("spikedetection", 1142, init_time, end_time)
-    
-    #Spike
-    #Change Confs on .properties
-    change_prop(i, "spikedetection", 1, 1, 6, 3, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("spikedetection")
-    end_time = datetime.datetime.now()
-    time_txt("spikedetection", 1163, init_time, end_time)
-
-    #Spike
-    #Change Confs on .properties
-    change_prop(i, "spikedetection", 1, 3, 6, 3, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("spikedetection")
-    end_time = datetime.datetime.now()
-    time_txt("spikedetection", 1363, init_time, end_time)
-
-    #Spike
-    #Change Confs on .properties
-    change_prop(i, "spikedetection", 3, 6, 12, 6, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("spikedetection")
-    end_time = datetime.datetime.now()
-    time_txt("spikedetection", 36126, init_time, end_time)
-
-    #Spike
-    #Change Confs on .properties
-    change_prop(i, "spikedetection", 4, 8, 8, 8, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("spikedetection")
-    end_time = datetime.datetime.now()
-    time_txt("spikedetection", 4888, init_time, end_time)
-
-    #Spike
-    #Change Confs on .properties
-    change_prop(i, "spikedetection", 6, 12, 12, 8, 0, 0)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("spikedetection")
-    end_time = datetime.datetime.now()
-    time_txt("spikedetection", 612128, init_time, end_time)
-
+    ##############################################################################
     #Log
     #Change Confs on .properties
     change_prop(i, "logprocessing", 1, 2, 2, 1, 2, 2)
@@ -254,57 +826,7 @@ for i in range(1,6):
     start_job("logprocessing")
     end_time = datetime.datetime.now()
     time_txt("logprocessing", 122122, init_time, end_time)
-
-    #Log
-    #Change Confs on .properties
-    change_prop(i, "logprocessing", 1, 3, 3, 1, 3, 1)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("logprocessing")
-    end_time = datetime.datetime.now()
-    time_txt("logprocessing", 133131, init_time, end_time)
-
-    #Log
-    #Change Confs on .properties
-    change_prop(i, "logprocessing", 2, 4, 4, 1, 4, 2)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("logprocessing")
-    end_time = datetime.datetime.now()
-    time_txt("logprocessing", 244142, init_time, end_time)
-
-    #Log
-    #Change Confs on .properties
-    change_prop(i, "logprocessing", 4, 8, 8, 2, 8, 4)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("logprocessing")
-    end_time = datetime.datetime.now()
-    time_txt("logprocessing", 488284, init_time, end_time)
-
-    #Log
-    #Change Confs on .properties
-    change_prop(i, "logprocessing", 2, 4, 4, 8, 12, 6)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("logprocessing")
-    end_time = datetime.datetime.now()
-    time_txt("logprocessing", 2448126, init_time, end_time)
-
-    #Log
-    #Change Confs on .properties
-    change_prop(i, "logprocessing", 6, 12, 12, 6, 12, 4)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("logprocessing")
-    end_time = datetime.datetime.now()
-    time_txt("logprocessing", 612126124, init_time, end_time)
-
+    ##############################################################################
     #Click
     #Change Confs on .properties
     change_prop(i, "clickanalytics", 1, 2, 2, 2, 2, 1)
@@ -314,135 +836,512 @@ for i in range(1,6):
     start_job("clickanalytics")
     end_time = datetime.datetime.now()
     time_txt("clickanalytics", 122221, init_time, end_time)
-
-    #Click
-    #Change Confs on .properties
-    change_prop(i, "clickanalytics", 1, 2, 4, 2, 4, 2)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("clickanalytics")
-    end_time = datetime.datetime.now()
-    time_txt("clickanalytics", 124242, init_time, end_time)
-
-    #Click
-    #Change Confs on .properties
-    change_prop(i, "clickanalytics", 1, 3, 6, 3, 6, 3)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("clickanalytics")
-    end_time = datetime.datetime.now()
-    time_txt("clickanalytics", 136363, init_time, end_time)
-
-    #Click
-    #Change Confs on .properties
-    change_prop(i, "clickanalytics", 2, 4, 8, 4, 8, 4)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("clickanalytics")
-    end_time = datetime.datetime.now()
-    time_txt("clickanalytics", 248484, init_time, end_time)
-
-    #Click
-    #Change Confs on .properties
-    change_prop(i, "clickanalytics", 4, 8, 8, 8, 8, 8)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("clickanalytics")
-    end_time = datetime.datetime.now()
-    time_txt("clickanalytics", 488888, init_time, end_time)
-
-    #Click
-    #Change Confs on .properties
-    change_prop(i, "clickanalytics", 3, 6, 12, 6, 12, 6)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("clickanalytics")
-    end_time = datetime.datetime.now()
-    time_txt("clickanalytics", 36126126, init_time, end_time)
-
-    #Click
-    #Change Confs on .properties
-    change_prop(i, "clickanalytics", 6, 12, 12, 12, 12, 8)
-    restart_cluster()
-    #Gera .txt com tempo de exec
-    init_time = datetime.datetime.now()
-    start_job("clickanalytics")
-    end_time = datetime.datetime.now()
-    time_txt("clickanalytics", 6121212128, init_time, end_time)
-
+    ##############################################################################
     #sentiment
     #Change Confs on .properties
-    change_prop(i, "sentimentanalysis", 1, 2, 2, 0, 0, 0)
+    change_prop(i, "sentimentanalysis", 1, 2, 2)
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
     start_job("sentimentanalysis")
     end_time = datetime.datetime.now()
     time_txt("sentimentanalysis", 122, init_time, end_time)
-
-    #sentiment
+    ##############################################################################
+    #fraud
     #Change Confs on .properties
-    change_prop(i, "sentimentanalysis", 2, 4, 4, 0, 0, 0)
+    change_prop(i, "frauddetection", 1, 1, 1)
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
-    start_job("sentimentanalysis")
+    start_job("frauddetection")
     end_time = datetime.datetime.now()
-    time_txt("sentimentanalysis", 244, init_time, end_time)
-
-    #sentiment
+    time_txt("frauddetection", 111, init_time, end_time)
+    ##############################################################################
+    #machine
     #Change Confs on .properties
-    change_prop(i, "sentimentanalysis", 4, 8, 8, 0, 0, 0)
+    change_prop(i, "machineoutlier", 1, 1, 1, 1, 1) #ALWAY KEEP STAGE2 4 AS 1 on stream/batch. KEEP STAGE3 AS 1 on batch
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
-    start_job("sentimentanalysis")
+    start_job("machineoutlier")
     end_time = datetime.datetime.now()
-    time_txt("sentimentanalysis", 488, init_time, end_time)
-
-    #sentiment
+    time_txt("machineoutlier", 11111, init_time, end_time)
+    ##############################################################################
+    #traffic
     #Change Confs on .properties
-    change_prop(i, "sentimentanalysis", 6, 12, 12, 0, 0, 0)
+    change_prop(i, "trafficmonitoring", 1, 1, 1, 1)
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
-    start_job("sentimentanalysis")
+    start_job("trafficmonitoring")
     end_time = datetime.datetime.now()
-    time_txt("sentimentanalysis", 61212, init_time, end_time)
-
-    #sentiment
+    time_txt("trafficmonitoring", 1111, init_time, end_time)
+    ##############################################################################
+    #smartgrid
     #Change Confs on .properties
-    change_prop(i, "sentimentanalysis", 3, 6, 3, 0, 0, 0)
+    change_prop(i, "smartgrid", 1, 1, 1, 1, 1, 1, 1, 2, 2) #Only Sinks
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
-    start_job("sentimentanalysis")
+    start_job("smartgrid")
     end_time = datetime.datetime.now()
-    time_txt("sentimentanalysis", 363, init_time, end_time)
-
-    #sentiment
+    time_txt("smartgrid", 111111111, init_time, end_time)
+    '''
+    '''
+    ##############################################################################
+    #AdsAnalytics
     #Change Confs on .properties
-    change_prop(i, "sentimentanalysis", 4, 8, 4, 0, 0, 0)
+    change_prop(i, "adanalytics", 1, 1, 1, 1) 
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
-    start_job("sentimentanalysis")
+    start_job("adanalytics")
     end_time = datetime.datetime.now()
-    time_txt("sentimentanalysis", 484, init_time, end_time)
-
-    #sentiment
+    time_txt("adanalytics", 1111, init_time, end_time)
+    
+    #AdsAnalytics
     #Change Confs on .properties
-    change_prop(i, "sentimentanalysis", 6, 12, 8, 0, 0, 0)
+    change_prop(i, "adanalytics", 1, 1, 2, 1) 
     restart_cluster()
     #Gera .txt com tempo de exec
     init_time = datetime.datetime.now()
-    start_job("sentimentanalysis")
+    start_job("adanalytics")
     end_time = datetime.datetime.now()
-    time_txt("sentimentanalysis", 6128, init_time, end_time)
+    time_txt("adanalytics", 1121, init_time, end_time)
 
+    #AdsAnalytics
+    #Change Confs on .properties
+    change_prop(i, "adanalytics", 2, 2, 1, 1) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("adanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("adanalytics", 2211, init_time, end_time)
+
+    #AdsAnalytics
+    #Change Confs on .properties
+    change_prop(i, "adanalytics", 2, 2, 2, 1) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("adanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("adanalytics", 2221, init_time, end_time)
+
+    #AdsAnalytics
+    #Change Confs on .properties
+    change_prop(i, "adanalytics", 2, 2, 4, 2) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("adanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("adanalytics", 2242, init_time, end_time)
+
+    #AdsAnalytics
+    #Change Confs on .properties
+    change_prop(i, "adanalytics", 4, 4, 8, 4) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("adanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("adanalytics", 4484, init_time, end_time)
+
+    #AdsAnalytics
+    #Change Confs on .properties
+    change_prop(i, "adanalytics", 4, 4, 12, 8) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("adanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("adanalytics", 44128, init_time, end_time)
+
+    #AdsAnalytics
+    #Change Confs on .properties
+    change_prop(i, "adanalytics", 6, 6, 12, 8) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("adanalytics")
+    end_time = datetime.datetime.now()
+    time_txt("adanalytics", 66128, init_time, end_time)
+    ##############################################################################
+    #Bargain Index
+    #Change Confs on .properties
+    change_prop(i, "bargainindex", 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("bargainindex")
+    end_time = datetime.datetime.now()
+    time_txt("bargainindex", 11111, init_time, end_time)
+    
+    #Bargain Index
+    #Change Confs on .properties
+    change_prop(i, "bargainindex", 1, 1, 2, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("bargainindex")
+    end_time = datetime.datetime.now()
+    time_txt("bargainindex", 11211, init_time, end_time)
+
+    #Bargain Index
+    #Change Confs on .properties
+    change_prop(i, "bargainindex", 2, 2, 2, 2, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("bargainindex")
+    end_time = datetime.datetime.now()
+    time_txt("bargainindex", 22221, init_time, end_time)
+
+    #Bargain Index
+    #Change Confs on .properties
+    change_prop(i, "bargainindex", 2, 2, 4, 2, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("bargainindex")
+    end_time = datetime.datetime.now()
+    time_txt("bargainindex", 22422, init_time, end_time)
+
+    #Bargain Index
+    #Change Confs on .properties
+    change_prop(i, "bargainindex", 4, 4, 8, 4, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("bargainindex")
+    end_time = datetime.datetime.now()
+    time_txt("bargainindex", 44844, init_time, end_time)
+
+    #Bargain Index
+    #Change Confs on .properties
+    change_prop(i, "bargainindex", 4, 4, 12, 8, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("bargainindex")
+    end_time = datetime.datetime.now()
+    time_txt("bargainindex", 441284, init_time, end_time)
+
+    #Bargain Index
+    #Change Confs on .properties
+    change_prop(i, "bargainindex", 4, 4, 12, 8, 6)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("bargainindex")
+    end_time = datetime.datetime.now()
+    time_txt("bargainindex", 441286, init_time, end_time)
+    
+    ##############################################################################
+    #ReinforcementLearner
+    #Change Confs on .properties
+    change_prop(i, "reinforcementlearner", 1, 1, 1, 1) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("reinforcementlearner")
+    end_time = datetime.datetime.now()
+    time_txt("reinforcementlearner", 1111, init_time, end_time)
+    
+    #ReinforcementLearner
+    #Change Confs on .properties
+    change_prop(i, "reinforcementlearner", 1, 1, 2, 1) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("reinforcementlearner")
+    end_time = datetime.datetime.now()
+    time_txt("reinforcementlearner", 1121, init_time, end_time)
+
+    #ReinforcementLearner
+    #Change Confs on .properties
+    change_prop(i, "reinforcementlearner", 2, 2, 4, 2) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("reinforcementlearner")
+    end_time = datetime.datetime.now()
+    time_txt("reinforcementlearner", 2242, init_time, end_time)
+
+    #ReinforcementLearner
+    #Change Confs on .properties
+    change_prop(i, "reinforcementlearner", 4, 4, 8, 4) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("reinforcementlearner")
+    end_time = datetime.datetime.now()
+    time_txt("reinforcementlearner", 4484, init_time, end_time)
+
+    #ReinforcementLearner
+    #Change Confs on .properties
+    change_prop(i, "reinforcementlearner", 6, 6, 12, 8) 
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("reinforcementlearner")
+    end_time = datetime.datetime.now()
+    time_txt("reinforcementlearner", 66128, init_time, end_time)
+    
+    ##############################################################################
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 11111, init_time, end_time)
+
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 1, 1, 1, 2, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 11121, init_time, end_time)
+
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 2, 2, 1, 2, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 22121, init_time, end_time)
+
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 2, 2, 1, 2, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 22122, init_time, end_time)
+
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 3, 3, 1, 2, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 33122, init_time, end_time)
+
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 3, 3, 1, 3, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 33131, init_time, end_time)
+
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 4, 4, 1, 2, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 44121, init_time, end_time)
+
+    #SpamFilter
+    #Change Confs on .properties
+    change_prop(i, "spamfilter", 4, 4, 1, 4, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("spamfilter")
+    end_time = datetime.datetime.now()
+    time_txt("spamfilter", 44142, init_time, end_time)
+
+    ##############################################################################
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 1, 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 111111, init_time, end_time)
+    
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 2, 2, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 221111, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 2, 2, 1, 1, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 221112, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 2, 2, 2, 2, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 222212, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 4, 2, 2, 2, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 422212, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 4, 4, 2, 2, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 442212, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 4, 4, 4, 4, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 444412, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 8, 4, 4, 4, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 844412, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 8, 6, 4, 4, 1, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 864412, init_time, end_time)
+
+    #TrendingTopics
+    #Change Confs on .properties
+    change_prop(i, "trendingtopics", 8, 6, 4, 4, 1, 4)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("trendingtopics")
+    end_time = datetime.datetime.now()
+    time_txt("trendingtopics", 864414, init_time, end_time)
+    '''
+    '''
+    ##############################################################################
+    #VoIP
+    #Change Confs on .properties
+    change_prop(i, "voipstream", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("voipstream")
+    end_time = datetime.datetime.now()
+    time_txt("voipstream", 1111111111111, init_time, end_time)
+    
+    #VoIP
+    #Change Confs on .properties
+    change_prop(i, "voipstream", 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("voipstream")
+    end_time = datetime.datetime.now()
+    time_txt("voipstream", 1211111111111, init_time, end_time)
+
+    #VoIP
+    #Change Confs on .properties
+    change_prop(i, "voipstream", 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("voipstream")
+    end_time = datetime.datetime.now()
+    time_txt("voipstream", 1222222211111, init_time, end_time)
+
+    #VoIP
+    #Change Confs on .properties
+    change_prop(i, "voipstream", 2, 4, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("voipstream")
+    end_time = datetime.datetime.now()
+    time_txt("voipstream", 2422222211111, init_time, end_time)
+
+    #VoIP
+    #Change Confs on .properties
+    change_prop(i, "voipstream", 2, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("voipstream")
+    end_time = datetime.datetime.now()
+    time_txt("voipstream", 2444444422211, init_time, end_time)
+
+    #VoIP
+    #Change Confs on .properties
+    change_prop(i, "voipstream", 4, 8, 4, 4, 4, 4, 4, 4, 2, 2, 2, 1, 1)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("voipstream")
+    end_time = datetime.datetime.now()
+    time_txt("voipstream", 4844444422211, init_time, end_time)
+
+    #VoIP
+    #Change Confs on .properties
+    change_prop(i, "voipstream", 4, 8, 8, 8, 8, 8, 8, 8, 4, 4, 4, 2, 2)
+    restart_cluster()
+    #Gera .txt com tempo de exec
+    init_time = datetime.datetime.now()
+    start_job("voipstream")
+    end_time = datetime.datetime.now()
+    time_txt("voipstream", 4888888844422, init_time, end_time)
+    '''
 stop_cluster()

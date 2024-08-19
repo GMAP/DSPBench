@@ -20,6 +20,7 @@ public class MachineOutlier extends AbstractApplication {
     private int scorerThreads;
     private int anomalyScorerThreads;
     private int alertTriggerThreads;
+    private int windowLength;
 
     public MachineOutlier(String appName, Configuration config) {
         super(appName, config);
@@ -31,6 +32,7 @@ public class MachineOutlier extends AbstractApplication {
         scorerThreads = config.getInteger(MachineOutlierConstants.Conf.SCORER_THREADS, 1);
         anomalyScorerThreads = config.getInteger(MachineOutlierConstants.Conf.ANOMALY_SCORER_THREADS, 1);
         alertTriggerThreads = config.getInteger(MachineOutlierConstants.Conf.ALERT_TRIGGER_THREADS, 1);
+        windowLength = config.getInteger(MachineOutlierConstants.Conf.ANOMALY_SCORER_WINDOW_LENGTH, 10);
     }
 
     @Override
@@ -50,7 +52,7 @@ public class MachineOutlier extends AbstractApplication {
                 .flatMap(new Scorer(config)).setParallelism(scorerThreads);
 
         DataStream<Tuple5<String, Double, Long, Object, Double>> anomaly = scorer.keyBy(value -> value.f0)
-                .flatMap(new AnomalyScorer(config)).setParallelism(anomalyScorerThreads);
+                .flatMap(new AnomalyScorer(config, windowLength)).setParallelism(anomalyScorerThreads);
 
         DataStream<Tuple5<String, Double, Long, Boolean, Object>> triggerer = anomaly
                 .flatMap(new Triggerer(config)).setParallelism(alertTriggerThreads);
