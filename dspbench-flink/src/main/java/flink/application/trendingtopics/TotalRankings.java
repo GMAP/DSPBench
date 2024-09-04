@@ -3,28 +3,20 @@ package flink.application.trendingtopics;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
+import org.apache.flink.streaming.api.functions.windowing.RichProcessAllWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
 import flink.tools.Rankings;
-import java.io.*;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import flink.constants.BaseConstants;
 import flink.util.Configurations;
-import flink.util.MetricsFactory;
+import flink.util.Metrics;
 
-public class TotalRankings extends ProcessAllWindowFunction<Tuple1<Rankings>,Tuple1<Rankings>,TimeWindow>{
+public class TotalRankings extends RichProcessAllWindowFunction<Tuple1<Rankings>,Tuple1<Rankings>,TimeWindow>{
     private static final Logger LOG = LoggerFactory.getLogger(TotalRankings.class);
     Configuration config;
     
-    Metric metrics = new Metric();
+    Metrics metrics = new Metrics();
 
     private static final int DEFAULT_EMIT_FREQUENCY_IN_SECONDS = 2;
     private static final int DEFAULT_COUNT = 10;
@@ -49,7 +41,7 @@ public class TotalRankings extends ProcessAllWindowFunction<Tuple1<Rankings>,Tup
           throw new IllegalArgumentException(
               "The emit frequency must be >= 1 seconds (you requested " + emitFrequencyInSeconds + " seconds)");
         }
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
         count = topN;
         this.emitFrequencyInSeconds = emitFrequencyInSeconds;
@@ -68,95 +60,29 @@ public class TotalRankings extends ProcessAllWindowFunction<Tuple1<Rankings>,Tup
     public void process(ProcessAllWindowFunction<Tuple1<Rankings>, Tuple1<Rankings>, TimeWindow>.Context context,
             Iterable<Tuple1<Rankings>> input, Collector<Tuple1<Rankings>> out) throws Exception {
         
+        metrics.initialize(config, this.getClass().getSimpleName());
         for (Tuple1<Rankings> in : input){
-            metrics.incReceived("TotalRankings");
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.receiveThroughput();
+            }
             Rankings rankingsToBeMerged = (Rankings) in.getField(0);
             getRankings().updateWith(rankingsToBeMerged);
             getRankings().pruneZeroCounts();
         }
 
         //collector.emit(new Values(rankings.copy()));
-        metrics.incEmitted("TotalRankings");
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.emittedThroughput();
+        }
         out.collect(new Tuple1<Rankings>(rankings.copy()));
         LOG.info("Rankings: " + rankings);
     }
-}
 
-class Metric implements Serializable {
-    Configuration config;
-    private final Map<String, Long> throughput = new HashMap<>();
-    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(150);
-    protected String configPrefix = BaseConstants.BASE_PREFIX;
-    private File file;
-    private static final Logger LOG = LoggerFactory.getLogger(Metric.class);
-
-    private static MetricRegistry metrics;
-    private Counter tuplesReceived;
-    private Counter tuplesEmitted;
-
-    public void initialize(Configuration config) {
-        this.config = config;
-        getMetrics();
-        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile();
-
-        pathTrh.mkdirs();
-
-        this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
-    }
-
-    public void SaveMetrics() {
-        new Thread(() -> {
-            try {
-                try (Writer writer = new FileWriter(this.file, true)) {
-                    writer.append(this.queue.take());
-                } catch (IOException ex) {
-                    System.out.println("Error while writing the file " + file + " - " + ex);
-                }
-            } catch (Exception e) {
-                System.out.println("Error while creating the file " + e.getMessage());
-            }
-        }).start();
-    }
-
-    protected MetricRegistry getMetrics() {
-        if (metrics == null) {
-            metrics = MetricsFactory.createRegistry(config);
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
-        return metrics;
-    }
-
-    protected Counter getTuplesReceived(String name) {
-        if (tuplesReceived == null) {
-            tuplesReceived = getMetrics().counter(name + "-received");
-        }
-        return tuplesReceived;
-    }
-
-    protected Counter getTuplesEmitted(String name) {
-        if (tuplesEmitted == null) {
-            tuplesEmitted = getMetrics().counter(name + "-emitted");
-        }
-        return tuplesEmitted;
-    }
-
-    protected void incReceived(String name) {
-        getTuplesReceived(name).inc();
-    }
-
-    protected void incReceived(String name, long n) {
-        getTuplesReceived(name).inc(n);
-    }
-
-    protected void incEmitted(String name) {
-        getTuplesEmitted(name).inc();
-    }
-
-    protected void incEmitted(String name, long n) {
-        getTuplesEmitted(name).inc(n);
-    }
-
-    protected void incBoth(String name) {
-        getTuplesReceived(name).inc();
-        getTuplesEmitted(name).inc();
     }
 }

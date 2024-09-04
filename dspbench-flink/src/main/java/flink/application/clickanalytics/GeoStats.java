@@ -1,7 +1,9 @@
 package flink.application.clickanalytics;
 
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
@@ -14,7 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GeoStats extends Metrics implements FlatMapFunction<Tuple2<String, String>, Tuple4<String, Integer, String, Integer>> {
+public class GeoStats extends RichFlatMapFunction<Tuple2<String, String>, Tuple4<String, Integer, String, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GeoStats.class);
 
@@ -22,8 +24,10 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple2<String, 
 
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public GeoStats(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
@@ -37,8 +41,10 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple2<String, 
 
     @Override
     public void flatMap(Tuple2<String, String> input, Collector<Tuple4<String, Integer, String, Integer>> out) {
-        super.initialize(config);
-        super.incBoth();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.recemitThroughput();
+        }
         getStats();
         String country = input.getField(0);
         String city    = input.getField(1);
@@ -48,6 +54,7 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple2<String, 
         }
 
         stats.get(country).cityFound(city);
+        //LOG.info(input.toString());
         out.collect( new Tuple4<String, Integer, String, Integer>(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city)));
     }
 
@@ -92,6 +99,14 @@ public class GeoStats extends Metrics implements FlatMapFunction<Tuple2<String, 
         public String toString() {
             return "Total Count for " + countryName + " is " + countryTotal + "\n"
                     + "Cities: " + cityStats;
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
 }

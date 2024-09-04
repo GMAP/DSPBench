@@ -1,8 +1,10 @@
 package flink.application.machineoutiler;
 
 import flink.constants.MachineOutlierConstants;
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
@@ -15,8 +17,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-public class AnomalyScorer extends Metrics implements
-        FlatMapFunction<Tuple4<String, Double, Long, Object>, Tuple5<String, Double, Long, Object, Double>> {
+public class AnomalyScorer extends RichFlatMapFunction<Tuple4<String, Double, Long, Object>, Tuple5<String, Double, Long, Object, Double>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnomalyScorer.class);
 
@@ -24,9 +25,10 @@ public class AnomalyScorer extends Metrics implements
     private final int windowLength;
 
     Configuration config;
+    Metrics metrics = new Metrics();
 
     public AnomalyScorer(Configuration config, int windowLength) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
         //config.getString(MachineOutlierConstants.Conf.SCORER_DATA_TYPE, "machineMetadata");
         this.windowLength = windowLength;
@@ -43,8 +45,10 @@ public class AnomalyScorer extends Metrics implements
     @Override
     public void flatMap(Tuple4<String, Double, Long, Object> input,
             Collector<Tuple5<String, Double, Long, Object, Double>> out) {
-        super.initialize(config);
-        super.incBoth();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.recemitThroughput();
+        }
         getWindow();
         long timestamp = input.getField(2);
         String id = input.getField(0);
@@ -69,5 +73,13 @@ public class AnomalyScorer extends Metrics implements
 
         out.collect(new Tuple5<String, Double, Long, Object, Double>(id, sumScore, timestamp, input.getField(3),
                 dataInstanceAnomalyScore));
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 }

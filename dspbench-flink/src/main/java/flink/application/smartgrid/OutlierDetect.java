@@ -1,10 +1,9 @@
 package flink.application.smartgrid;
 
 import flink.application.trafficmonitoring.collections.FixedMap;
-import flink.constants.BaseConstants;
 import flink.constants.SmartGridConstants;
 import flink.util.Configurations;
-import flink.util.MetricsFactory;
+import flink.util.Metrics;
 
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple4;
@@ -14,17 +13,10 @@ import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-
 import java.io.*;
-import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 public class OutlierDetect extends RichCoFlatMapFunction<Tuple4<String, String, Long, Double>,Tuple4<String, String, Long, Double>, Tuple4<Long, Long, String, Double>> {
 
@@ -34,12 +26,12 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple4<String, String, 
     private static Map<String, OutlierTracker> outliers;
     private static PriorityQueue<ComparableTuple> unprocessedMessages;
 
-    Metric metrics = new Metric();
-
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public OutlierDetect(Configuration config) {
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
@@ -69,12 +61,14 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple4<String, String, 
 
     @Override
     public void flatMap1(Tuple4<String, String, Long, Double> input, Collector<Tuple4<Long, Long, String, Double>> out) throws Exception {
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         med();
         outl();
         msg();
 
-        metrics.incReceived(this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         String component = input.getField(0);
 
@@ -89,7 +83,9 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple4<String, String, 
                 Tuple perPlugMedianTuple = unprocessedMessages.poll().tuple;
                 Tuple4<Long, Long, String, Double> dados = processPerPlugMedianTuple(perPlugMedianTuple);
                 if (!(dados == null)){
-                    metrics.incEmitted(this.getClass().getSimpleName());
+                    if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                        metrics.emittedThroughput();
+                    }
                     out.collect(new Tuple4<>(dados.f0, dados.f1, dados.f2, dados.f3));
                 }
             }
@@ -100,12 +96,14 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple4<String, String, 
 
     @Override
     public void flatMap2(Tuple4<String, String, Long, Double> input, Collector<Tuple4<Long, Long, String, Double>> out) throws Exception {
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         med();
         outl();
         msg();
 
-        metrics.incReceived(this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         String component = input.getField(0);
 
@@ -120,12 +118,22 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple4<String, String, 
                 Tuple perPlugMedianTuple = unprocessedMessages.poll().tuple;
                 Tuple4<Long, Long, String, Double> dados = processPerPlugMedianTuple(perPlugMedianTuple);
                 if (!(dados == null)){
-                    metrics.incEmitted(this.getClass().getSimpleName());
+                    if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                        metrics.emittedThroughput();
+                    }
                     out.collect(new Tuple4<>(dados.f0, dados.f1, dados.f2, dados.f3));
                 }
             }
         } else {
             processPerPlugMedianTuple(input);
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
 
@@ -184,84 +192,5 @@ public class OutlierDetect extends RichCoFlatMapFunction<Tuple4<String, String, 
             Long field2 = o.tuple.getField(2);
             return field1.compareTo(field2);
         }
-    }
-}
-
-class Metric implements Serializable {
-    Configuration config;
-    private final Map<String, Long> throughput = new HashMap<>();
-    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(150);
-    protected String configPrefix = BaseConstants.BASE_PREFIX;
-    private File file;
-    private static final Logger LOG = LoggerFactory.getLogger(Metric.class);
-
-    private static MetricRegistry metrics;
-    private Counter tuplesReceived;
-    private Counter tuplesEmitted;
-
-    public void initialize(Configuration config) {
-        this.config = config;
-        getMetrics();
-        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile();
-
-        pathTrh.mkdirs();
-
-        this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
-    }
-
-    public void SaveMetrics() {
-        new Thread(() -> {
-            try {
-                try (Writer writer = new FileWriter(this.file, true)) {
-                    writer.append(this.queue.take());
-                } catch (IOException ex) {
-                    System.out.println("Error while writing the file " + file + " - " + ex);
-                }
-            } catch (Exception e) {
-                System.out.println("Error while creating the file " + e.getMessage());
-            }
-        }).start();
-    }
-
-    protected MetricRegistry getMetrics() {
-        if (metrics == null) {
-            metrics = MetricsFactory.createRegistry(config);
-        }
-        return metrics;
-    }
-
-    protected Counter getTuplesReceived(String name) {
-        if (tuplesReceived == null) {
-            tuplesReceived = getMetrics().counter(name + "-received");
-        }
-        return tuplesReceived;
-    }
-
-    protected Counter getTuplesEmitted(String name) {
-        if (tuplesEmitted == null) {
-            tuplesEmitted = getMetrics().counter(name + "-emitted");
-        }
-        return tuplesEmitted;
-    }
-
-    protected void incReceived(String name) {
-        getTuplesReceived(name).inc();
-    }
-
-    protected void incReceived(String name, long n) {
-        getTuplesReceived(name).inc(n);
-    }
-
-    protected void incEmitted(String name) {
-        getTuplesEmitted(name).inc();
-    }
-
-    protected void incEmitted(String name, long n) {
-        getTuplesEmitted(name).inc(n);
-    }
-
-    protected void incBoth(String name) {
-        getTuplesReceived(name).inc();
-        getTuplesEmitted(name).inc();
     }
 }

@@ -45,7 +45,7 @@ public class MachineOutlier extends AbstractApplication {
 
         // Parser
         DataStream<Tuple3<String, Long, MachineMetadata>> dataParse = data
-                .map(new AlibabaMachineUsageParser(config)).setParallelism(parserThreads);
+                .flatMap(new AlibabaMachineUsageParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple4<String, Double, Long, Object>> scorer = dataParse.filter(value -> (value != null))

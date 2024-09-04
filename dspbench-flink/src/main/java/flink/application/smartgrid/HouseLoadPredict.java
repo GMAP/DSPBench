@@ -1,11 +1,13 @@
 package flink.application.smartgrid;
 
 import flink.constants.SmartGridConstants;
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.windowing.RichWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -14,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple7<String, Long, Double, Integer, String, String, String>, Tuple3<Long,String, Double>, String, TimeWindow> {
+public class HouseLoadPredict extends RichWindowFunction<Tuple7<String, Long, Double, Integer, String, String, String>, Tuple3<Long,String, Double>, String, TimeWindow> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HouseLoadPredict.class);
     protected static long sliceLength = 60L;
@@ -25,9 +27,10 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple7<S
     protected static Map<String, SummaryArchive> archiveMap;
 
     Configuration config;
+    Metrics metrics = new Metrics();
 
     public HouseLoadPredict(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
         sliceLength = 60L;
     }
@@ -50,10 +53,12 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple7<S
 
     @Override
     public void apply(String s, TimeWindow window, Iterable<Tuple7<String, Long, Double, Integer, String, String, String>> input, Collector<Tuple3<Long, String, Double>> out) throws Exception {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         for (Tuple7<String, Long, Double, Integer, String, String, String> in : input) {
 
-            super.incReceived();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.receiveThroughput();
+            }
 
             int type = in.getField(3);
 
@@ -90,9 +95,19 @@ public class HouseLoadPredict extends Metrics implements WindowFunction<Tuple7<S
         if (tickCounter == 0) {
             for (Iterator<Tuple3<Long, String, Double>> it = emitOutputStream(); it.hasNext(); ) {
                 Tuple3<Long, String, Double> in = it.next();
-                super.incEmitted();
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple3<Long,String, Double>(in.f0, in.f1, in.f2));
             }
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
 

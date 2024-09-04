@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.windowing.RichWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -17,9 +18,10 @@ import flink.tools.SlidingWindowCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import flink.util.Configurations;
 import flink.util.Metrics;
 
-public class RollingCTR extends Metrics implements WindowFunction<Tuple3<Long, Long, AdEvent>, Tuple6<String, String, Double, Long, Long, Integer>, Tuple2<Long, Long>, TimeWindow>{
+public class RollingCTR extends RichWindowFunction<Tuple3<Long, Long, AdEvent>, Tuple6<String, String, Double, Long, Long, Integer>, Tuple2<Long, Long>, TimeWindow>{
 
     private static final Logger LOG = LoggerFactory.getLogger(RollingCTR.class);
     Configuration config;
@@ -36,12 +38,14 @@ public class RollingCTR extends Metrics implements WindowFunction<Tuple3<Long, L
 
     protected NthLastModifiedTimeTracker lastModifiedTracker;
 
+    Metrics metrics = new Metrics();
+
     public RollingCTR(Configuration config) {
         this(config, 60);
     }
 
     public RollingCTR(Configuration config, int emitFrequencyInSeconds) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
         this.emitFrequencyInSeconds = emitFrequencyInSeconds;
 
@@ -58,11 +62,16 @@ public class RollingCTR extends Metrics implements WindowFunction<Tuple3<Long, L
     @Override
     public void apply(Tuple2<Long, Long> key, TimeWindow window, Iterable<Tuple3<Long, Long, AdEvent>> input,
             Collector<Tuple6<String, String, Double, Long, Long, Integer>> out) throws Exception {
-        super.initialize(config);
+        //super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
 
         for (Tuple3<Long, Long, AdEvent> in : input){
 
-            super.incReceived();
+            //super.incReceived();
+
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.receiveThroughput();
+            }
 
             AdEvent event = (AdEvent) in.getField(2);
             String eventKey = String.format("%d:%d", event.getQueryId(), event.getAdID());
@@ -92,9 +101,20 @@ public class RollingCTR extends Metrics implements WindowFunction<Tuple3<Long, L
             long impressions = impressionCounts.get(entryKey);
             double ctr = (double)clicks / (double)impressions;
 
-            super.incEmitted();
+            //super.incEmitted();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.emittedThroughput();
+            }    
             
             out.collect(new Tuple6<String,String,Double,Long,Long,Integer>(ids[0], ids[1], ctr, impressions, clicks, actualWindowLengthInSeconds));
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
     

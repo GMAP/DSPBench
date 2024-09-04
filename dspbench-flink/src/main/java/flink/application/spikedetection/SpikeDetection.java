@@ -42,7 +42,7 @@ public class SpikeDetection extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple3<String, Date, Double>> dataParse = data.map(new SensorParser(config))
+        DataStream<Tuple3<String, Date, Double>> dataParse = data.flatMap(new SensorParser(config))
                 .setParallelism(parserThreads);
 
         // Process

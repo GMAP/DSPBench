@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
@@ -12,17 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import flink.constants.SpamFilterConstants;
+import flink.util.Configurations;
 import flink.util.Metrics;
 
-public class BayesRule extends Metrics implements FlatMapFunction<Tuple3<String, Word, Integer>, Tuple3<String, Float, Boolean>> {
+public class BayesRule extends RichFlatMapFunction<Tuple3<String, Word, Integer>, Tuple3<String, Float, Boolean>> {
     private static final Logger LOG = LoggerFactory.getLogger(BayesRule.class);
     Configuration config;
     
     private double spamProbability;
     private Map<String, AnalysisSummary> analysisSummary;
 
+    Metrics metrics = new Metrics();
+
     public BayesRule(Configuration config){
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
 
         spamProbability = config.getDouble(SpamFilterConstants.Conf.BAYES_RULE_SPAM_PROB, 0.9d);
@@ -32,8 +35,10 @@ public class BayesRule extends Metrics implements FlatMapFunction<Tuple3<String,
     @Override
     public void flatMap(Tuple3<String, Word, Integer> value, Collector<Tuple3<String, Float, Boolean>> out)
             throws Exception {
-        super.initialize(config);
-        super.incReceived();
+                metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
         String id    = value.getField(0);
         Word word    = (Word) value.getField(1);
         int numWords = value.getField(2);
@@ -52,10 +57,20 @@ public class BayesRule extends Metrics implements FlatMapFunction<Tuple3<String,
         if (summary.uniqueWords >= numWords) {
             // calculate bayes
             float pspam = bayes(summary);
-            super.incEmitted();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.emittedThroughput();
+            }
             //collector.emit(new Values(id, pspam, (pspam > spamProbability)));
             out.collect(new Tuple3<String,Float,Boolean>(id, pspam, (pspam > spamProbability)));
             analysisSummary.remove(id);
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
 

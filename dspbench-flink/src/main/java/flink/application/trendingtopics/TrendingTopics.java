@@ -59,7 +59,7 @@ public class TrendingTopics extends AbstractApplication{
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple3<String, String, Date>> parser = data.map(new JsonTweetParser(config)).setParallelism(parserThreads);
+        DataStream<Tuple3<String, String, Date>> parser = data.flatMap(new JsonTweetParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple1<String>> topicExtractor = parser.filter(value -> value != null).flatMap(new TopicExtractor(config)).setParallelism(topicExtractorThreads);

@@ -1,7 +1,9 @@
 package flink.application.machineoutiler;
 
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
@@ -12,8 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Triggerer extends Metrics implements
-        FlatMapFunction<Tuple5<String, Double, Long, Object, Double>, Tuple5<String, Double, Long, Boolean, Object>> {
+public class Triggerer extends RichFlatMapFunction<Tuple5<String, Double, Long, Object, Double>, Tuple5<String, Double, Long, Boolean, Object>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Triggerer.class);
 
@@ -24,9 +25,10 @@ public class Triggerer extends Metrics implements
     private static double maxDataInstanceScore = 0;
 
     Configuration config;
+    Metrics metrics = new Metrics();
 
     public Triggerer(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
         previousTimestamp = 0;
     }
@@ -42,8 +44,10 @@ public class Triggerer extends Metrics implements
     @Override
     public void flatMap(Tuple5<String, Double, Long, Object, Double> input,
             Collector<Tuple5<String, Double, Long, Boolean, Object>> out) {
-        super.initialize(config);
-        super.incReceived();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
         getList();
 
         long timestamp = input.getField(2);
@@ -78,7 +82,9 @@ public class Triggerer extends Metrics implements
                     }
 
                     if (isAbnormal) {
-                        super.incEmitted();
+                        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                            metrics.emittedThroughput();
+                        }
                         out.collect(new Tuple5<String, Double, Long, Boolean, Object>(streamProfile.getField(0),
                                 streamScore, streamProfile.getField(2), isAbnormal, streamProfile.getField(3)));
                     }
@@ -102,6 +108,14 @@ public class Triggerer extends Metrics implements
         }
 
         streamList.add(input);
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 
     private List<Tuple> identifyAbnormalStreams() {

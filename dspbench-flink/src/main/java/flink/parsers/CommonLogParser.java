@@ -1,11 +1,15 @@
 package flink.parsers;
 
 import flink.application.logprocessing.DateUtils;
-import org.apache.flink.api.common.functions.MapFunction;
+import flink.util.Configurations;
+import flink.util.Metrics;
+
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.util.Collector;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,36 +21,48 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CommonLogParser extends Parser implements MapFunction<String, Tuple6<Object, Object, Long, Object, Object, Object>> {
+public class CommonLogParser extends RichFlatMapFunction<String, Tuple6<Object, Object, Long, Object, Object, Object>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CommonLogParser.class);
 
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public CommonLogParser(Configuration config){
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
     @Override
-    public Tuple6<Object, Object, Long, Object, Object, Object> map(String value) throws Exception {
-        super.initialize(config);
-        super.incBoth();
-
-        Map<String, Object> entry = parseLine(value);
-
-        if (entry == null) {
-            System.out.println("Unable to parse log: " + value);
-            return null;
-        }
-
-        long minute = DateUtils.getMinuteForTime((Date) entry.get("TIMESTAMP"));
-        return new Tuple6<Object, Object, Long, Object, Object, Object>( entry.get("IP"), entry.get("TIMESTAMP"), minute, entry.get("REQUEST"), entry.get("RESPONSE"), entry.get("BYTE_SIZE"));
+    public void flatMap(String input, Collector<Tuple6<Object, Object, Long, Object, Object, Object>> out)
+            throws Exception {
+                metrics.initialize(config, this.getClass().getSimpleName());
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.receiveThroughput();
+                }
+        
+                Map<String, Object> entry = parseLine(input);
+        
+                if (entry == null) {
+                    System.out.println("Unable to parse log: " + input);
+                    out.collect(new Tuple6<>(null, null, null, null, null, null));
+                }
+        
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
+                
+                long minute = DateUtils.getMinuteForTime((Date) entry.get("TIMESTAMP"));
+                out.collect(new Tuple6<Object, Object, Long, Object, Object, Object>( entry.get("IP"), entry.get("TIMESTAMP"), minute, entry.get("REQUEST"), entry.get("RESPONSE"), entry.get("BYTE_SIZE")));
     }
 
+    // close method
     @Override
-    public Tuple1<?> parse(String input) {
-        return null;
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 
     Map<String, Object> parseLine(String logLine) {

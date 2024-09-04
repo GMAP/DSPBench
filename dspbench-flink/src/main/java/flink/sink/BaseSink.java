@@ -15,13 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-public abstract class BaseSink extends Metrics {
+public abstract class BaseSink {
     private static final Logger LOG = LoggerFactory.getLogger(BaseSink.class);
     protected String configPrefix = BaseConstants.BASE_PREFIX;
     Configuration config;
 
     public void initialize(Configuration config) {
-        super.initialize(config);
+        //super.initialize(config);
         this.config = config;
     }
 
@@ -40,13 +40,13 @@ public abstract class BaseSink extends Metrics {
     public void sinkStreamSD(DataStream<Tuple4<String, Double, Double, String>> dt) {
     }
 
-    public void sinkStreamSGOutlier(DataStream<Tuple4<Long, Long, String, Double>> dt, String sinkName) {
+    public void sinkStreamSGOutlier(DataStream<Tuple4<Long, Long, String, Double>> dt) {
     }
 
-    public void sinkStreamSGHouse(DataStream<Tuple3<Long, String, Double>> dt, String sinkName) {
+    public void sinkStreamSGHouse(DataStream<Tuple3<Long, String, Double>> dt) {
     }
 
-    public void sinkStreamSGPlug(DataStream<Tuple5<Long, String, String, String, Double>> dt, String sinkName) {
+    public void sinkStreamSGPlug(DataStream<Tuple5<Long, String, String, String, Double>> dt) {
     }
 
     public void sinkStreamSA(DataStream<Tuple5<String, String, Date, String, Double>> dt) {
@@ -58,19 +58,19 @@ public abstract class BaseSink extends Metrics {
     public void sinkStreamFD(DataStream<Tuple3<String, Double, String>> dt) {
     }
 
-    public void createSinkLPVol(DataStream<Tuple2<Long, Long>> dt, String sinkName) {
+    public void createSinkLPVol(DataStream<Tuple2<Long, Long>> dt) {
     }
 
-    public void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {
+    public void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt) {
     }
 
-    public void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
+    public void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt) {
     }
 
-    public void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {
+    public void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> dt) {
     }
 
-    public void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
+    public void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt) {
     }
 
     public void createSinkAA(DataStream<Tuple6<String, String, Double, Long, Long, Integer>> dt) {

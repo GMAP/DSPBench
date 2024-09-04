@@ -6,14 +6,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
+
+import flink.util.Configurations;
 import flink.util.Metrics;
 import flink.constants.VoIPStreamConstants;
 
-public class Scorer extends Metrics implements FlatMapFunction<Tuple5<String, Long, Double, CallDetailRecord, String>, Tuple4<String, Long, Double, CallDetailRecord>>{
+public class Scorer extends RichFlatMapFunction<Tuple5<String, Long, Double, CallDetailRecord, String>, Tuple4<String, Long, Double, CallDetailRecord>>{
     protected static enum Source {
         ECR, RCR, ECR24, ENCR, CT24, VD, FOFIR, ACD, GACD, URL, NONE
     }
@@ -21,12 +24,13 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple5<String, Lo
     private static final Logger LOG = LoggerFactory.getLogger(Scorer.class);
 
     Configuration config;
+    Metrics metrics = new Metrics();
 
     protected Map<String, Entry> map;
     private double[] weights;
 
     public Scorer(Configuration config){
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
 
         map = new HashMap<>();
@@ -45,8 +49,10 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple5<String, Lo
     public void flatMap(Tuple5<String, Long, Double, CallDetailRecord, String> value,
             Collector<Tuple4<String, Long, Double, CallDetailRecord>> out) throws Exception {
         
-        super.initialize(config);
-        super.incReceived();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         CallDetailRecord cdr = (CallDetailRecord) value.getField(3);
         Source src     = parseComponentId(value.getField(4));
@@ -66,13 +72,23 @@ public class Scorer extends Metrics implements FlatMapFunction<Tuple5<String, Lo
                 
                 LOG.debug(String.format("Score=%f; Scores=%s", mainScore, Arrays.toString(e.getValues())));
                 
-                super.incEmitted();
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple4<String,Long,Double,CallDetailRecord>(caller, timestamp, mainScore, cdr));
             }
         } else {
             Entry e = new Entry(cdr);
             e.set(src, score);
             map.put(key, e);
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
     

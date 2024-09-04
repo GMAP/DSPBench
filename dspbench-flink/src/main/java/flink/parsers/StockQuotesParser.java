@@ -1,7 +1,6 @@
 package flink.parsers;
 
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.tuple.Tuple1;
+import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
 import org.joda.time.DateTime;
@@ -10,24 +9,33 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import flink.util.Configurations;
+import flink.util.Metrics;
 
-public class StockQuotesParser extends Parser implements MapFunction<String, Tuple5<String, Double, Integer, DateTime, Integer>>{
+public class StockQuotesParser extends RichMapFunction<String, Tuple5<String, Double, Integer, DateTime, Integer>>{
     
     private static final Logger LOG = LoggerFactory.getLogger(StockQuotesParser.class);
     Configuration config;
+    String sourceName;
 
-    public StockQuotesParser(Configuration config){
-        super.initialize(config);
+    Metrics metrics = new Metrics();
+
+    public StockQuotesParser(Configuration config, String sourceName){
+        metrics.initialize(config, this.getClass().getSimpleName()+"-"+sourceName);
         this.config = config;
+        this.sourceName = sourceName;
     }
 
     @Override
     public Tuple5<String, Double, Integer, DateTime, Integer> map(String value) throws Exception {
         DateTimeFormatter dtFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
-        super.initialize(config);
+        //super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName()+"-"+sourceName);
         String[] record = value.split(",");
-        super.incReceived();
+        //super.incReceived();
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         if (record.length < 8)
             return null;
@@ -54,13 +62,19 @@ public class StockQuotesParser extends Parser implements MapFunction<String, Tup
 
         int interval = 24 * 60 * 60;
 
-        super.incEmitted();
+        //super.incEmitted();
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.emittedThroughput();
+        }
         return new Tuple5<String,Double,Integer,DateTime,Integer>(stock, close, volume, date, interval);
     }
 
+    // close method
     @Override
-    public Tuple1<?> parse(String input) {
-        return null;
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
     
 }

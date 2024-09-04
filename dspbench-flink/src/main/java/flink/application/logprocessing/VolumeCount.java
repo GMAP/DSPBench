@@ -1,9 +1,11 @@
 package flink.application.logprocessing;
 
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
@@ -14,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class VolumeCount extends Metrics implements FlatMapFunction<Tuple6<Object, Object, Long, Object, Object, Object>, Tuple2<Long, Long>> {
+public class VolumeCount extends RichFlatMapFunction<Tuple6<Object, Object, Long, Object, Object, Object>, Tuple2<Long, Long>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VolumeCount.class);
 
@@ -25,8 +27,10 @@ public class VolumeCount extends Metrics implements FlatMapFunction<Tuple6<Objec
 
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public VolumeCount(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
@@ -46,8 +50,10 @@ public class VolumeCount extends Metrics implements FlatMapFunction<Tuple6<Objec
 
     @Override
     public void flatMap(Tuple6<Object, Object, Long, Object, Object, Object> input, Collector<Tuple2<Long, Long>> out) {
-        super.initialize(config);
-        super.incBoth();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.recemitThroughput();
+        }
         getBuffer();
         getCount();
 
@@ -69,5 +75,13 @@ public class VolumeCount extends Metrics implements FlatMapFunction<Tuple6<Objec
         }
 
         out.collect(new Tuple2<Long, Long>(minute, count.longValue()));
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 }

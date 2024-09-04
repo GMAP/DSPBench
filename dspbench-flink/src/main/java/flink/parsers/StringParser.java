@@ -1,34 +1,57 @@
 package flink.parsers;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StringParser extends Parser implements MapFunction<String, Tuple1<String>> {
+import flink.util.Configurations;
+import flink.util.Metrics;
+
+public class StringParser extends RichFlatMapFunction<String, Tuple1<String>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(StringParser.class);
 
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public StringParser(Configuration config){
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
     @Override
-    public Tuple1<String> map(String value) throws Exception {
-        super.initialize(config);
-        super.incBoth();
-        if (StringUtils.isBlank(value))
-            return null;
-        return new Tuple1<String>(value);
+    public void flatMap(String input, Collector<Tuple1<String>> out) throws Exception {
+        metrics.initialize(config, this.getClass().getSimpleName());
+
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
+        
+        if (StringUtils.isBlank(input))
+            out.collect(new Tuple1<String>(null));
+
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.emittedThroughput();
+        }
+
+        out.collect(new Tuple1<String>(input));
     }
 
+    // close method
     @Override
-    public Tuple1<?> parse(String input) {
-        return null;
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
+
 }

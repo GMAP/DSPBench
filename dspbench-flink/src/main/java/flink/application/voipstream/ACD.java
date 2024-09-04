@@ -18,6 +18,7 @@ import org.apache.flink.util.Collector;
 import flink.constants.BaseConstants;
 import flink.constants.VoIPStreamConstants;
 import flink.util.Configurations;
+import flink.util.Metrics;
 import flink.util.MetricsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class ACD extends RichCoFlatMapFunction<Tuple5<String, Long, Double, Call
 
     Configuration config;
 
-    Metric metrics = new Metric();
+    Metrics metrics = new Metrics();
 
     protected double thresholdMin;
     protected double thresholdMax;
@@ -41,7 +42,7 @@ public class ACD extends RichCoFlatMapFunction<Tuple5<String, Long, Double, Call
     private double avg;
 
     public ACD(Configuration config){
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
 
         map = new HashMap<>();
@@ -53,8 +54,10 @@ public class ACD extends RichCoFlatMapFunction<Tuple5<String, Long, Double, Call
     public void flatMap1(Tuple5<String, Long, Double, CallDetailRecord, String> value,
             Collector<Tuple5<String, Long, Double, CallDetailRecord, String>> out) throws Exception {
         // Union CT24 and ECR24
-        metrics.initialize(config);
-        metrics.incReceived("ACD");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         CallDetailRecord cdr = (CallDetailRecord) value.getField(3);
         String number  = value.getField(0);
@@ -76,7 +79,9 @@ public class ACD extends RichCoFlatMapFunction<Tuple5<String, Long, Double, Call
                 LOG.debug(String.format("T1=%f; T2=%f; CT24=%f; ECR24=%f; AvgCallDur=%f; Ratio=%f; Score=%f", 
                     thresholdMin, thresholdMax, e.get(Source.CT24), e.get(Source.ECR24), avg, ratio, score));
                 
-                metrics.incEmitted("ACD");
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple5<String, Long, Double, CallDetailRecord, String>(number, timestamp, score, cdr, "ACD"));
                 map.remove(key);
             } else {
@@ -94,9 +99,19 @@ public class ACD extends RichCoFlatMapFunction<Tuple5<String, Long, Double, Call
     public void flatMap2(Tuple2<Long, Double> value, Collector<Tuple5<String, Long, Double, CallDetailRecord, String>> out)
             throws Exception {
         // Global ACD
-        metrics.initialize(config);
-        metrics.incReceived("ACD");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
         avg = value.getField(1);
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 
     protected Source[] getFields(){

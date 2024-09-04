@@ -20,6 +20,7 @@ import com.codahale.metrics.MetricRegistry;
 import flink.constants.BaseConstants;
 import flink.constants.VoIPStreamConstants;
 import flink.util.Configurations;
+import flink.util.Metrics;
 import flink.util.MetricsFactory;
 
 public class URL extends RichCoFlatMapFunction<Tuple4<String, Long, Double, CallDetailRecord>, Tuple4<String, Long, Double, CallDetailRecord>, Tuple5<String, Long, Double, CallDetailRecord, String>>{
@@ -31,14 +32,14 @@ public class URL extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Call
 
     Configuration config;
 
-    Metric metrics = new Metric();
+    Metrics metrics = new Metrics();
 
     protected double thresholdMin;
     protected double thresholdMax;
     protected Map<String, Entry> map;
 
     public URL(Configuration config){
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
 
         map = new HashMap<>();
@@ -50,8 +51,10 @@ public class URL extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Call
     public void flatMap1(Tuple4<String, Long, Double, CallDetailRecord> value,
             Collector<Tuple5<String, Long, Double, CallDetailRecord, String>> out) throws Exception {
         // ENCR
-        metrics.initialize(config);
-        metrics.incReceived("URL");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         CallDetailRecord cdr = (CallDetailRecord) value.getField(3);
         String number  = value.getField(0);
@@ -73,7 +76,9 @@ public class URL extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Call
                 LOG.debug(String.format("T1=%f; T2=%f; ENCR=%f; ECR=%f; Ratio=%f; Score=%f", 
                         thresholdMin, thresholdMax, e.get(Source.ENCR), e.get(Source.ECR), ratio, score));
                 
-                metrics.incEmitted("URL");
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple5<String, Long, Double, CallDetailRecord, String>(number, timestamp, score, cdr, "URL"));
                 map.remove(key);
             } else {
@@ -91,8 +96,10 @@ public class URL extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Call
     public void flatMap2(Tuple4<String, Long, Double, CallDetailRecord> value,
             Collector<Tuple5<String, Long, Double, CallDetailRecord, String>> out) throws Exception {
         // ECR
-        metrics.initialize(config);
-        metrics.incReceived("URL");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         CallDetailRecord cdr = (CallDetailRecord) value.getField(3);
         String number  = value.getField(0);
@@ -114,7 +121,9 @@ public class URL extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Call
                 LOG.debug(String.format("T1=%f; T2=%f; ENCR=%f; ECR=%f; Ratio=%f; Score=%f", 
                         thresholdMin, thresholdMax, e.get(Source.ENCR), e.get(Source.ECR), ratio, score));
                         
-                metrics.incEmitted("URL");
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple5<String, Long, Double, CallDetailRecord, String>(number, timestamp, score, cdr, "URL"));
                 map.remove(key);
             } else {
@@ -125,6 +134,14 @@ public class URL extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Call
             Entry e = new Entry(cdr);
             e.set(src, rate);
             map.put(key, e);
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
     

@@ -48,11 +48,11 @@ public class AdAnalytics extends AbstractApplication{
         DataStream<String> impressions = createSource("impressions");
 
         // Parser
-        DataStream<Tuple3<Long, Long, AdEvent>> clickParser = clicks.flatMap(new AdEventParser(config)).setParallelism(clickParserThreads);
-        DataStream<Tuple3<Long, Long, AdEvent>> impressionsParser = impressions.flatMap(new AdEventParser(config)).setParallelism(impressionsParserThreads);
+        DataStream<Tuple3<Long, Long, AdEvent>> clicksParser = clicks.flatMap(new AdEventParser(config, "clicks")).setParallelism(clickParserThreads);
+        DataStream<Tuple3<Long, Long, AdEvent>> impressionsParser = impressions.flatMap(new AdEventParser(config, "impressions")).setParallelism(impressionsParserThreads);
 
         // Process
-        DataStream<Tuple6<String, String, Double, Long, Long, Integer>> rollingCTR = clickParser.union(impressionsParser).keyBy(
+        DataStream<Tuple6<String, String, Double, Long, Long, Integer>> rollingCTR = clicksParser.union(impressionsParser).keyBy(
             new KeySelector<Tuple3<Long,Long,AdEvent>,Tuple2<Long, Long>>() {
                 @Override
                 public Tuple2<Long, Long> getKey(Tuple3<Long,Long,AdEvent> value){

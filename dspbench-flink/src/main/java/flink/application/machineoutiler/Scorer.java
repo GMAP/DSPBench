@@ -1,8 +1,10 @@
 package flink.application.machineoutiler;
 
 import flink.constants.MachineOutlierConstants;
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
@@ -13,8 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Scorer extends Metrics implements
-        FlatMapFunction<Tuple3<String, Long, MachineMetadata>, Tuple4<String, Double, Long, Object>> {
+public class Scorer extends RichFlatMapFunction<Tuple3<String, Long, MachineMetadata>, Tuple4<String, Double, Long, Object>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Scorer.class);
 
@@ -23,9 +24,10 @@ public class Scorer extends Metrics implements
     private static List<Object> observationList;
     private static DataInstanceScorer dataInstanceScorer;
     Configuration config;
+    Metrics metrics = new Metrics();
 
     public Scorer(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         previousTimestamp = 0;
         this.config = config;
     }
@@ -50,8 +52,10 @@ public class Scorer extends Metrics implements
     @Override
     public void flatMap(Tuple3<String, Long, MachineMetadata> input,
             Collector<Tuple4<String, Double, Long, Object>> out) {
-        super.initialize(config);
-        super.incReceived();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
         getList();
         createScorer(config);
 
@@ -61,7 +65,10 @@ public class Scorer extends Metrics implements
             if (!observationList.isEmpty()) {
                 List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                 for (ScorePackage scorePackage : scorePackageList) {
-                    super.incEmitted();
+                    if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                        metrics.emittedThroughput();
+                    }
+            
                     out.collect(new Tuple4<String, Double, Long, Object>(scorePackage.getId(),
                             scorePackage.getScore(), previousTimestamp, scorePackage.getObj()));
                 }
@@ -71,5 +78,13 @@ public class Scorer extends Metrics implements
             previousTimestamp = timestamp;
         }
         observationList.add(input.getField(2));
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 }

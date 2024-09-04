@@ -3,29 +3,26 @@ package flink.application.trendingtopics;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
+import org.apache.flink.streaming.api.functions.windowing.RichWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import flink.application.adanalytics.AdEvent;
 import flink.application.adanalytics.RollingCTR;
-import flink.constants.BaseConstants;
 import flink.constants.TrendingTopicsConstants;
 import flink.tools.NthLastModifiedTimeTracker;
 import flink.tools.SlidingWindowCounter;
+import flink.util.Configurations;
 import flink.util.Metrics;
 
-public class RollingCount extends Metrics implements WindowFunction<Tuple1<String>, Tuple3<Object, Long, Integer>, String, TimeWindow>{
+public class RollingCount extends RichWindowFunction<Tuple1<String>, Tuple3<Object, Long, Integer>, String, TimeWindow>{
     private static final Logger LOG = LoggerFactory.getLogger(RollingCTR.class);
     Configuration config;
+    Metrics metrics = new Metrics();
 
     private static final String WINDOW_LENGTH_WARNING_TEMPLATE =
         "Actual window length is %d seconds when it should be %d seconds"
@@ -41,7 +38,7 @@ public class RollingCount extends Metrics implements WindowFunction<Tuple1<Strin
     }
     
     public RollingCount(Configuration config, int emitFrequencyInSeconds) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
         this.emitFrequencyInSeconds = emitFrequencyInSeconds;
 
@@ -56,10 +53,12 @@ public class RollingCount extends Metrics implements WindowFunction<Tuple1<Strin
     @Override
     public void apply(String key, TimeWindow window, Iterable<Tuple1<String>> input,
             Collector<Tuple3<Object, Long, Integer>> out) throws Exception {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
 
         for(Tuple1<String> in : input){
-            super.incReceived();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.receiveThroughput();
+            }
 
             String obj = in.getField(0);
             counter.incrementCount(obj);
@@ -77,8 +76,18 @@ public class RollingCount extends Metrics implements WindowFunction<Tuple1<Strin
             Object obj = entry.getKey();
             Long count = entry.getValue();
             //collector.emit(new Values(obj, count, actualWindowLengthInSeconds));
-            super.incEmitted();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.emittedThroughput();
+            }
             out.collect(new Tuple3<Object,Long,Integer>(obj, count, actualWindowLengthInSeconds));
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
 }

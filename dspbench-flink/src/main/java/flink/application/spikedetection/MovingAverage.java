@@ -1,8 +1,10 @@
 package flink.application.spikedetection;
 
 import flink.constants.SpikeDetectionConstants;
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.configuration.Configuration;
@@ -15,7 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class MovingAverage extends Metrics implements FlatMapFunction<Tuple3<String, Date, Double>, Tuple3<String, Double, Double>> {
+public class MovingAverage extends RichFlatMapFunction<Tuple3<String, Date, Double>, Tuple3<String, Double, Double>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MovingAverage.class);
 
@@ -25,8 +27,10 @@ public class MovingAverage extends Metrics implements FlatMapFunction<Tuple3<Str
 
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public MovingAverage(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
@@ -56,8 +60,10 @@ public class MovingAverage extends Metrics implements FlatMapFunction<Tuple3<Str
 
     @Override
     public void flatMap(Tuple3<String, Date, Double> input, Collector<Tuple3<String, Double, Double>> out) {
-        super.initialize(config);
-        super.incBoth();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.recemitThroughput();
+        }
         window(config);
 
         String deviceID = input.getField(0);
@@ -65,6 +71,14 @@ public class MovingAverage extends Metrics implements FlatMapFunction<Tuple3<Str
         double movingAverageInstant = movingAverage(deviceID, nextDouble);
 
         out.collect(new Tuple3<String, Double, Double>(deviceID, movingAverageInstant, nextDouble));
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 
     private double movingAverage(String deviceID, double nextDouble) {

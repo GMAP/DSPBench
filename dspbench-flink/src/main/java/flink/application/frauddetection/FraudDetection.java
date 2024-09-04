@@ -38,7 +38,7 @@ public class FraudDetection extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple2<String, String>> dataParse = data.map(new TransactionParser(config))
+        DataStream<Tuple2<String, String>> dataParse = data.flatMap(new TransactionParser(config))
                 .setParallelism(parserThreads);
 
         // Process

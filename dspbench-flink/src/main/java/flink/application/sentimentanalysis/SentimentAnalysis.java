@@ -41,7 +41,7 @@ public class SentimentAnalysis extends AbstractApplication {
         DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple3<String, String, Date>> dataParse = data.map(new JsonTweetParser(config))
+        DataStream<Tuple3<String, String, Date>> dataParse = data.flatMap(new JsonTweetParser(config))
                 .setParallelism(parserThreads);
 
         // Process

@@ -1,6 +1,7 @@
 package flink.application.voipstream;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.configuration.Configuration;
@@ -11,12 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import flink.constants.VoIPStreamConstants;
 import flink.util.BloomFilter;
+import flink.util.Configurations;
 import flink.util.Metrics;
 
-public class VariationDetector extends Metrics implements FlatMapFunction<Tuple4<String, String, DateTime, CallDetailRecord>, Tuple5<String, String, DateTime, Boolean, CallDetailRecord>>{
+public class VariationDetector extends RichFlatMapFunction<Tuple4<String, String, DateTime, CallDetailRecord>, Tuple5<String, String, DateTime, Boolean, CallDetailRecord>>{
 
     private static final Logger LOG = LoggerFactory.getLogger(VariationDetector.class);
     Configuration config;
+    Metrics metrics = new Metrics();
 
     private BloomFilter<String> detector;
     private BloomFilter<String> learner;
@@ -25,7 +28,7 @@ public class VariationDetector extends Metrics implements FlatMapFunction<Tuple4
     private double cycleThreshold;
 
     public VariationDetector(Configuration config){
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
 
         approxInsertSize = config.getInteger(VoIPStreamConstants.Conf.VAR_DETECT_APROX_SIZE, 180000);
@@ -40,8 +43,10 @@ public class VariationDetector extends Metrics implements FlatMapFunction<Tuple4
     @Override
     public void flatMap(Tuple4<String, String, DateTime, CallDetailRecord> value,
             Collector<Tuple5<String, String, DateTime, Boolean, CallDetailRecord>> out) throws Exception {
-        super.initialize(config);
-        super.incBoth();
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.recemitThroughput();
+        }
         CallDetailRecord cdr = (CallDetailRecord) value.getField(3);
         String key = String.format("%s:%s", cdr.getCallingNumber(), cdr.getCalledNumber());
         boolean newCallee = false;
@@ -62,6 +67,14 @@ public class VariationDetector extends Metrics implements FlatMapFunction<Tuple4
         }
         
         out.collect(new Tuple5<String,String,DateTime,Boolean,CallDetailRecord>(cdr.getCallingNumber(), cdr.getCalledNumber(), cdr.getAnswerTime(), newCallee, cdr));
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
     
     private void rotateFilters() {
