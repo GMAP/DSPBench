@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.dspbench.applications.bargainindex.BargainIndexConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 
@@ -39,6 +40,10 @@ public class VwapBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
+
         String stock  = input.getStringByField(BargainIndexConstants.Field.STOCK);
         double price  = (double) input.getDoubleByField(BargainIndexConstants.Field.PRICE);
         int volume    = (int) input.getIntegerByField(BargainIndexConstants.Field.VOLUME);
@@ -49,6 +54,9 @@ public class VwapBolt extends AbstractBolt {
 
         if (withinPeriod(vwap, date)) {
             vwap.update(volume, price, date.plusSeconds(inteval));
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(input, new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
         } else {
             if (vwap != null) {
@@ -57,11 +65,20 @@ public class VwapBolt extends AbstractBolt {
             
             vwap = new Vwap(volume, price, date, date.plusSeconds(inteval));
             stocks.put(stock, vwap);
-
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(input, new Values(stock, vwap.getVwap(), vwap.getStartDate(), vwap.getEndDate()));
         }
         
         collector.ack(input);
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
     
     private boolean withinPeriod(Vwap vwap, DateTime quoteDate) {

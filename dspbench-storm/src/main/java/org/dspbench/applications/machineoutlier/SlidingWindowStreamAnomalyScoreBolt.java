@@ -10,6 +10,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.dspbench.applications.machineoutlier.MachineOutlierConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 /**
  * Summing up all the data instance scores as the stream anomaly score.
@@ -30,7 +31,17 @@ public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
         long timestamp = input.getLongByField(MachineOutlierConstants.Field.TIMESTAMP);
         String id = input.getStringByField(MachineOutlierConstants.Field.ID);
         double dataInstanceAnomalyScore = input.getDoubleByField(MachineOutlierConstants.Field.DATAINST_ANOMALY_SCORE);
@@ -52,13 +63,12 @@ public class SlidingWindowStreamAnomalyScoreBolt extends AbstractBolt {
             sumScore += score;
         }
 
-        collector.emit(new Values(id, sumScore, timestamp, input.getValue(3), dataInstanceAnomalyScore, input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
+        collector.emit(new Values(id, sumScore, timestamp, input.getValue(3), dataInstanceAnomalyScore));
         collector.ack(input);
-        super.calculateThroughput();
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION, MachineOutlierConstants.Field.CUR_DATAINST_SCORE, MachineOutlierConstants.Field.INITTIME);
+        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION, MachineOutlierConstants.Field.CUR_DATAINST_SCORE);
     }
 }

@@ -6,6 +6,7 @@ import org.apache.storm.tuple.Values;
 import org.apache.commons.lang3.StringUtils;
 import org.dspbench.applications.wordcount.WordCountConstants.Field;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 import java.time.Instant;
 
@@ -19,15 +20,26 @@ public class SplitSentenceBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        incReceived();
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         String[] words = input.getString(0).split(splitregex);
 
         for (String word : words) {
             if (!StringUtils.isBlank(word)){
-                incEmitted();
+                if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                    emittedThroughput();
+                }
                 collector.emit(input, new Values(word));
             }
         }
         collector.ack(input);
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
 }

@@ -2,6 +2,10 @@ package org.dspbench.applications.voipstream;
 
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.dspbench.applications.voipstream.VoIPSTREAMConstants.Conf;
+import org.dspbench.applications.voipstream.VoIPSTREAMConstants.Field;
+import org.dspbench.util.config.Configuration;
+
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -38,6 +42,9 @@ public class ScoreBolt extends AbstractScoreBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
         Source src     = parseComponentId(input.getSourceComponent());
         String caller  = cdr.getCallingNumber();
@@ -47,12 +54,16 @@ public class ScoreBolt extends AbstractScoreBolt {
         
         if (map.containsKey(key)) {
             Entry e = map.get(key);
+
+            e.set(src, score);
             
             if (e.isFull()) {
                 double mainScore = sum(e.getValues(), weights);
                 
                 LOG.debug(String.format("Score=%f; Scores=%s", mainScore, Arrays.toString(e.getValues())));
-                
+                if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                    emittedThroughput();
+                }
                 collector.emit(new Values(caller, timestamp, mainScore, cdr));
             } else {
                 e.set(src, score);
@@ -61,6 +72,13 @@ public class ScoreBolt extends AbstractScoreBolt {
             Entry e = new Entry(cdr);
             e.set(src, score);
             map.put(key, e);
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
         }
     }
     

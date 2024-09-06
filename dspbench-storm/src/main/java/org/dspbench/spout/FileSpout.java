@@ -97,10 +97,17 @@ public class FileSpout extends AbstractSpout {
                 collector.emit(values.getStreamId(), values, msgId);
             }
         }
-        incBoth();
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
     }
 
-
+    @Override
+    public void close() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
 
     protected String readFile() {
         if (finished) return null;

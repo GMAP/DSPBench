@@ -22,7 +22,7 @@ public class PlugLoadPredictorBolt extends LoadPredictorBolt {
     @Override
     public Fields getDefaultFields() {
         return new Fields(Field.TIMESTAMP, Field.HOUSE_ID, Field.HOUSEHOLD_ID,
-                Field.PLUG_ID, Field.PREDICTED_LOAD, SmartGridConstants.Field.INITTIME);
+                Field.PLUG_ID, Field.PREDICTED_LOAD);
     }
     
     @Override
@@ -33,8 +33,8 @@ public class PlugLoadPredictorBolt extends LoadPredictorBolt {
     }
 
     @Override
-    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue, String inittime) {
+    protected Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue) {
         String[] segments = keyString.split(":");
-        return new Values(predictedTimeStamp, segments[0], segments[1], segments[2], predictedValue, inittime);
+        return new Values(predictedTimeStamp, segments[0], segments[1], segments[2], predictedValue);
     }
 }

@@ -51,7 +51,6 @@ public class AlibabaMachineUsageParser extends Parser {
         values.add(timestamp);
         values.add(new MachineMetadata(timestamp, id, cpu, memory));
         values.setMessageId(msgId);
-        values.add(Instant.now().toEpochMilli() + "");
         return ImmutableList.of(values);
     }
 }

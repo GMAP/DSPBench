@@ -2,6 +2,8 @@ package org.dspbench.applications.voipstream;
 
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.dspbench.applications.voipstream.VoIPSTREAMConstants.Field;
+import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.dspbench.applications.voipstream.VoIPSTREAMConstants.*;
@@ -16,9 +18,19 @@ public class CTBolt extends AbstractFilterBolt {
     public CTBolt(String configPrefix) {
         super(configPrefix, Field.CALLTIME);
     }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
     
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         CallDetailRecord cdr = (CallDetailRecord) input.getValueByField(Field.RECORD);
         boolean newCallee = input.getBooleanByField(Field.NEW_CALLEE);
         
@@ -30,6 +42,9 @@ public class CTBolt extends AbstractFilterBolt {
             double calltime = filter.estimateCount(caller, timestamp);
 
             LOG.debug(String.format("CallTime: %f", calltime));
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(new Values(caller, timestamp, calltime, cdr));
         }
     }

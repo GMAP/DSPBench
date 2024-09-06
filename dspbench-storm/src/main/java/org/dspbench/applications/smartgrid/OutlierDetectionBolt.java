@@ -11,6 +11,7 @@ import org.dspbench.applications.smartgrid.SmartGridConstants.Component;
 import org.dspbench.applications.smartgrid.SmartGridConstants.Field;
 import org.dspbench.bolt.AbstractBolt;
 import org.dspbench.util.collections.FixedMap;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.math.OutlierTracker;
 
 /**
@@ -30,8 +31,18 @@ public class OutlierDetectionBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple tuple) {
         String component = tuple.getSourceComponent();
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         
         if (component.equals(Component.GLOBAL_MEDIAN)) {
             long timestamp = tuple.getLongByField(Field.TIMESTAMP);
@@ -48,7 +59,6 @@ public class OutlierDetectionBolt extends AbstractBolt {
         } else {
             processPerPlugMedianTuple(tuple);
         }
-        super.calculateThroughput();
     }
 
     private void processPerPlugMedianTuple(Tuple tuple) {
@@ -75,15 +85,21 @@ public class OutlierDetectionBolt extends AbstractBolt {
             if (globalMedian < value) { // outlier
                 if (!tracker.isOutlier(key)) {
                     tracker.addOutlier(key);
+                    if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                        emittedThroughput();
+                    }
                     collector.emit(new Values(timestamp - 24 * 60 * 60, timestamp,
-                            houseId, tracker.getCurrentPercentage(), tuple.getStringByField(Field.INITTIME)));
+                            houseId, tracker.getCurrentPercentage()));
                 }
             } else {
                 if (tracker.isOutlier(key)) {
                     tracker.removeOutlier(key);
                     //emit
+                    if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                        emittedThroughput();
+                    }
                     collector.emit(new Values(timestamp - 24 * 60 * 60, timestamp,
-                            houseId, tracker.getCurrentPercentage(), tuple.getStringByField(Field.INITTIME)));
+                            houseId, tracker.getCurrentPercentage()));
                 }
             }
         } else {    // global median has not arrived
@@ -94,7 +110,7 @@ public class OutlierDetectionBolt extends AbstractBolt {
     @Override
     public Fields getDefaultFields() {
         return new Fields(Field.SLIDING_WINDOW_START, Field.SLIDING_WINDOW_END, 
-                Field.HOUSE_ID, Field.OUTLIER_PERCENTAGE, Field.INITTIME);
+                Field.HOUSE_ID, Field.OUTLIER_PERCENTAGE);
     }
     
     private class ComparableTuple implements Serializable, Comparable<ComparableTuple> {

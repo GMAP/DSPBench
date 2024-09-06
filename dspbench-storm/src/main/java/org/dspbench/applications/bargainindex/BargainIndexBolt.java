@@ -6,7 +6,11 @@ import org.apache.storm.tuple.Values;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dspbench.applications.bargainindex.BargainIndexConstants.Conf;
+import org.dspbench.applications.bargainindex.BargainIndexConstants.Field;
+import org.dspbench.applications.bargainindex.BargainIndexConstants.Stream;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.joda.time.DateTime;
 import static org.dspbench.applications.bargainindex.BargainIndexConstants.*;
 
@@ -34,6 +38,9 @@ public class BargainIndexBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         String stream = input.getSourceStreamId();
         
         if (stream.equals(Stream.QUOTES)) {
@@ -50,8 +57,12 @@ public class BargainIndexBolt extends AbstractBolt {
                 if (summary.vwap > askPrice) {
                     bargainIndex = Math.exp(summary.vwap - askPrice) * askSize;
                     
-                    if (bargainIndex > threshold)
+                    if (bargainIndex > threshold){
+                        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                            emittedThroughput();
+                        }
                         collector.emit(new Values(stock, askPrice, askSize, bargainIndex));
+                    }
                 }
             }
         } else if (stream.equals(Stream.TRADES)) {
@@ -66,6 +77,13 @@ public class BargainIndexBolt extends AbstractBolt {
             } else {
                 trades.put(stock, new TradeSummary(stock, vwap, endDate));
             }
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
         }
     }
     

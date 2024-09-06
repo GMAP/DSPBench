@@ -17,7 +17,7 @@ public class TransactionParser extends Parser {
     @Override
     public List<StreamValues> parse(String input) {
         String[] items = input.split(",", 2);
-        return ImmutableList.of(new StreamValues(items[0], items[1], Instant.now().toEpochMilli() + ""));
+        return ImmutableList.of(new StreamValues(items[0], items[1]));
     }
     
 }

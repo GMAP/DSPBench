@@ -29,3 +29,4 @@ echo "Deploying to $PLATFORM"
 echo "$APP_CONFIG_STR"
 
 storm jar $JAR_PATH org.dspbench.StormRunner --app $APP_NAME --config-str $APP_CONFIG_STR --mode remote
+#storm local $JAR_PATH org.dspbench.StormRunner --app $APP_NAME --config-str $APP_CONFIG_STR --mode remote

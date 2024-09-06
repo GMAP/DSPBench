@@ -156,33 +156,35 @@ public class Metrics implements Serializable{
     */
 
     public void SaveMetrics() {
-        new Thread(() -> {
-            try {
-                try (Writer writer = new FileWriter(this.fileReceived, true)) {
-                    for (Map.Entry<String, Long> entry : this.received.entrySet()) {
-                        writer.append(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
-                    }
-                    
-                } catch (IOException ex) {
-                    System.out.println("Error while writing the file " + fileReceived + " - " + ex);
-                }
-            } catch (Exception e) {
-                System.out.println("Error while creating the file " + e.getMessage());
-            }
-            if (!this.configPrefix.contains("Sink")) {
+        if (config.getBoolean(Configurations.METRICS_ENABLED, false)) {
+            new Thread(() -> {
                 try {
-                    try (Writer writer = new FileWriter(this.fileEmitted, true)) {
-                        for (Map.Entry<String, Long> entry : this.emitted.entrySet()) {
+                    try (Writer writer = new FileWriter(this.fileReceived, true)) {
+                        for (Map.Entry<String, Long> entry : this.received.entrySet()) {
                             writer.append(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
                         }
+                        
                     } catch (IOException ex) {
-                        System.out.println("Error while writing the file " + fileEmitted + " - " + ex);
+                        System.out.println("Error while writing the file " + fileReceived + " - " + ex);
                     }
                 } catch (Exception e) {
                     System.out.println("Error while creating the file " + e.getMessage());
                 }
-            }
-        }).start();
+                if (!this.configPrefix.contains("Sink")) {
+                    try {
+                        try (Writer writer = new FileWriter(this.fileEmitted, true)) {
+                            for (Map.Entry<String, Long> entry : this.emitted.entrySet()) {
+                                writer.append(entry.getKey() + "," + entry.getValue() + System.getProperty("line.separator"));
+                            }
+                        } catch (IOException ex) {
+                            System.out.println("Error while writing the file " + fileEmitted + " - " + ex);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Error while creating the file " + e.getMessage());
+                    }
+                }
+            }).start();
+        }
     }
     
     protected MetricRegistry getMetrics() {

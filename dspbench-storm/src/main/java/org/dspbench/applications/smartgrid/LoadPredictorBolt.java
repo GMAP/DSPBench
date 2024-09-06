@@ -11,6 +11,7 @@ import java.util.Map;
 import org.dspbench.applications.smartgrid.SmartGridConstants.*;
 import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.math.AverageTracker;
 import org.dspbench.util.math.SummaryArchive;
 import org.dspbench.util.stream.TupleUtils;
@@ -27,8 +28,6 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
     protected long currentSliceStart;
     protected long sliceLength = 60l;
     protected int tickCounter = 0;
-
-    protected String inittime = "";
 
     protected Map<String, AverageTracker> trackers;
     protected Map<String, SummaryArchive> archiveMap;
@@ -55,19 +54,25 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple tuple) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
+
         if (TupleUtils.isTickTuple(tuple)) {
             tickCounter = (tickCounter + 1) % 2;
             // time to emit
             if (tickCounter == 0) {
-                emitOutputStream(this.inittime);
-                this.inittime = "";
+                emitOutputStream();
             }
             return;
-        }
-
-        if (this.inittime.equals("")) {
-            this.inittime = tuple.getStringByField(Field.INITTIME);
         }
 
         int type = tuple.getIntegerByField(Field.PROPERTY);
@@ -134,7 +139,7 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
         }
     }
 
-    protected void emitOutputStream(String inittime) {
+    protected void emitOutputStream() {
         for (String key : trackers.keySet()) {
             double currentAvg = trackers.get(key).retrieve();
             double median = 0;
@@ -145,8 +150,10 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
 
             double prediction = predict(currentAvg, median);
             long predictedTimeStamp = currentSliceStart + 2 * sliceLength;
-            collector.emit(getOutputTuple(predictedTimeStamp, key, prediction, inittime));
-            super.calculateThroughput();
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
+            collector.emit(getOutputTuple(predictedTimeStamp, key, prediction));
         }
     }
 
@@ -162,5 +169,5 @@ public abstract class LoadPredictorBolt extends AbstractBolt {
 
     protected abstract String getKey(Tuple tuple);
 
-    protected abstract Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue, String inittime);
+    protected abstract Values getOutputTuple(long predictedTimeStamp, String keyString, double predictedValue);
 }

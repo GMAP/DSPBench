@@ -9,6 +9,7 @@ import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.dspbench.applications.logprocessing.LogProcessingConstants.Conf;
@@ -31,7 +32,9 @@ public class VolumeCountBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        super.incBoth();
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
         long minute = input.getLongByField(Field.TIMESTAMP_MINUTES);
         
         MutableLong count = counts.get(minute);
@@ -49,13 +52,20 @@ public class VolumeCountBolt extends AbstractBolt {
             count.increment();
         }
         
-        collector.emit(input, new Values(minute, count.longValue(), input.getStringByField(Field.INITTIME)));
+        collector.emit(input, new Values(minute, count.longValue()));
         collector.ack(input);
 
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public Fields getDefaultFields() {
-        return new Fields(Field.TIMESTAMP_MINUTES, Field.COUNT, Field.INITTIME);
+        return new Fields(Field.TIMESTAMP_MINUTES, Field.COUNT);
     }
 }

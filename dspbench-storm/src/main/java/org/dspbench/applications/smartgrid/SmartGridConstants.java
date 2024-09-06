@@ -69,8 +69,6 @@ public interface SmartGridConstants extends BaseConstants {
         String OUTLIER_PERCENTAGE   = "outlierPercentage";
         
         String PREDICTED_LOAD = "predictedLoad";
-
-        String INITTIME = "inittime";
     }
     
     interface Measurement {

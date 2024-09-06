@@ -3,8 +3,10 @@ package org.dspbench.applications.clickanalytics;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.dspbench.applications.clickanalytics.ClickAnalyticsConstants.Field;
 import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 import java.util.HashMap;
 
@@ -24,8 +26,17 @@ public class RepeatVisitBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple input) {
-        incBoth();
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
         String clientKey = input.getStringByField(Field.CLIENT_KEY);
         String url = input.getStringByField(Field.URL);
         String key = url + ":" + clientKey;

@@ -58,7 +58,7 @@ public class LogProcessingTopology extends AbstractTopology {
     @Override
     public StormTopology buildTopology() {
         spout.setFields(new Fields(Field.IP, Field.TIMESTAMP, Field.TIMESTAMP_MINUTES,
-                Field.REQUEST, Field.RESPONSE, Field.BYTE_SIZE, Field.INITTIME));
+                Field.REQUEST, Field.RESPONSE, Field.BYTE_SIZE));
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         

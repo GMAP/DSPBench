@@ -36,7 +36,6 @@ public interface MachineOutlierConstants extends BaseConstants {
         String OBSERVATION = "observation";
         String ANOMALY_STREAM = "anomalyStream";
         String IS_ABNORMAL = "isAbnormal";
-        String INITTIME = "inittime";
     }
     
     

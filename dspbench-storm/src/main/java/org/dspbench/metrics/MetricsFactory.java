@@ -23,7 +23,7 @@ public class MetricsFactory {
         
         MetricRegistry registry = new MetricRegistry();
         
-        String reporterType = config.getString(Configuration.METRICS_REPORTER, CONSOLE_REPORTER);
+        String reporterType = "csv";//config.getString(Configuration.METRICS_REPORTER, CONSOLE_REPORTER);
         ScheduledReporter reporter;
 
         switch (reporterType) {
@@ -50,7 +50,7 @@ public class MetricsFactory {
                 break;
         }
         
-        int interval = config.getInt(Configuration.METRICS_INTERVAL_VALUE, 5);
+        int interval = 1;//config.getInt(Configuration.METRICS_INTERVAL_VALUE, 5);
         TimeUnit unit = TimeUnit.valueOf(config.getString(Configuration.METRICS_INTERVAL_UNIT, "SECONDS").toUpperCase());
         
         reporter.start(interval, unit);

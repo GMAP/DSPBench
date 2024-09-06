@@ -29,6 +29,7 @@ import org.dspbench.bolt.AbstractBolt;
 import org.slf4j.Logger;
 import org.dspbench.applications.trendingtopics.TrendingTopicsConstants.Field;
 import org.dspbench.tools.Rankings;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.stream.TupleUtils;
 
 /**
@@ -77,7 +78,17 @@ public abstract class AbstractRankerBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public final void execute(Tuple tuple) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         if (TupleUtils.isTickTuple(tuple)) {
             getLogger().info("Received tick tuple, triggering emit of current rankings");
             emitRankings();
@@ -91,6 +102,9 @@ public abstract class AbstractRankerBolt extends AbstractBolt {
     abstract void updateRankingsWithTuple(Tuple tuple);
 
     private void emitRankings() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            emittedThroughput();
+        }
         collector.emit(new Values(rankings.copy()));
         getLogger().debug("Rankings: " + rankings);
     }
