@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class Metrics implements Serializable{
     protected String configPrefix = BaseConstants.BASE_PREFIX;
     private File fileReceived;
     private File fileEmitted;
+    private File pathTrh;
     private static final Logger LOG = LoggerFactory.getLogger(Metrics.class);
 
     private static MetricRegistry metrics;
@@ -38,10 +40,10 @@ public class Metrics implements Serializable{
         this.config = config;
         //getMetrics();
         //File pathLa = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK"), "latency").toFile();
-        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); //Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
+        this.pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); //Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
 
         //pathLa.mkdirs();
-        pathTrh.mkdirs();
+        this.pathTrh.mkdirs();
 
         this.fileReceived = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), this.getClass().getSimpleName() + "-received.csv").toFile();
         this.fileEmitted = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), this.getClass().getSimpleName() + "-emitted.csv").toFile();
@@ -54,10 +56,10 @@ public class Metrics implements Serializable{
             this.configPrefix = String.format("%s.%s", configPrefix, name);
         }
         //File pathLa = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK"), "latency").toFile();
-        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); // Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
+        this.pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); // Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
 
         //pathLa.mkdirs();
-        pathTrh.mkdirs();
+        this.pathTrh.mkdirs();
 
         //this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
         this.fileReceived = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), name + "-received.csv").toFile();
@@ -156,6 +158,7 @@ public class Metrics implements Serializable{
     */
 
     public void SaveMetrics() {
+        this.pathTrh.mkdirs();
         if (config.getBoolean(Configurations.METRICS_ENABLED, false)) {
             new Thread(() -> {
                 try {

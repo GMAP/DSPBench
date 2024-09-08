@@ -19,6 +19,7 @@ import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunctio
 import org.apache.flink.streaming.api.watermark.Watermark;
 import flink.constants.BaseConstants;
 import flink.util.Configurations;
+import flink.util.Metrics;
 import flink.util.MetricsFactory;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
@@ -43,9 +44,11 @@ public class YSBSource extends RichParallelSourceFunction<YSB_Event>{
     private long runTimeSec;
     private String uuid;
 
-    MetricsSource metric = new MetricsSource();
+    Metrics metrics = new Metrics();
 
     public YSBSource(Configuration config, List<CampaignAd> campaigns, int n_campaigns, long runTime) {
+        metrics.initialize(config, this.getClass().getSimpleName());
+        this.config = config;
         this.campaigns = campaigns;
         this.n_campaigns = n_campaigns;
         this.adTypeLength = 5;
@@ -56,8 +59,6 @@ public class YSBSource extends RichParallelSourceFunction<YSB_Event>{
         this.k=0;
         this.generated = 0;
         this.runTimeSec = runTime;
-
-        metric.initialize(config);
     }
 
     @Override
@@ -91,7 +92,9 @@ public class YSBSource extends RichParallelSourceFunction<YSB_Event>{
             if (generated == 1) {
                 epoch = System.nanoTime();
             }
-            metric.incEmitted();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.emittedThroughput();
+            }
         }
         // terminate the generation
         isRunning = false;
@@ -99,83 +102,15 @@ public class YSBSource extends RichParallelSourceFunction<YSB_Event>{
 
     @Override
     public void cancel() {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
         isRunning = false;
     }
-}
 
-class MetricsSource implements Serializable {
-    Configuration config;
-    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(150);
-    protected String configPrefix = BaseConstants.BASE_PREFIX;
-    private File file;
-
-    private static MetricRegistry metrics;
-    private Counter tuplesReceived;
-    private Counter tuplesEmitted;
-
-    public void initialize(Configuration config) {
-        this.config = config;
-        getMetrics();
-        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile();
-
-        pathTrh.mkdirs();
-
-        this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
-    }
-
-    public void SaveMetrics() {
-        new Thread(() -> {
-            try {
-                try (Writer writer = new FileWriter(this.file, true)) {
-                    writer.append(this.queue.take());
-                } catch (IOException ex) {
-                    System.out.println("Error while writing the file " + file + " - " + ex);
-                }
-            } catch (Exception e) {
-                System.out.println("Error while creating the file " + e.getMessage());
-            }
-        }).start();
-    }
-
-    protected MetricRegistry getMetrics() {
-        if (metrics == null) {
-            metrics = MetricsFactory.createRegistry(config);
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
-        return metrics;
-    }
-
-    protected Counter getTuplesReceived() {
-        if (tuplesReceived == null) {
-            tuplesReceived = getMetrics().counter("YSBSource-received");
-        }
-        return tuplesReceived;
-    }
-
-    protected Counter getTuplesEmitted() {
-        if (tuplesEmitted == null) {
-            tuplesEmitted = getMetrics().counter("YSBSource-emitted");
-        }
-        return tuplesEmitted;
-    }
-
-    protected void incReceived() {
-        getTuplesReceived().inc();
-    }
-
-    protected void incReceived(long n) {
-        getTuplesReceived().inc(n);
-    }
-
-    protected void incEmitted() {
-        getTuplesEmitted().inc();
-    }
-
-    protected void incEmitted(long n) {
-        getTuplesEmitted().inc(n);
-    }
-
-    protected void incBoth() {
-        getTuplesReceived().inc();
-        getTuplesEmitted().inc();
     }
 }

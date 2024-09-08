@@ -77,7 +77,7 @@ public class FlinkRunner {
         driver.addApp("trendingtopics", TrendingTopics.class);
         driver.addApp("voipstream", VoIPStream.class);
         
-        //driver.addApp("YSB", YSB.class);
+        driver.addApp("YSB", YSB.class);
     }
 
     public void run() throws InterruptedException {
