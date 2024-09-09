@@ -4,7 +4,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.apache.storm.utils.MutableLong;
-
+import org.dspbench.util.config.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +21,9 @@ public class WordCountBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        incBoth();
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
         String word = input.getStringByField(WordCountConstants.Field.WORD);
         MutableLong count = counts.get(word);
 
@@ -33,7 +35,13 @@ public class WordCountBolt extends AbstractBolt {
 
         collector.emit(input, new Values(word, count.get()));
         collector.ack(input);
-        super.calculateThroughput();//todo remove
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
 
 }

@@ -28,7 +28,7 @@ dependencies {
     // todo: add jar to classpath of docker
 //    implementation 'org.apache.storm:storm-core:2.4.0'
 //    implementation 'org.apache.storm:storm-kafka-client:2.4.0'
-    implementation 'org.apache.storm:storm-core:2.4.0' //compileOnly
+    compileOnly 'org.apache.storm:storm-core:2.4.0' //implementation
     implementation 'org.apache.storm:storm-kafka-client:2.4.0'
     implementation 'org.apache.kafka:kafka-clients:2.6.0'
 

@@ -1,7 +1,9 @@
 package flink.application.smartgrid;
 
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple6;
@@ -13,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple6<Long, String, String, String, Double, Integer>, Tuple4<String, String, Long, Double>> {
+public class PlugMedianCalc extends RichFlatMapFunction<Tuple6<Long, String, String, String, Double, Integer>, Tuple4<String, String, Long, Double>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlugMedianCalc.class);
 
@@ -21,9 +23,10 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple6<Lo
     private static Map<String, Long> lastUpdatedTsMap;
 
     Configuration config;
+    Metrics metrics = new Metrics();
 
     public PlugMedianCalc(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
@@ -45,7 +48,7 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple6<Lo
 
     @Override
     public void flatMap(Tuple6<Long, String, String, String, Double, Integer> input, Collector<Tuple4<String, String, Long, Double>> out) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         runMed();
         tsMap();
 
@@ -54,7 +57,9 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple6<Lo
         long timestamp = input.getField(0);
         String key = getKey(input);
 
-        super.incReceived();
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         RunningMedianCalculator medianCalc = runningMedians.get(key);
         if (medianCalc == null) {
@@ -72,11 +77,21 @@ public class PlugMedianCalc extends Metrics implements FlatMapFunction<Tuple6<Lo
             if (lastUpdatedTs < timestamp) {
                 // the sliding window has moved
                 lastUpdatedTsMap.put(key, timestamp);
-                super.incEmitted();
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple4<>("plugMedianCalculator" ,key, timestamp, median));
             }
         } else {
             medianCalc.remove(value);
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
 

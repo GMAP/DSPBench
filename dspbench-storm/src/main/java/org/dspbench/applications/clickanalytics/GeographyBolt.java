@@ -5,6 +5,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.dspbench.bolt.AbstractBolt;
 import org.dspbench.constants.BaseConstants;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.geoip.IPLocation;
 import org.dspbench.util.geoip.IPLocationFactory;
 import org.dspbench.util.geoip.Location;
@@ -23,6 +24,9 @@ public class GeographyBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         String ip = input.getStringByField(ClickAnalyticsConstants.Field.IP);
         
         Location location = resolver.resolve(ip);
@@ -30,11 +34,20 @@ public class GeographyBolt extends AbstractBolt {
         if (location != null) {
             String city = location.getCity();
             String country = location.getCountryName();
-
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(input, new Values(country, city));
         }
         
         collector.ack(input);
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
 
     @Override

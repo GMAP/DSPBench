@@ -48,7 +48,7 @@ public class FraudDetectionTopology extends BasicTopology {
     
     @Override
     public StormTopology buildTopology() {
-        spout.setFields(new Fields(Field.ENTITY_ID, Field.RECORD_DATA, Field.INITTIME));
+        spout.setFields(new Fields(Field.ENTITY_ID, Field.RECORD_DATA));
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         

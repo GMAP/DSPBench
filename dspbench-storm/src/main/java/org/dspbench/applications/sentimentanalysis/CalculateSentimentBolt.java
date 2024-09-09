@@ -6,6 +6,7 @@ import org.apache.storm.tuple.Values;
 import java.util.*;
 
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.applications.sentimentanalysis.sentiment.SentimentResult;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -44,7 +45,17 @@ public class CalculateSentimentBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
         String tweetId = (String) input.getValueByField(Field.ID);
         String text = (String) input.getValueByField(Field.TWEET);
         Date timestamp = (Date) input.getValueByField(Field.TIMESTAMP);
@@ -54,6 +65,5 @@ public class CalculateSentimentBolt extends AbstractBolt {
 
         collector.emit(input, new Values(tweetId, text, timestamp, result.getSentiment().toString(), result.getScore(), time));
         collector.ack(input);
-        super.calculateThroughput();
     }
 }

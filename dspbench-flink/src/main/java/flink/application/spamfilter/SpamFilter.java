@@ -20,7 +20,6 @@ public class SpamFilter extends AbstractApplication {
     private int trainingParserThreads;
     private int analysisParserThreads;
     private int tokenizerThreads;
-    private int probabilityThreads;
     private int bayesThreads;
 
     public SpamFilter(String appName, Configuration config) {
@@ -44,8 +43,8 @@ public class SpamFilter extends AbstractApplication {
         DataStream<String> analysis = createSource("analysis");
 
         // Parser
-        DataStream<Tuple3<String, String, Boolean>> trainingParser = training.map(new JsonEmailParser(config)).filter(value -> value != null).setParallelism(trainingParserThreads);
-        DataStream<Tuple3<String, String, Boolean>> analysisParser = analysis.map(new JsonEmailParser(config)).filter(value -> value != null).setParallelism(analysisParserThreads);
+        DataStream<Tuple3<String, String, Boolean>> trainingParser = training.flatMap(new JsonEmailParser(config, "training")).filter(value -> value != null).setParallelism(trainingParserThreads);
+        DataStream<Tuple3<String, String, Boolean>> analysisParser = analysis.flatMap(new JsonEmailParser(config, "analysis")).filter(value -> value != null).setParallelism(analysisParserThreads);
 
         // Process
         DataStream<Tuple3<String, Word, Integer>> tokenWordProb = trainingParser.connect(analysisParser).flatMap(new TokenWordProb(config)).setParallelism(tokenizerThreads);

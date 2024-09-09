@@ -3,8 +3,10 @@ package flink.application.trafficmonitoring;
 import flink.application.trafficmonitoring.gis.GPSRecord;
 import flink.application.trafficmonitoring.gis.RoadGridList;
 import flink.constants.TrafficMonitoringConstants;
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.configuration.Configuration;
@@ -16,8 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class MapMatching extends Metrics implements
-        FlatMapFunction<Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double>, Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>> {
+public class MapMatching extends RichFlatMapFunction<Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double>, Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MapMatching.class);
 
@@ -30,9 +31,11 @@ public class MapMatching extends Metrics implements
 
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public MapMatching(Configuration config) {
         this.config = config;
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
 
         this.shapeFile = config.getString(TrafficMonitoringConstants.Conf.MAP_MATCHER_SHAPEFILE,
                 "/home/gabriel/Documents/repos/DSPBenchLarcc/dspbench-flink/data/beijing/roads.shp");
@@ -64,10 +67,12 @@ public class MapMatching extends Metrics implements
     public void flatMap(Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double> input,
             Collector<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>> out) {
         
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         //loadShapefile(config);
         RoadGridList gridList = getSectors();
-        super.incReceived();
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
         try {
             int speed = input.getField(3);
             int bearing = input.getField(4);
@@ -84,13 +89,23 @@ public class MapMatching extends Metrics implements
             int roadID = gridList.fetchRoadID(record);
 
             if (roadID != -1) {
-                super.incEmitted();
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>(
                         input.f0, input.f1, input.f2, input.f3, input.f4, input.f5, input.f6, roadID));
             }
 
         } catch (SQLException ex) {
             System.out.println("Unable to fetch road ID " + ex);
+        }
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
     }
 }

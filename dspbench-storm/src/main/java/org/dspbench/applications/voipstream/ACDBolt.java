@@ -2,6 +2,8 @@ package org.dspbench.applications.voipstream;
 
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
+import org.dspbench.applications.voipstream.VoIPSTREAMConstants.Field;
+import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,17 @@ public class ACDBolt extends AbstractScoreBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         Source src = parseComponentId(input.getSourceComponent());
         
         if (src == Source.GACD) {
@@ -46,6 +58,9 @@ public class ACDBolt extends AbstractScoreBolt {
                     LOG.debug(String.format("T1=%f; T2=%f; CT24=%f; ECR24=%f; AvgCallDur=%f; Ratio=%f; Score=%f", 
                         thresholdMin, thresholdMax, e.get(Source.CT24), e.get(Source.ECR24), avg, ratio, score));
 
+                    if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                        emittedThroughput();
+                    }
                     collector.emit(new Values(number, timestamp, score, cdr));
                     map.remove(key);
                 } else {

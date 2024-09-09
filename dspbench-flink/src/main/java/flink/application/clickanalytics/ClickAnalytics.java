@@ -47,7 +47,7 @@ public class ClickAnalytics extends AbstractApplication {
         DataStream<String> data = createSource();
         
         // Parser
-        DataStream<Tuple3<String, String, String>> dataParse = data.map(new ClickStreamParser(config))
+        DataStream<Tuple3<String, String, String>> dataParse = data.flatMap(new ClickStreamParser(config))
                 .setParallelism(parserThreads);
 
         // Process
@@ -69,8 +69,8 @@ public class ClickAnalytics extends AbstractApplication {
                 .flatMap(new GeoStats(config)).setParallelism(geoStatsThreads).keyBy(value -> value.f0);
 
         // Sink
-        createSinkCAStatus(visitStats, "visit");
-        createSinkCAGeo(geoStats, "location");
+        createSinkCAStatus(visitStats);
+        createSinkCAGeo(geoStats);
 
         return env;
     }

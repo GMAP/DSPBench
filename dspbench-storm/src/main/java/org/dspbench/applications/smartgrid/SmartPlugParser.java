@@ -42,7 +42,7 @@ public class SmartPlugParser extends Parser {
             String houseId = fields[HOUSE_ID_FIELD];
             
             StreamValues values = new StreamValues(id, timestamp, value, property,
-                                                   plugId, householdId, houseId, Instant.now().toEpochMilli() + "");
+                                                   plugId, householdId, houseId);
             values.setMessageId(id);
             
             return ImmutableList.of(values);

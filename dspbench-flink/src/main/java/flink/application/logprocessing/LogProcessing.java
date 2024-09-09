@@ -43,7 +43,7 @@ public class LogProcessing extends AbstractApplication {
 
         // Parser
         DataStream<Tuple6<Object, Object, Long, Object, Object, Object>> dataParse = data
-                .map(new CommonLogParser(config)).setParallelism(parserThreads);
+                .flatMap(new CommonLogParser(config)).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple2<Long, Long>> volCount = dataParse.filter(value -> (value.f2 != null)).keyBy(value -> value.f2)
@@ -59,9 +59,9 @@ public class LogProcessing extends AbstractApplication {
                 .keyBy(value -> value.f0).flatMap(new GeoStats(config)).setParallelism(geoStatsThreads);
 
         // Sink
-        createSinkLPVol(volCount, "count");
-        createSinkLPStatus(statusCount, "status");
-        createSinkLPGeo(geoStats, "country");
+        createSinkLPVol(volCount);
+        createSinkLPStatus(statusCount);
+        createSinkLPGeo(geoStats);
 
         return env;
     }

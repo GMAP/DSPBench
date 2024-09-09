@@ -3,13 +3,10 @@ package flink.application.trafficmonitoring;
 import flink.application.AbstractApplication;
 import flink.constants.TrafficMonitoringConstants;
 import flink.parsers.BeijingTaxiParser;
-import flink.source.InfSourceFunction;
 
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.api.java.tuple.Tuple8;
-import org.apache.flink.api.java.tuple.Tuple9;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -47,7 +44,7 @@ public class TrafficMonitoring extends AbstractApplication {
 
         // Parser
         DataStream<Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double>> dataParse = data.filter(value -> (value != null))
-                .map(new BeijingTaxiParser(config)).setParallelism(parserThreads);
+                .flatMap(new BeijingTaxiParser(config)).setParallelism(parserThreads);
         
         // Process
         DataStream<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>> mapMatch = dataParse

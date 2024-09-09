@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.applications.trafficmonitoring.gis.GPSRecord;
 import org.dspbench.applications.trafficmonitoring.gis.RoadGridList;
 import org.slf4j.Logger;
@@ -46,6 +47,9 @@ public class MapMatchingBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         try {
             int speed = input.getIntegerByField(TrafficMonitoringConstants.Field.SPEED);
             int bearing = input.getIntegerByField(TrafficMonitoringConstants.Field.BEARING);
@@ -62,13 +66,22 @@ public class MapMatchingBolt extends AbstractBolt {
             if (roadID != -1) {
                 List<Object> values = new ArrayList<>(input.getValues());
                 values.add(roadID);
+                if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                    emittedThroughput();
+                }
                 collector.emit(input, values);
             }
 
             collector.ack(input);
-            super.calculateThroughput();
         } catch (SQLException ex) {
             LOG.error("Unable to fetch road ID", ex);
+        }
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
         }
     }
 

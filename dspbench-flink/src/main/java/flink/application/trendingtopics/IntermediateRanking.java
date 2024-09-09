@@ -3,6 +3,7 @@ package flink.application.trendingtopics;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.windowing.RichWindowFunction;
 import org.apache.flink.streaming.api.functions.windowing.WindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -12,11 +13,13 @@ import org.slf4j.LoggerFactory;
 import flink.tools.Rankable;
 import flink.tools.RankableObjectWithFields;
 import flink.tools.Rankings;
+import flink.util.Configurations;
 import flink.util.Metrics;
 
-public class IntermediateRanking extends Metrics implements WindowFunction<Tuple3<Object,Long,Integer>, Tuple1<Rankings>, Object, TimeWindow>{
+public class IntermediateRanking extends RichWindowFunction<Tuple3<Object,Long,Integer>, Tuple1<Rankings>, Object, TimeWindow>{
     private static final Logger LOG = LoggerFactory.getLogger(IntermediateRanking.class);
     Configuration config;
+    Metrics metrics = new Metrics();
 
     private static final int DEFAULT_EMIT_FREQUENCY_IN_SECONDS = 2;
     private static final int DEFAULT_COUNT = 10;
@@ -41,7 +44,7 @@ public class IntermediateRanking extends Metrics implements WindowFunction<Tuple
           throw new IllegalArgumentException(
               "The emit frequency must be >= 1 seconds (you requested " + emitFrequencyInSeconds + " seconds)");
         }
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
         count = topN;
         this.emitFrequencyInSeconds = emitFrequencyInSeconds;
@@ -55,19 +58,31 @@ public class IntermediateRanking extends Metrics implements WindowFunction<Tuple
     @Override
     public void apply(Object key, TimeWindow window, Iterable<Tuple3<Object, Long, Integer>> input,
             Collector<Tuple1<Rankings>> out) throws Exception {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         
         for (Tuple3<Object, Long, Integer> in : input){
-            super.incReceived();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.receiveThroughput();
+            }
 
             Rankable rankable = RankableObjectWithFields.from(in);
             getRankings().updateWith(rankable);
 
         }
 
-        super.incEmitted();
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.emittedThroughput();
+        }
         out.collect(new Tuple1<Rankings>(rankings.copy()));
         LOG.info("Rankings: " + rankings);
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 
     Logger getLogger() {

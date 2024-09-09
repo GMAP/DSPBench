@@ -63,7 +63,7 @@ public class SmartGridTopology extends AbstractTopology {
     @Override
     public StormTopology buildTopology() {
         spout.setFields(new Fields(Field.ID, Field.TIMESTAMP, Field.VALUE, Field.PROPERTY,
-                                   Field.PLUG_ID, Field.HOUSEHOLD_ID, Field.HOUSE_ID, Field.INITTIME));
+                                   Field.PLUG_ID, Field.HOUSEHOLD_ID, Field.HOUSE_ID));
         
         builder.setSpout(Component.SPOUT, spout, spoutThreads);
         

@@ -7,6 +7,7 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.applications.machineoutlier.scorer.DataInstanceScorer;
 import org.dspbench.applications.machineoutlier.scorer.DataInstanceScorerFactory;
 import org.dspbench.applications.machineoutlier.scorer.ScorePackage;
@@ -27,6 +28,9 @@ public class ObservationScoreBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         long timestamp = input.getLongByField(MachineOutlierConstants.Field.TIMESTAMP);
         
         if (timestamp > previousTimestamp) {
@@ -34,8 +38,11 @@ public class ObservationScoreBolt extends AbstractBolt {
             if (!observationList.isEmpty()) {
                 List<ScorePackage> scorePackageList = dataInstanceScorer.getScores(observationList);
                 for (ScorePackage scorePackage : scorePackageList) {
+                    if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                        emittedThroughput();
+                    }
                     collector.emit(new Values(scorePackage.getId(), scorePackage.getScore(), 
-                            previousTimestamp, scorePackage.getObj(), input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
+                            previousTimestamp, scorePackage.getObj()));
                 }
                 observationList.clear();
             }
@@ -45,11 +52,17 @@ public class ObservationScoreBolt extends AbstractBolt {
 
         observationList.add(input.getValueByField(MachineOutlierConstants.Field.OBSERVATION));
         collector.ack(input);
-        super.calculateThroughput();
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.DATAINST_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION,  MachineOutlierConstants.Field.INITTIME);
+        return new Fields(MachineOutlierConstants.Field.ID, MachineOutlierConstants.Field.DATAINST_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.OBSERVATION);
     }
 }

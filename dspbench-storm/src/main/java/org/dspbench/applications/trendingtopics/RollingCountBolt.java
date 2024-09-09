@@ -12,6 +12,7 @@ import org.dspbench.bolt.AbstractBolt;
 import org.dspbench.constants.BaseConstants;
 import org.dspbench.tools.NthLastModifiedTimeTracker;
 import org.dspbench.tools.SlidingWindowCounter;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.stream.TupleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,17 @@ public class RollingCountBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple tuple) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         if (TupleUtils.isTickTuple(tuple)) {
             LOG.info("Received tick tuple, triggering emit of current window counts");
             emitCurrentWindowCounts();
@@ -91,6 +102,9 @@ public class RollingCountBolt extends AbstractBolt {
         for (Entry<Object, Long> entry : counts.entrySet()) {
             Object obj = entry.getKey();
             Long count = entry.getValue();
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(new Values(obj, count, actualWindowLengthInSeconds));
         }
     }

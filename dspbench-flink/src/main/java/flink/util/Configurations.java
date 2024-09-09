@@ -19,8 +19,7 @@ public class Configurations extends Configuration implements Serializable {
     public static final String GEOIP2_DB = "geoip2.db";
 
     public static final String METRICS_ENABLED        = "metrics.enabled";
-    public static final String METRICS_REPORTER       = "metrics.reporter";
-    public static final String METRICS_INTERVAL_VALUE = "metrics.interval.value";
+    public static final String METRICS_ONLY_SINK      = "metrics.onlySink";
     public static final String METRICS_INTERVAL_UNIT  = "metrics.interval.unit";
     public static final String METRICS_OUTPUT         = "metrics.output";
 

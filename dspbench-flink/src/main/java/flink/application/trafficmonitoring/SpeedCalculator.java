@@ -1,8 +1,10 @@
 package flink.application.trafficmonitoring;
 
 import flink.application.trafficmonitoring.gis.Road;
+import flink.util.Configurations;
 import flink.util.Metrics;
 import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.api.java.tuple.Tuple8;
 import org.apache.flink.configuration.Configuration;
@@ -15,8 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpeedCalculator extends Metrics implements
-        FlatMapFunction<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>, Tuple4<Date, Integer, Integer, Integer>> {
+public class SpeedCalculator extends RichFlatMapFunction<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>, Tuple4<Date, Integer, Integer, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeedCalculator.class);
 
@@ -24,17 +25,21 @@ public class SpeedCalculator extends Metrics implements
 
     Configuration config;
 
+    Metrics metrics = new Metrics();
+
     public SpeedCalculator(Configuration config) {
         this.config = config;
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.roads = new HashMap<>();
     }
 
     @Override
     public void flatMap(Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer> input,
             Collector<Tuple4<Date, Integer, Integer, Integer>> out) {
-        super.initialize(config);
-        super.incBoth();
+        metrics.initialize(config, this.getClass().getSimpleName());    
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.recemitThroughput();
+        }
         int roadID = input.getField(7);
         int speed = input.getField(3);
 
@@ -92,5 +97,13 @@ public class SpeedCalculator extends Metrics implements
 
         out.collect(new Tuple4<Date, Integer, Integer, Integer>(new Date(), roadID, averageSpeed, count));
 
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 }

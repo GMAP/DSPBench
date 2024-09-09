@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.dspbench.applications.trafficmonitoring.TrafficMonitoringConstants.Field;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.applications.trafficmonitoring.gis.Road;
 
 /**
@@ -21,9 +22,19 @@ public class SpeedCalculatorBolt extends AbstractBolt {
     public void initialize() {
         roads = new HashMap<>();
     }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
     
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         int roadID = input.getIntegerByField(Field.ROAD_ID);
         int speed  = input.getIntegerByField(Field.SPEED);
 
@@ -78,10 +89,11 @@ public class SpeedCalculatorBolt extends AbstractBolt {
                 }
             }
         }
-        
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            emittedThroughput();
+        }
         collector.emit(input, new Values(new Date(), roadID, averageSpeed, count, input.getStringByField(TrafficMonitoringConstants.Field.INITTIME)));
         collector.ack(input);
-        super.calculateThroughput();
     }
 
     @Override

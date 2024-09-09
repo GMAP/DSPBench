@@ -23,6 +23,7 @@ import com.codahale.metrics.MetricRegistry;
 import flink.constants.BargainIndexConstants;
 import flink.constants.BaseConstants;
 import flink.util.Configurations;
+import flink.util.Metrics;
 import flink.util.MetricsFactory;
 
 public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double, DateTime, DateTime>, Tuple5<String, Double, Integer, DateTime, Integer>, Tuple4<String, Double, Integer, Double>> {
@@ -30,10 +31,10 @@ public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double
     private double threshold;
     Configuration config;
 
-    Metric metrics = new Metric();
+    Metrics metrics = new Metrics();
 
     public BargainingIndex(Configuration config){
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
 
         threshold = config.getDouble(BargainIndexConstants.Conf.BARGAIN_INDEX_THRESHOLD, 0.001);
@@ -56,7 +57,11 @@ public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double
     public void flatMap1(Tuple4<String, Double, DateTime, DateTime> value,
             Collector<Tuple4<String, Double, Integer, Double>> out) throws Exception {
         // VWAP
-        metrics.incReceived("BargainingIndex");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        //metrics.incReceived("BargainingIndex");
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
         String stock = value.getField(0);
         double vwap  = (Double) value.getField(1);
         DateTime endDate = (DateTime) value.getField(3);
@@ -74,7 +79,11 @@ public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double
     public void flatMap2(Tuple5<String, Double, Integer, DateTime, Integer> value,
             Collector<Tuple4<String, Double, Integer, Double>> out) throws Exception {
         // QUOTES
-        metrics.incReceived("BargainingIndex");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        //metrics.incReceived("BargainingIndex");
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
         String stock    = value.getField(0);
         double askPrice = value.getField(1);
         int askSize     = value.getField(2);
@@ -88,89 +97,21 @@ public class BargainingIndex extends RichCoFlatMapFunction<Tuple4<String, Double
                 bargainIndex = Math.exp(summary.vwap - askPrice) * askSize;
                 
                 if (bargainIndex > threshold)
-                    metrics.incEmitted("BargainingIndex");
+                    //metrics.incEmitted("BargainingIndex");
+                    if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                        metrics.emittedThroughput();
+                    }
                     //collector.emit(new Values(stock, askPrice, askSize, bargainIndex));
                     out.collect(new Tuple4<String,Double,Integer,Double>(stock, askPrice, askSize, bargainIndex));
             }
         }
     }
-}
 
-class Metric implements Serializable {
-    Configuration config;
-    private final Map<String, Long> throughput = new HashMap<>();
-    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(150);
-    protected String configPrefix = BaseConstants.BASE_PREFIX;
-    private File file;
-    private static final Logger LOG = LoggerFactory.getLogger(Metric.class);
-
-    private static MetricRegistry metrics;
-    private Counter tuplesReceived;
-    private Counter tuplesEmitted;
-
-    public void initialize(Configuration config) {
-        this.config = config;
-        getMetrics();
-        File pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile();
-
-        pathTrh.mkdirs();
-
-        this.file = Paths.get(config.getString(Configurations.METRICS_OUTPUT, "/home/IDK"), "throughput", this.getClass().getSimpleName() + "_" + this.configPrefix + ".csv").toFile();
-    }
-
-    public void SaveMetrics() {
-        new Thread(() -> {
-            try {
-                try (Writer writer = new FileWriter(this.file, true)) {
-                    writer.append(this.queue.take());
-                } catch (IOException ex) {
-                    System.out.println("Error while writing the file " + file + " - " + ex);
-                }
-            } catch (Exception e) {
-                System.out.println("Error while creating the file " + e.getMessage());
-            }
-        }).start();
-    }
-
-    protected MetricRegistry getMetrics() {
-        if (metrics == null) {
-            metrics = MetricsFactory.createRegistry(config);
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
         }
-        return metrics;
-    }
-
-    protected Counter getTuplesReceived(String name) {
-        if (tuplesReceived == null) {
-            tuplesReceived = getMetrics().counter(name + "-received");
-        }
-        return tuplesReceived;
-    }
-
-    protected Counter getTuplesEmitted(String name) {
-        if (tuplesEmitted == null) {
-            tuplesEmitted = getMetrics().counter(name + "-emitted");
-        }
-        return tuplesEmitted;
-    }
-
-    protected void incReceived(String name) {
-        getTuplesReceived(name).inc();
-    }
-
-    protected void incReceived(String name, long n) {
-        getTuplesReceived(name).inc(n);
-    }
-
-    protected void incEmitted(String name) {
-        getTuplesEmitted(name).inc();
-    }
-
-    protected void incEmitted(String name, long n) {
-        getTuplesEmitted(name).inc(n);
-    }
-
-    protected void incBoth(String name) {
-        getTuplesReceived(name).inc();
-        getTuplesEmitted(name).inc();
     }
 }

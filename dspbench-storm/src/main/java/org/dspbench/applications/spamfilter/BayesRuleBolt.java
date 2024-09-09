@@ -9,6 +9,7 @@ import java.util.Map;
 import org.dspbench.applications.spamfilter.SpamFilterConstants.Conf;
 import org.dspbench.applications.spamfilter.SpamFilterConstants.Field;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 /**
  *
@@ -32,6 +33,9 @@ public class BayesRuleBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         String id    = input.getStringByField(Field.ID);
         Word word    = (Word) input.getValueByField(Field.WORD);
         int numWords = input.getIntegerByField(Field.NUM_WORDS);
@@ -50,12 +54,21 @@ public class BayesRuleBolt extends AbstractBolt {
         if (summary.uniqueWords >= numWords) {
             // calculate bayes
             float pspam = bayes(summary);
-            
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(new Values(id, pspam, (pspam > spamProbability)));
             analysisSummary.remove(id);
         }
         
         collector.ack(input);
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
     
     private float bayes(AnalysisSummary summary) {

@@ -9,8 +9,7 @@ import org.dspbench.util.data.DataTypeUtils;
 
 public class Configuration extends Config {
     public static final String METRICS_ENABLED        = "metrics.enabled";
-    public static final String METRICS_REPORTER       = "metrics.reporter";
-    public static final String METRICS_INTERVAL_VALUE = "metrics.interval.value";
+    public static final String METRICS_ONLY_SINK      = "metrics.onlySink";
     public static final String METRICS_INTERVAL_UNIT  = "metrics.interval.unit";
     public static final String METRICS_OUTPUT         = "metrics.output";
     

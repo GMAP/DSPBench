@@ -7,8 +7,12 @@ import java.util.List;
 import static org.dspbench.applications.smartgrid.SmartGridConstants.*;
 
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.applications.smartgrid.window.SlidingWindowCallback;
 import org.dspbench.applications.smartgrid.window.SlidingWindowEntry;
+import org.dspbench.applications.smartgrid.SmartGridConstants.Field;
+import org.dspbench.applications.smartgrid.SmartGridConstants.Measurement;
+import org.dspbench.applications.smartgrid.SmartGridConstants.SlidingWindowAction;
 import org.dspbench.applications.smartgrid.window.SlidingWindow;
 
 /**
@@ -24,7 +28,17 @@ public class SmartGridSlidingWindowBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple tuple) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         int type = tuple.getIntegerByField(Field.PROPERTY);
         
         // we are interested only in load
@@ -42,21 +56,25 @@ public class SmartGridSlidingWindowBolt extends AbstractBolt {
             public void remove(List<SlidingWindowEntry> entries) {
                 for (SlidingWindowEntry e : entries) {
                     SlidingWindowEntryImpl entry = (SlidingWindowEntryImpl) e;
+                    if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                        emittedThroughput();
+                    }
                     collector.emit(new Values(entry.ts, entry.houseId, entry.houseHoldId,
                             entry.plugId, entry.value, SlidingWindowAction.REMOVE));
                 }
             }
         });
-        
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            emittedThroughput();
+        }
         collector.emit(new Values(windowEntry.ts, windowEntry.houseId, windowEntry.houseHoldId,
-                windowEntry.plugId, windowEntry.value, SlidingWindowAction.ADD, tuple.getStringByField(Field.INITTIME)));
-        super.calculateThroughput();
+                windowEntry.plugId, windowEntry.value, SlidingWindowAction.ADD));
     }
 
     @Override
     public Fields getDefaultFields() {
         return new Fields(Field.TIMESTAMP, Field.HOUSE_ID, Field.HOUSEHOLD_ID,
-                Field.PLUG_ID, Field.VALUE, Field.SLIDING_WINDOW_ACTION, Field.INITTIME);
+                Field.PLUG_ID, Field.VALUE, Field.SLIDING_WINDOW_ACTION);
     }
     
     private class SlidingWindowEntryImpl implements SlidingWindowEntry {

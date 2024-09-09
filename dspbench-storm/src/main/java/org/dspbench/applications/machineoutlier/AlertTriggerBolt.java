@@ -9,6 +9,7 @@ import org.apache.storm.tuple.Values;
 import org.dspbench.applications.machineoutlier.MachineOutlierConstants;
 import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.math.BFPRT;
 
 /**
@@ -31,6 +32,9 @@ public class AlertTriggerBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         long timestamp = input.getLongByField(MachineOutlierConstants.Field.TIMESTAMP);
         
         if (timestamp > previousTimestamp) {
@@ -56,7 +60,10 @@ public class AlertTriggerBolt extends AbstractBolt {
                     }
 
                     if (isAbnormal) {
-                        collector.emit(new Values(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3), input.getStringByField(MachineOutlierConstants.Field.INITTIME)));
+                        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                            emittedThroughput();
+                        }
+                        collector.emit(new Values(streamProfile.getString(0), streamScore, streamProfile.getLong(2), isAbnormal, streamProfile.getValue(3)));
                     }
                 }
                 
@@ -78,12 +85,18 @@ public class AlertTriggerBolt extends AbstractBolt {
 
         streamList.add(input);
         collector.ack(input);
-        super.calculateThroughput();
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
 
     @Override
     public Fields getDefaultFields() {
-        return new Fields(MachineOutlierConstants.Field.ANOMALY_STREAM, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.IS_ABNORMAL, MachineOutlierConstants.Field.OBSERVATION, MachineOutlierConstants.Field.INITTIME);
+        return new Fields(MachineOutlierConstants.Field.ANOMALY_STREAM, MachineOutlierConstants.Field.STREAM_ANOMALY_SCORE, MachineOutlierConstants.Field.TIMESTAMP, MachineOutlierConstants.Field.IS_ABNORMAL, MachineOutlierConstants.Field.OBSERVATION);
     }
 
     /**

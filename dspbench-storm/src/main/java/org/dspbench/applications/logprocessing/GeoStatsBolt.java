@@ -3,8 +3,8 @@ package org.dspbench.applications.logprocessing;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
-import org.dspbench.applications.clickanalytics.ClickAnalyticsConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,9 +24,11 @@ public class GeoStatsBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
-        incBoth();
-        String country = input.getStringByField(ClickAnalyticsConstants.Field.COUNTRY);
-        String city    = input.getStringByField(ClickAnalyticsConstants.Field.CITY);
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
+        String country = input.getStringByField(LogProcessingConstants.Field.COUNTRY);
+        String city    = input.getStringByField(LogProcessingConstants.Field.CITY);
         
         if (!stats.containsKey(country)) {
             stats.put(country, new CountryStats(country));
@@ -39,8 +41,15 @@ public class GeoStatsBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public Fields getDefaultFields() {
-        return new Fields(ClickAnalyticsConstants.Field.COUNTRY, ClickAnalyticsConstants.Field.COUNTRY_TOTAL, ClickAnalyticsConstants.Field.CITY, ClickAnalyticsConstants.Field.CITY_TOTAL);
+        return new Fields(LogProcessingConstants.Field.COUNTRY, LogProcessingConstants.Field.COUNTRY_TOTAL, LogProcessingConstants.Field.CITY, LogProcessingConstants.Field.CITY_TOTAL);
     }
     
     private class CountryStats {

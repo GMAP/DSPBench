@@ -18,7 +18,6 @@ public interface LogProcessingConstants extends BaseConstants {
         String CITY = "city";
         String COUNTRY_TOTAL = "countryTotal";
         String CITY_TOTAL = "cityTotal";
-        String INITTIME = "inittime";
     }
     
     interface Conf extends BaseConf {

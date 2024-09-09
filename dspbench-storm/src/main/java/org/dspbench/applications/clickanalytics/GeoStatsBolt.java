@@ -4,6 +4,7 @@ import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,6 +24,9 @@ public class GeoStatsBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            recemitThroughput();
+        }
         String country = input.getStringByField(ClickAnalyticsConstants.Field.COUNTRY);
         String city    = input.getStringByField(ClickAnalyticsConstants.Field.CITY);
         
@@ -34,6 +38,13 @@ public class GeoStatsBolt extends AbstractBolt {
         
         collector.emit(input, new Values(country, stats.get(country).getCountryTotal(), city, stats.get(country).getCityTotal(city)));
         collector.ack(input);
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
 
     @Override

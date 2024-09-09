@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.dspbench.applications.spamfilter.SpamFilterConstants.Conf;
@@ -48,7 +49,17 @@ public class WordProbabilityBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         if (input.getSourceStreamId().equals(Stream.TRAINING)) {
             String word = input.getStringByField(Field.WORD);
             int count = input.getIntegerByField(Field.COUNT);
@@ -91,7 +102,9 @@ public class WordProbabilityBolt extends AbstractBolt {
                 w = new Word(word);
                 w.setpSpam(0.4f);
             }
-            
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(input, new Values(id, w, numWords));
         }
         

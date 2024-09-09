@@ -13,6 +13,7 @@ import org.dspbench.tools.SlidingWindowCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.dspbench.tools.NthLastModifiedTimeTracker;
+import org.dspbench.util.config.Configuration;
 import org.dspbench.util.stream.TupleUtils;
 
 public class RollingCtrBolt extends AbstractBolt {
@@ -52,6 +53,9 @@ public class RollingCtrBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple tuple) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         if (TupleUtils.isTickTuple(tuple)) {
             LOG.debug("Received tick tuple, triggering emit of current window counts");
             emitCurrentWindowCounts();
@@ -82,12 +86,18 @@ public class RollingCtrBolt extends AbstractBolt {
             long clicks = entry.getValue();
             long impressions = impressionCounts.get(key);
             double ctr = (double)clicks / (double)impressions;
+
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             
             collector.emit(new Values(ids[0], ids[1], ctr, impressions, clicks, actualWindowLengthInSeconds));
         }
     }
 
     protected void countObjAndAck(Tuple tuple) {
+
+
         AdEvent event = (AdEvent) tuple.getValueByField(AdsAnalyticsConstants.Field.EVENT);
         String key = String.format("%d:%d", event.getQueryId(), event.getAdID());
         
@@ -98,6 +108,13 @@ public class RollingCtrBolt extends AbstractBolt {
         }
         
         collector.ack(tuple);
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
 
     @Override

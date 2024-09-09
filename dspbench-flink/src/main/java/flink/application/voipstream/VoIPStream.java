@@ -63,7 +63,7 @@ public class VoIPStream extends AbstractApplication {
         //CDRGenerator source = new CDRGenerator(config);
         
         // Parser
-        DataStream<Tuple4<String, String, DateTime, CallDetailRecord>> data =  source.map(new VoIPParser(config)).setParallelism(parserThreads); // env.addSource(source); 
+        DataStream<Tuple4<String, String, DateTime, CallDetailRecord>> data =  source.flatMap(new VoIPParser(config)).setParallelism(parserThreads); // env.addSource(source); 
         
         // Processs
         DataStream<Tuple5<String, String, DateTime, Boolean, CallDetailRecord>> variationDetector = data.keyBy(

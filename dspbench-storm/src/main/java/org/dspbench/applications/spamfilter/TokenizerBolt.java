@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.dspbench.applications.spamfilter.SpamFilterConstants.*;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 /**
  *
@@ -30,6 +31,9 @@ public class TokenizerBolt extends AbstractBolt {
 
     @Override
     public void execute(Tuple input) {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         String content = input.getStringByField(Field.MESSAGE);
 
         if (input.getSourceComponent().equals(Component.TRAINING_SPOUT)) {
@@ -47,10 +51,14 @@ public class TokenizerBolt extends AbstractBolt {
                 } else {
                     hamTotal += count;
                 }
-                
+                if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                    emittedThroughput();
+                }
                 collector.emit(Stream.TRAINING, input, new Values(word, count, isSpam));
             }
-            
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(Stream.TRAINING_SUM, input, new Values(spamTotal, hamTotal));
         }
         
@@ -60,11 +68,21 @@ public class TokenizerBolt extends AbstractBolt {
             Map<String, MutableInt> words = tokenize(content);
             
             for (Map.Entry<String, MutableInt> entry : words.entrySet()) {
+                if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                    emittedThroughput();
+                }
                 collector.emit(Stream.ANALYSIS, input, new Values(id, entry.getKey(), words.size()));
             }
         }
         
         collector.ack(input);
+    }
+
+    @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
     }
     
     private Map<String, MutableInt> tokenize(String content) {

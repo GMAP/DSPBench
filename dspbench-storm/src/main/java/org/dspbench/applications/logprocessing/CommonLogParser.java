@@ -45,7 +45,7 @@ public class CommonLogParser extends Parser {
         long minute = DateUtils.getMinuteForTime((Date) entry.get(TIMESTAMP));
         int msgId = String.format("%s:%s", entry.get(IP), entry.get(TIMESTAMP)).hashCode();
         StreamValues values = new StreamValues(entry.get(IP), entry.get(TIMESTAMP),
-                minute, entry.get(REQUEST), entry.get(RESPONSE), entry.get(BYTE_SIZE), Instant.now().toEpochMilli() + "");
+                minute, entry.get(REQUEST), entry.get(RESPONSE), entry.get(BYTE_SIZE));
         values.setMessageId(msgId);
         
         return ImmutableList.of(values);

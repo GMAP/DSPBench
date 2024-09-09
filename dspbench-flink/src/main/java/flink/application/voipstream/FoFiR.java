@@ -11,6 +11,8 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.co.RichCoFlatMapFunction;
 import org.apache.flink.util.Collector;
 import flink.constants.VoIPStreamConstants;
+import flink.util.Configurations;
+import flink.util.Metrics;
 
 public class FoFiR extends RichCoFlatMapFunction<Tuple4<String, Long, Double, CallDetailRecord>, Tuple4<String, Long, Double, CallDetailRecord>, Tuple5<String, Long, Double, CallDetailRecord, String>>{
     protected static enum Source {
@@ -21,14 +23,14 @@ public class FoFiR extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Ca
 
     Configuration config;
 
-    Metric metrics = new Metric();
+    Metrics metrics = new Metrics();
 
     protected double thresholdMin;
     protected double thresholdMax;
     protected Map<String, Entry> map;
 
     public FoFiR(Configuration config){
-        metrics.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
 
         map = new HashMap<>();
@@ -40,8 +42,10 @@ public class FoFiR extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Ca
     public void flatMap1(Tuple4<String, Long, Double, CallDetailRecord> value,
             Collector<Tuple5<String, Long, Double, CallDetailRecord, String>> out) throws Exception {
         // RCR
-        metrics.initialize(config);
-        metrics.incReceived("FoFiR");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         CallDetailRecord cdr = (CallDetailRecord) value.getField(3);
         String number  = value.getField(0);
@@ -63,7 +67,9 @@ public class FoFiR extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Ca
                 LOG.debug(String.format("T1=%f; T2=%f; ECR=%f; RCR=%f; Ratio=%f; Score=%f", 
                         thresholdMin, thresholdMax, e.get(Source.ECR), e.get(Source.RCR), ratio, score));
                 
-                metrics.incEmitted("FoFiR");
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple5<String,Long,Double,CallDetailRecord, String>(number, timestamp, score, cdr, "FOFIR"));
                 map.remove(key);
             } else {
@@ -81,8 +87,10 @@ public class FoFiR extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Ca
     public void flatMap2(Tuple4<String, Long, Double, CallDetailRecord> value,
             Collector<Tuple5<String, Long, Double, CallDetailRecord, String>> out) throws Exception {
         // ECR
-        metrics.initialize(config);
-        metrics.incReceived("FoFiR");
+        metrics.initialize(config, this.getClass().getSimpleName());
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         CallDetailRecord cdr = (CallDetailRecord) value.getField(3);
         String number  = value.getField(0);
@@ -104,7 +112,9 @@ public class FoFiR extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Ca
                 LOG.debug(String.format("T1=%f; T2=%f; ECR=%f; RCR=%f; Ratio=%f; Score=%f", 
                         thresholdMin, thresholdMax, e.get(Source.ECR), e.get(Source.RCR), ratio, score));
                 
-                metrics.incEmitted("FoFiR");
+                if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                    metrics.emittedThroughput();
+                }
                 out.collect(new Tuple5<String,Long,Double,CallDetailRecord, String>(number, timestamp, score, cdr, "FOFIR"));
                 map.remove(key);
             } else {
@@ -118,6 +128,14 @@ public class FoFiR extends RichCoFlatMapFunction<Tuple4<String, Long, Double, Ca
         }
     }
     
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
+    }
+
     protected Source[] getFields(){
         return new Source[]{Source.RCR, Source.ECR};
     }

@@ -7,6 +7,7 @@ import org.dspbench.applications.spikedetection.SpikeDetectionConstants.Conf;
 import org.dspbench.applications.spikedetection.SpikeDetectionConstants.Field;
 import org.dspbench.applications.wordcount.WordCountConstants;
 import org.dspbench.bolt.AbstractBolt;
+import org.dspbench.util.config.Configuration;
 
 /**
  * Emits a tuple if the current value surpasses a pre-defined threshold.
@@ -23,14 +24,25 @@ public class SpikeDetectionBolt extends AbstractBolt {
     }
 
     @Override
+    public void cleanup() {
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            SaveMetrics();
+        }
+    }
+
+    @Override
     public void execute(Tuple input) {
-        incReceived();
+        if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+            receiveThroughput();
+        }
         String deviceID = input.getStringByField(Field.DEVICE_ID);
         double movingAverageInstant = input.getDoubleByField(Field.MOVING_AVG);
         double nextDouble = input.getDoubleByField(Field.VALUE);
         
         if (Math.abs(nextDouble - movingAverageInstant) > spikeThreshold * movingAverageInstant) {
-            incEmitted();
+            if (!config.getBoolean(Configuration.METRICS_ONLY_SINK, false)) {
+                emittedThroughput();
+            }
             collector.emit(input, new Values(deviceID, movingAverageInstant, nextDouble, "spike detected"));
         }
         

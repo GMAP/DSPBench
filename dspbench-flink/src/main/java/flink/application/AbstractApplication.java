@@ -103,61 +103,60 @@ public abstract class AbstractApplication implements Serializable {
         sink.sinkStreamMO(dt);
     }
 
-    protected void createSinkSGOutlier(DataStream<Tuple4<Long, Long, String, Double>> dt, String sinkName) {
+    protected void createSinkSGOutlier(DataStream<Tuple4<Long, Long, String, Double>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.sinkStreamSGOutlier(dt, sinkName);
+        sink.sinkStreamSGOutlier(dt);
     }
 
-    protected void createSinkSGHouse(DataStream<Tuple3<Long, String, Double>> dt, String sinkName) {
+    protected void createSinkSGHouse(DataStream<Tuple3<Long, String, Double>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.sinkStreamSGHouse(dt, sinkName);
+        sink.sinkStreamSGHouse(dt);
     }
 
-    protected void createSinkSGPlug(DataStream<Tuple5<Long, String, String, String, Double>> dt,
-            String sinkName) {
+    protected void createSinkSGPlug(DataStream<Tuple5<Long, String, String, String, Double>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.sinkStreamSGPlug(dt, sinkName);
+        sink.sinkStreamSGPlug(dt);
     }
 
-    protected void createSinkLPVol(DataStream<Tuple2<Long, Long>> dt, String sinkName) {
+    protected void createSinkLPVol(DataStream<Tuple2<Long, Long>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.createSinkLPVol(dt, sinkName);
+        sink.createSinkLPVol(dt);
     }
 
-    protected void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {
+    protected void createSinkLPStatus(DataStream<Tuple2<Integer, Integer>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.createSinkLPStatus(dt, sinkName);
+        sink.createSinkLPStatus(dt);
     }
 
-    protected void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
+    protected void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.createSinkLPGeo(dt, sinkName);
+        sink.createSinkLPGeo(dt);
     }
 
-    protected void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> dt, String sinkName) {
+    protected void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.createSinkCAStatus(dt, sinkName);
+        sink.createSinkCAStatus(dt);
     }
 
-    protected void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt, String sinkName) {
+    protected void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt) {
         String sinkClass = config.getString(getConfigKey(BaseConstants.BaseConf.SINK_CLASS), "flink.sink.ConsoleSink");
         BaseSink sink = (BaseSink) ClassLoaderUtils.newInstance(sinkClass, "sink", getLogger());
         sink.initialize(config);
-        sink.createSinkCAGeo(dt, sinkName);
+        sink.createSinkCAGeo(dt);
     }
 
     protected void createSinkAA(DataStream<Tuple6<String, String, Double, Long, Long, Integer>> dt) {

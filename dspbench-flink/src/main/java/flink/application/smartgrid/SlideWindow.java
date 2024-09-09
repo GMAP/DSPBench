@@ -4,8 +4,9 @@ import flink.application.smartgrid.window.SlidingWindow;
 import flink.application.smartgrid.window.SlidingWindowCallback;
 import flink.application.smartgrid.window.SlidingWindowEntry;
 import flink.constants.SmartGridConstants;
+import flink.util.Configurations;
 import flink.util.Metrics;
-import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple6;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.configuration.Configuration;
@@ -15,16 +16,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class SlideWindow extends Metrics implements FlatMapFunction<Tuple7<String, Long, Double, Integer, String, String, String>, Tuple6<Long, String, String, String, Double, Integer>> {
+public class SlideWindow extends RichFlatMapFunction<Tuple7<String, Long, Double, Integer, String, String, String>, Tuple6<Long, String, String, String, Double, Integer>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SlideWindow.class);
 
     private static SlidingWindow window;
 
     Configuration config;
+    Metrics metrics = new Metrics();
 
     public SlideWindow(Configuration config) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         this.config = config;
     }
 
@@ -38,10 +40,12 @@ public class SlideWindow extends Metrics implements FlatMapFunction<Tuple7<Strin
 
     @Override
     public void flatMap(Tuple7<String, Long, Double, Integer, String, String, String> input, Collector<Tuple6<Long, String, String, String, Double, Integer>> out) {
-        super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName());
         createWindow();
         int type = input.getField(3);
-        super.incReceived();
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
 
         // we are interested only in load
         if (type == SmartGridConstants.Measurement.WORK) {
@@ -58,13 +62,25 @@ public class SlideWindow extends Metrics implements FlatMapFunction<Tuple7<Strin
             public void remove(List<SlidingWindowEntry> entries) {
                 for (SlidingWindowEntry e : entries) {
                     SlidingWindowEntryImpl entry = (SlidingWindowEntryImpl) e;
-                    super.incEmitted();
+                    if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                        metrics.emittedThroughput();
+                    }
                     out.collect(new Tuple6<Long, String, String, String, Double, Integer>(entry.ts, entry.houseId, entry.houseHoldId, entry.plugId, entry.value, -1));
                 }
             }
         });
-        super.incEmitted();
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.emittedThroughput();
+        }
         out.collect(new Tuple6<Long, String, String, String, Double, Integer>(windowEntry.ts, windowEntry.houseId, windowEntry.houseHoldId, windowEntry.plugId, windowEntry.value, 1));
+    }
+
+    // close method
+    @Override
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
 
     private class SlidingWindowEntryImpl implements SlidingWindowEntry {

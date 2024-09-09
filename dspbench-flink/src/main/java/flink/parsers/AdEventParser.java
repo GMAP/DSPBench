@@ -1,6 +1,6 @@
 package flink.parsers;
 
-import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
@@ -9,22 +9,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import flink.application.adanalytics.AdEvent;
+import flink.util.Configurations;
+import flink.util.Metrics;
 
-public class AdEventParser extends Parser implements FlatMapFunction<String, Tuple3<Long, Long, AdEvent>> {
+public class AdEventParser extends RichFlatMapFunction<String, Tuple3<Long, Long, AdEvent>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdEventParser.class);
 
     Configuration config;
+    String sourceName;
 
-    public AdEventParser(Configuration config){
-        super.initialize(config);
+    Metrics metrics = new Metrics();
+
+    public AdEventParser(Configuration config, String sourceName){
+        metrics.initialize(config, this.getClass().getSimpleName()+"-"+sourceName);
         this.config = config;
+        this.sourceName = sourceName;
     }
 
     @Override
     public void flatMap(String value, Collector<Tuple3<Long, Long, AdEvent>> out) throws Exception {
-        super.initialize(config);
-        super.incReceived();
+        //super.initialize(config);
+        metrics.initialize(config, this.getClass().getSimpleName()+"-"+sourceName);
+        //super.incReceived();
+
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.receiveThroughput();
+        }
+
         String[] record = value.split("\t");
         
         if (record.length != 12)
@@ -49,15 +61,21 @@ public class AdEventParser extends Parser implements FlatMapFunction<String, Tup
             
             event.setType((i < views) ? AdEvent.Type.Impression : AdEvent.Type.Click);
 
-            super.incEmitted();
+            //super.incEmitted();
+            if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                metrics.emittedThroughput();
+            }
+
             out.collect(new Tuple3<Long, Long, AdEvent>(queryId, adId, event));
         }
     }
 
-
+    // close method
     @Override
-    public Tuple1<?> parse(String input) {
-        return null;
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
     }
     
 }
