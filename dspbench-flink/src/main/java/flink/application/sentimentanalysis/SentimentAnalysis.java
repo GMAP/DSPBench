@@ -1,10 +1,8 @@
 package flink.application.sentimentanalysis;
 
 import flink.application.AbstractApplication;
-import flink.constants.MachineOutlierConstants;
 import flink.constants.SentimentAnalysisConstants;
 import flink.parsers.JsonTweetParser;
-import flink.source.InfSourceFunction;
 
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
@@ -38,11 +36,13 @@ public class SentimentAnalysis extends AbstractApplication {
         env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // Spout
-        DataStream<String> data = createSource();
+        //DataStream<String> data = createSource();
 
         // Parser
-        DataStream<Tuple3<String, String, Date>> dataParse = data.flatMap(new JsonTweetParser(config))
-                .setParallelism(parserThreads);
+        //DataStream<Tuple3<String, String, Date>> dataParse = data.flatMap(new JsonTweetParser(config))
+                //.setParallelism(parserThreads);
+
+        DataStream<Tuple3<String, String, Date>> dataParse = env.addSource(new SAInfSource(config, getConfigPrefix())).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple5<String, String, Date, String, Double>> calculate = dataParse
