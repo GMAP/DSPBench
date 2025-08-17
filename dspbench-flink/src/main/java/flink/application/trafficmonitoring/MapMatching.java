@@ -57,14 +57,6 @@ public class MapMatching extends RichFlatMapFunction<Tuple7<String, DateTime, Bo
         }
     }
 
-    private RoadGridList getSectors() {
-        if (sectors == null) {
-            loadShapefile(config);
-        }
-
-        return sectors;
-    }
-
     @Override
     public void flatMap(Tuple7<String, DateTime, Boolean, Integer, Integer, Double, Double> input,
             Collector<Tuple8<String, DateTime, Boolean, Integer, Integer, Double, Double, Integer>> out) {

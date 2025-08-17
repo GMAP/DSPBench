@@ -71,7 +71,7 @@ public abstract class BaseSink {
     public void createSinkLPGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt) {
     }
 
-    public void createSinkCAStatus(DataStream<Tuple2<Integer, Integer>> dt) {
+    public void createSinkCAVisit(DataStream<Tuple2<Integer, Integer>> dt) {
     }
 
     public void createSinkCAGeo(DataStream<Tuple4<String, Integer, String, Integer>> dt) {

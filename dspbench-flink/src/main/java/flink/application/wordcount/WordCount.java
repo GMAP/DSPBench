@@ -8,6 +8,7 @@ import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,11 +39,12 @@ public class WordCount extends AbstractApplication {
 
         // Spout
         DataStream<String> data = createSource();
+        // Spout timed
+        //DataStreamSource<String> data = env.addSource(new InfSourceFunction(config, getConfigPrefix())).setParallelism(config.getInteger(WordCountConstants.Conf.SOURCE_THREADS, 1));
+
 
         // Parser
         DataStream<Tuple1<String>> dataParse = data.flatMap(new StringParser(config)).setParallelism(parserThreads);
-
-        //DataStream<Tuple1<String>> dataParse = env.addSource(new WCInfSource(config, getConfigPrefix())).setParallelism(parserThreads);
 
         // Process
         DataStream<Tuple2<String, Integer>> splitter = dataParse.filter(value -> (value.f0 != null))

@@ -1,10 +1,15 @@
 package flink.source;
 
 import flink.constants.BaseConstants;
+import flink.util.Configurations;
+import flink.util.Metrics;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -13,10 +18,24 @@ public class InfSourceFunction extends RichParallelSourceFunction<String> {
     private volatile boolean isRunning = true;
     private String sourcePath;
     private long runTimeSec;
+    Configuration config;
+
+    private static final Logger LOG = LoggerFactory.getLogger(InfSourceFunction.class);
+
+    Metrics metrics = new Metrics();
 
     public InfSourceFunction(Configuration config, String prefix) {
+        metrics.initialize(config, this.getClass().getSimpleName());
+        this.config = config;
         this.sourcePath = config.getString(String.format(BaseConstants.BaseConf.SOURCE_PATH, prefix),"");
         this.runTimeSec = config.getInteger(String.format(BaseConstants.BaseConf.RUNTIME, prefix), 60);
+    }
+
+    public InfSourceFunction(Configuration config, String prefix, String name) {
+        metrics.initialize(config, this.getClass().getSimpleName());
+        this.config = config;
+        this.sourcePath = config.getString(String.format(BaseConstants.BaseConf.SOURCE_PATH, String.format("%s.%s", prefix, name)),"");
+        this.runTimeSec = config.getInteger(String.format(BaseConstants.BaseConf.RUNTIME, String.format("%s.%s", prefix, name)), 60);
     }
 
     @Override
@@ -31,8 +50,12 @@ public class InfSourceFunction extends RichParallelSourceFunction<String> {
                 if(!scanner.hasNextLine()){
                     scanner = new Scanner(new File(sourcePath));
                 }
-                if (!StringUtils.isBlank(line))
+                if (!StringUtils.isBlank(line)){
+                    if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+                        metrics.emittedThroughput();
+                    }
                     ctx.collect(line);
+                }
             }
 
             scanner.close();
@@ -45,6 +68,16 @@ public class InfSourceFunction extends RichParallelSourceFunction<String> {
 
     @Override
     public void cancel() {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
         isRunning = false;
     }
+
+    public void close() throws Exception {
+        if (!config.getBoolean(Configurations.METRICS_ONLY_SINK, false)) {
+            metrics.SaveMetrics();
+        }
+    }
+
 }

@@ -41,7 +41,7 @@ public class ReinforcementLearner extends AbstractApplication {
         DataStream<String> reward = createSource("reward"); // RewardSource reward = new RewardSource(config);  
 
         // Parser
-        DataStream<Tuple2<String, Integer>> eventParser = event.flatMap(new LearnerParser(config, "event")).setParallelism(rewardParserThreads); // env.addSource(event);
+        DataStream<Tuple2<String, Integer>> eventParser = event.flatMap(new LearnerParser(config, "event")).setParallelism(eventParserThreads); // env.addSource(event);
         DataStream<Tuple2<String, Integer>> rewardParser = reward.flatMap(new LearnerParser(config, "reward")).setParallelism(rewardParserThreads); // env.addSource(reward); 
 
         // Process

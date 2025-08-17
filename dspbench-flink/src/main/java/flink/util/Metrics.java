@@ -40,9 +40,11 @@ public class Metrics implements Serializable{
         this.config = config;
         //getMetrics();
         //File pathLa = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK"), "latency").toFile();
-        if(config.getBoolean(Configurations.METRICS_ENABLED, false)){
-            this.pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); //Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
 
+        this.pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); //Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
+
+        if(config.getBoolean(Configurations.METRICS_ENABLED, false)){
+            
             //pathLa.mkdirs();
             this.pathTrh.mkdirs();
 
@@ -54,13 +56,14 @@ public class Metrics implements Serializable{
     public void initialize(Configuration config, String name) {
         this.config = config;
         //getMetrics();
+        this.pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); // Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
+
         if(config.getBoolean(Configurations.METRICS_ENABLED, false)){
             if (!this.configPrefix.contains(name)) {
                 this.configPrefix = String.format("%s.%s", configPrefix, name);
             }
             //File pathLa = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK"), "latency").toFile();
-            this.pathTrh = Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/IDK")).toFile(); // Paths.get(config.getString(Configurations.METRICS_OUTPUT,"/home/gabriel/IDK"), "throughput").toFile();
-
+            
             //pathLa.mkdirs();
             this.pathTrh.mkdirs();
 

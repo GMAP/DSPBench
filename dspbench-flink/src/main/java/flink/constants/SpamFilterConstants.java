@@ -18,6 +18,6 @@ public interface SpamFilterConstants extends BaseConstants {
         String WORD_PROB_WORDMAP  = "sf.wordprob.wordmap";
         String WORD_PROB_WORDMAP_USE_DEFAULT  = "sf.wordprob.wordmap.use_default";
         
-        String SINK_THREADS = "wc.sink.threads";
+        String SINK_THREADS = "sf.sink.threads";
     }
 }

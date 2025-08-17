@@ -69,7 +69,7 @@ public class ClickAnalytics extends AbstractApplication {
                 .flatMap(new GeoStats(config)).setParallelism(geoStatsThreads).keyBy(value -> value.f0);
 
         // Sink
-        createSinkCAStatus(visitStats);
+        createSinkCAVisit(visitStats);
         createSinkCAGeo(geoStats);
 
         return env;

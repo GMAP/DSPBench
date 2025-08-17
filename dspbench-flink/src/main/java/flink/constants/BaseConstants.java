@@ -30,6 +30,7 @@ public interface BaseConstants {
         
         String KAFKA_HOST           = "%s.kafka.zookeeper.host";
         String KAFKA_SOURCE_TOPIC    = "%s.kafka.source.topic";
+        String KAFKA_SINK_TOPIC    = "%s.kafka.sink.topic";
         String KAFKA_ZOOKEEPER_PATH = "%s.kafka.zookeeper.path";
         String KAFKA_CONSUMER_ID    = "%s.kafka.consumer.id";
         
